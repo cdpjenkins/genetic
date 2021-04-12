@@ -21,14 +21,18 @@ class GUI(title: String? = "Genetic!") : JFrame(title) {
     }
 
     class UIPanel(layout: LayoutManager): JPanel(layout) {
-        val icon: ImageIcon  = ImageIcon(ImageIO.read(File("cow.jpg")))
+        val masterImage: BufferedImage = ImageIO.read(File("cow.jpg"))
+        val icon: ImageIcon  = ImageIcon(masterImage)
 
         constructor(): this(BorderLayout()) {
+            val width = masterImage.width
+            val height = masterImage.height
+
             val bufferedImage =
-                BufferedImage(icon.iconWidth, icon.iconHeight, BufferedImage.TYPE_INT_ARGB)
+                BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB)
             val g = bufferedImage.createGraphics()
 
-            val shapes = (1..100).map { spawnRandomShape(icon.iconWidth, icon.iconHeight) }
+            val shapes = (1..100).map { spawnRandomShape(width, height) }
 
             Individual(shapes).draw(g)
 
@@ -36,7 +40,6 @@ class GUI(title: String? = "Genetic!") : JFrame(title) {
             add(JLabel(ImageIcon(bufferedImage)), BorderLayout.EAST)
         }
     }
-
 }
 
 data class Colour(val r: Int, val g:Int, val b: Int, val a:Int) {
@@ -54,14 +57,6 @@ data class Circle(val x: Int, val y: Int, val colour: Colour, private val radius
     }
 }
 
-class Individual(var genome: List<Circle>) {
-    fun draw(g: Graphics2D) {
-        for (shape in genome) {
-            shape.draw(g)
-        }
-    }
-}
-
 fun spawnRandomShape(width: Int, height: Int): Circle {
     val random = Random()
     return Circle(
@@ -70,6 +65,18 @@ fun spawnRandomShape(width: Int, height: Int): Circle {
         Colour(random.nextInt(255), random.nextInt(255), random.nextInt(255), random.nextInt(255)),
         random.nextInt(50)
     )
+}
+
+class Individual(var genome: List<Circle>) {
+    fun draw(g: Graphics2D) {
+        for (shape in genome) {
+            shape.draw(g)
+        }
+    }
+}
+
+class Evolver(val individuals: List<Individual>) {
+
 }
 
 private fun makeGUI(): GUI {
