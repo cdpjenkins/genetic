@@ -127,7 +127,8 @@ class Individual(
     var genome: List<Circle>,
     val masterImage: BufferedImage,
     val width: Int,
-    val height: Int
+    val height: Int,
+    var generation: Int = 1
 ) {
     var bufferedImage: BufferedImage = BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB)
     var fitness = Integer.MAX_VALUE
@@ -194,13 +195,18 @@ class Individual(
 
     fun mutate() {
         val newGenome = genome.map { it.mutate() }
-        val newIndividual = Individual(newGenome, masterImage, width, height)
+        val newIndividual = Individual(newGenome, masterImage, width, height, generation + 1)
         newIndividual.drawAndCalculateFitness()
+
+        this.generation++
 
         if (newIndividual.fitness < this.fitness) {
             this.genome = newIndividual.genome
             this.drawAndCalculateFitness()
             println("new fitness: ${this.fitness}")
+
+            val outputFile = File(String.format("output/cow_%010d.png", newIndividual.generation))
+            ImageIO.write(newIndividual.bufferedImage, "png", outputFile)
         }
     }
 }
