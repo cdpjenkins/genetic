@@ -96,9 +96,10 @@ data class Circle(
     val width: Int,
     val height: Int
 ) : Shape {
+
     override fun draw(g: Graphics2D) {
         g.color = colour.getColor()
-        g.fillOval(x - radius /2, y - radius /2, radius, radius)
+        g.fillOval(x - radius/2, y - radius/2, radius, radius)
     }
 
     override fun mutate(): Circle {
@@ -108,7 +109,6 @@ data class Circle(
 
         return Circle(newX, newY, newRadius, colour.mutate(), width, height)
     }
-
 }
 
 fun spawnRandomShape(width: Int, height: Int): Circle {
