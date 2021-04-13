@@ -8,12 +8,18 @@ import java.io.File
 import java.util.*
 import javax.imageio.ImageIO
 import javax.swing.*
+import javax.swing.Timer
+import kotlin.system.measureTimeMillis
 
+private val GENOME_SIZE = 1000
+
+private val random = Random()
+val minAlpha = 32
+val maxAlpha = 64
+val colourMutateAmount = 20
 
 class GUI(title: String? = "Genetic!") : JFrame(title) {
     constructor(): this("Genetic!") {
-        println("poo")
-
         contentPane.add(UIPanel())
         pack()
     }
@@ -26,58 +32,94 @@ class GUI(title: String? = "Genetic!") : JFrame(title) {
             val width = masterImage.width
             val height = masterImage.height
 
-            val bufferedImage =
-                BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB)
-            val g = bufferedImage.createGraphics()
-
-            val shapes = (1..100).map { spawnRandomShape(width, height) }
+            val shapes = (1..GENOME_SIZE).map { spawnRandomShape(width, height) }
 
             val individual = Individual(shapes, masterImage, width, height)
-            individual.drawAndCalculateFitness()
-            individual.draw(g)
 
             add(JLabel(masterIcon), BorderLayout.WEST)
             add(JLabel(ImageIcon(individual.bufferedImage)), BorderLayout.EAST)
 
             val mutateButton = JButton("Mutate!")
             add(mutateButton, BorderLayout.SOUTH)
-            mutateButton.addActionListener {
-                    e -> individual.mutate()
-                    repaint()
+            mutateButton.addActionListener { e ->
+                individual.mutate()
+                repaint()
             }
+
+            startTimer(individual)
+        }
+
+        private fun startTimer(individual: Individual) {
+            val timer = Timer(20) { e ->
+                val timeInMillis = measureTimeMillis {
+                    individual.mutate()
+                    repaint()
+                }
+            }
+            timer.setInitialDelay(1000)
+            timer.start()
         }
     }
 }
 
 data class Colour(val r: Int, val g:Int, val b: Int, val a:Int) {
-    fun getColor(): Color = Color(r, g, b, a)
+    fun getColor(): Color {
+        try {
+            return Color(r, g, b, a)
+        } catch (e: Exception) {
+            println("$this")
+            throw e
+        }
+    }
+    fun mutate(): Colour {
+        val red = mutateValueLinear(r, colourMutateAmount, 0, 255)
+        val green = mutateValueLinear(g, colourMutateAmount, 0, 255)
+        val blue = mutateValueLinear(b, colourMutateAmount, 0, 255)
+        val alpha = mutateValueLinear(a, colourMutateAmount, minAlpha, maxAlpha)
+
+        val newColour = Colour(red, green, blue, alpha)
+        return newColour
+    }
 }
 
 interface Shape {
     fun draw(g: Graphics2D)
-    fun mutate()
+    fun mutate(): Circle
 }
 
-data class Circle(var x: Int, var y: Int, var colour: Colour, private var radius: Int) : Shape {
+
+data class Circle(
+    val x: Int,
+    val y: Int,
+    private val radius: Int,
+    val colour: Colour,
+    val width: Int,
+    val height: Int
+) : Shape {
     override fun draw(g: Graphics2D) {
         g.color = colour.getColor()
-        g.fillOval(x - radius/2, y - radius/2, radius, radius)
+        g.fillOval(x - radius /2, y - radius /2, radius, radius)
     }
 
-    override fun mutate() {
-        x += Random().nextInt(10) - 5
-        y += Random().nextInt(10) - 5
-        radius += Random().nextInt(10) - 5
+    override fun mutate(): Circle {
+        val newX = mutateValueLinear(x, 5, 0, width)
+        val newY = mutateValueLinear(y, 5, 0, height)
+        val newRadius = mutateValueLinear(radius, 5, 1, 20)
+
+        return Circle(newX, newY, newRadius, colour.mutate(), width, height)
     }
+
 }
 
 fun spawnRandomShape(width: Int, height: Int): Circle {
-    val random = Random()
+    val random = random
     return Circle(
         random.nextInt(width),
         random.nextInt(height),
-        Colour(random.nextInt(255), random.nextInt(255), random.nextInt(255), random.nextInt(255)),
-        random.nextInt(50)
+        random.nextInt(50),
+        Colour(random.nextInt(255), random.nextInt(255), random.nextInt(255), randint(minAlpha, maxAlpha)),
+        width,
+        height
     )
 }
 
@@ -114,8 +156,6 @@ class Individual(
         val pixels = grabPixels(bufferedImage)
         val pixelDistance = comparePixels(masterPixels, pixels)
 
-        println(pixelDistance)
-
         return pixelDistance
     }
 
@@ -124,7 +164,7 @@ class Individual(
             throw IllegalArgumentException("Oh my!")
         }
 
-        var total: Int  = 0
+        var total = 0
         for ((i, pi) in pixels.withIndex()) {
             val mpi = masterPixels[i]
 
@@ -143,7 +183,6 @@ class Individual(
         }
 
         return total
-
     }
 
     private fun grabPixels(image: BufferedImage): IntArray {
@@ -154,8 +193,15 @@ class Individual(
     }
 
     fun mutate() {
-        genome.forEach { it.mutate() }
-        drawAndCalculateFitness()
+        val newGenome = genome.map { it.mutate() }
+        val newIndividual = Individual(newGenome, masterImage, width, height)
+        newIndividual.drawAndCalculateFitness()
+
+        if (newIndividual.fitness < this.fitness) {
+            this.genome = newIndividual.genome
+            this.drawAndCalculateFitness()
+            println("new fitness: ${this.fitness}")
+        }
     }
 }
 
@@ -170,3 +216,15 @@ fun main(args: Array<String>) {
     gui.isVisible = true
 }
 
+private fun randint(min: Int, max: Int): Int = random.nextInt(max - min) + min
+
+private fun mutateValueLinear(oldValue: Int, range: Int, min: Int, max: Int): Int {
+    if (randint(0, 10000) < 5) {
+        var newValue = oldValue + random.nextInt(range * 2) - range
+        if (newValue < min) newValue = min
+        if (newValue > max) newValue = max
+        return newValue
+    } else {
+        return oldValue
+    }
+}
