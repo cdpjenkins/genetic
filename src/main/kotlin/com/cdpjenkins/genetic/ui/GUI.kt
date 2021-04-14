@@ -45,6 +45,7 @@ class GUI(title: String? = "Genetic!") : JFrame(title) {
                     individual.mutate()
                     repaint()
                 }
+//                println("time taken: $timeInMillis")
             }
             timer.setInitialDelay(1000)
             timer.start()

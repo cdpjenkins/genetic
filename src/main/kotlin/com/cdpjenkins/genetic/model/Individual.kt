@@ -8,7 +8,7 @@ import java.io.File
 import javax.imageio.ImageIO
 
 class Individual(
-    var genome: List<Circle>,
+    var genome: List<Shape>,
     val masterImage: BufferedImage,
     val width: Int,
     val height: Int,
@@ -78,7 +78,7 @@ class Individual(
     }
 
     fun mutate() {
-        val newGenome = genome.map { it.mutate() }
+        val newGenome = genome.map { it.maybeMutate() }
         val newIndividual = Individual(newGenome, masterImage, width, height, generation + 1)
         newIndividual.drawAndCalculateFitness()
 
@@ -89,8 +89,11 @@ class Individual(
             this.drawAndCalculateFitness()
             println("new fitness: ${this.fitness}")
 
-            val outputFile = File(String.format("output/cow_%010d.png", newIndividual.generation))
-            ImageIO.write(newIndividual.bufferedImage, "png", outputFile)
+//            if (generation % 10 == 0) {
+//                val outputFile =
+//                    File(String.format("output/cow_%010d.png", newIndividual.generation))
+//                ImageIO.write(newIndividual.bufferedImage, "png", outputFile)
+//            }
         }
     }
 }

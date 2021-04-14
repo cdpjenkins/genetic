@@ -4,7 +4,8 @@ import java.awt.image.BufferedImage
 import GENOME_SIZE
 import MAX_ALPHA
 import MIN_ALPHA
-import random
+
+val polyVertices: Int = 4
 
 fun makeIndividual(
     width: Int,
@@ -15,13 +16,54 @@ fun makeIndividual(
     return Individual(shapes, masterImage, width, height)
 }
 
-fun spawnRandomShape(width: Int, height: Int): Circle {
-    return Circle(
-        random.nextInt(width),
-        random.nextInt(height),
-        random.nextInt(50),
-        Colour(random.nextInt(255), random.nextInt(255), random.nextInt(255), randint(MIN_ALPHA, MAX_ALPHA)),
+fun spawnRandomShape(width: Int, height: Int): Shape {
+    val rand = randint(0, 3)
+    return when (2) {
+        0 -> spawnRandomCircle(width, height)
+        1 -> spawnRandomRect(width, height)
+        2 -> spawnRandomGeneralPathShape(width, height)
+        else -> throw AssertionError()
+    }
+}
+
+fun spawnRandomRect(width: Int, height: Int): RectangleShape {
+    return RectangleShape(
+        spawnRandomPoint(width, height),
+        spawnRandomPoint(width, height),
+        spawnRandomColour(),
         width,
         height
     )
 }
+
+fun spawnRandomCircle(width: Int, height: Int): Circle = Circle(
+    centre = spawnRandomPoint(width, height),
+    radius = spawnRandomRadius(),
+    colour = spawnRandomColour(),
+    width = width,
+    height = height
+)
+
+private fun spawnRandomPoint(
+    width: Int,
+    height: Int
+) = Point(random.nextInt(width), random.nextInt(height))
+
+fun spawnRandomGeneralPathShape(width: Int, height: Int): GeneralPathShape {
+    val centre = spawnRandomPoint(width, height)
+
+    val vertices = (0..polyVertices).map { Point(randint(centre.x - 20, centre.x + 20), randint(centre.y - 20, centre.y + 20)) }
+    val colour = spawnRandomColour()
+
+    return GeneralPathShape(vertices, colour, width, height)
+}
+
+private fun spawnRandomRadius() = random.nextInt(25)
+
+private fun spawnRandomColour() =
+    Colour(
+        red = random.nextInt(255),
+        green = random.nextInt(255),
+        blue = random.nextInt(255),
+        alpha = randint(MIN_ALPHA, MAX_ALPHA)
+    )
