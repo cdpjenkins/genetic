@@ -5,13 +5,10 @@ import java.awt.geom.GeneralPath
 class QuadCurveShape(
     path: List<Point>,
     colour: Colour,
-    width: Int,
-    height: Int
+    val bounds: BoundsRectangle
 ): GeneralPathShape(
     path,
-    colour,
-    width,
-    height
+    colour
 ) {
     override fun makeGeneralPath(): GeneralPath {
         val generalPath = GeneralPath(GeneralPath.WIND_EVEN_ODD, path.size)
@@ -27,9 +24,9 @@ class QuadCurveShape(
     }
 
     override fun mutate(): Shape {
-        val newPath = path.map { it.mutate(width, height) }
+        val newPath = path.map { it.mutate(bounds) }
         val newColour = colour.mutate()
 
-        return QuadCurveShape(newPath, newColour, width, height)
+        return QuadCurveShape(newPath, newColour, bounds)
     }
 }

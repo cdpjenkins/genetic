@@ -21,11 +21,13 @@ class Evolver(var individual: Individual) {
 }
 
 fun makeEvolver(
-    width: Int,
-    height: Int,
-    bufferedImage: BufferedImage
+    bufferedImage: BufferedImage,
+    boundsRectangle: BoundsRectangle
 ): Evolver {
-    val individual = makeIndividual(width, height, bufferedImage)
+    val individual = makeIndividual(
+        bufferedImage,
+        boundsRectangle
+    )
     val evolver = Evolver(individual)
     return evolver
 }

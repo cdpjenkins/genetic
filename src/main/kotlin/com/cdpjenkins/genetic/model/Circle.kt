@@ -6,8 +6,7 @@ class Circle(
     val centre: Point,
     val radius: Radius,
     val colour: Colour,
-    val width: Int,
-    val height: Int
+    val bounds: BoundsRectangle
 ) : Shape {
     override fun draw(g: Graphics2D) {
         g.color = colour.getColor()
@@ -16,11 +15,10 @@ class Circle(
 
     override fun mutate(): Circle {
         return Circle(
-            centre.mutate(width, height),
+            centre.mutate(bounds),
             radius.mutate(),
             colour.mutate(),
-            width,
-            height
+            bounds
         )
     }
 }

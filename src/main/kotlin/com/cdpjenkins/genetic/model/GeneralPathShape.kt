@@ -5,9 +5,7 @@ import java.awt.geom.GeneralPath
 
 abstract class GeneralPathShape(
     val path: List<Point>,
-    val colour: Colour,
-    val width: Int,
-    val height: Int
+    val colour: Colour
 ) : Shape {
     protected val generalPath: GeneralPath by lazy(this::makeGeneralPath)
 

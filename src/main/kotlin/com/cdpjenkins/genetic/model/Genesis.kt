@@ -8,64 +8,62 @@ import MIN_ALPHA
 val polyVertices: Int = 4
 
 fun makeIndividual(
-    width: Int,
-    height: Int,
-    masterImage: BufferedImage
+    masterImage: BufferedImage,
+    bounds: BoundsRectangle
 ): Individual {
-    val shapes = (1..GENOME_SIZE).map { spawnRandomShape(width, height) }
-    return Individual(shapes, masterImage, width, height)
+    val shapes = (1..GENOME_SIZE).map { spawnRandomShape(
+        bounds
+    ) }
+    return Individual(shapes, masterImage, bounds)
 }
 
-fun spawnRandomShape(width: Int, height: Int): Shape {
+fun spawnRandomShape(bounds: BoundsRectangle): Shape {
     val rand = randint(0, 4)
-    return when (3) {
-        0 -> spawnRandomCircle(width, height)
-        1 -> spawnRandomRect(width, height)
-        2 -> spawnRandomGeneralPathShape(width, height)
-        3  -> spawnRandomTriangle(width, height)
+    return when (2) {
+        0 -> spawnRandomCircle(bounds)
+        1 -> spawnRandomRect(bounds)
+        2 -> spawnRandomQuadCurveShape(bounds)
+        3  -> spawnRandomTriangle(bounds)
         else -> throw AssertionError()
     }
 }
 
-fun spawnRandomRect(width: Int, height: Int): RectangleShape {
+fun spawnRandomRect(bounds: BoundsRectangle): RectangleShape {
     return RectangleShape(
-        spawnRandomPoint(width, height),
-        spawnRandomPoint(width, height),
+        spawnRandomPoint(bounds),
+        spawnRandomPoint(bounds),
         spawnRandomColour(),
-        width,
-        height
+        bounds
     )
 }
 
-fun spawnRandomCircle(width: Int, height: Int): Circle = Circle(
-    centre = spawnRandomPoint(width, height),
+fun spawnRandomCircle(bounds: BoundsRectangle) = Circle(
+    centre = spawnRandomPoint(bounds),
     radius = spawnRandomRadius(),
     colour = spawnRandomColour(),
-    width = width,
-    height = height
+    bounds = bounds
 )
 
-private fun spawnRandomPoint(
-    width: Int,
-    height: Int
-) = Point(random.nextInt(width), random.nextInt(height))
+private fun spawnRandomPoint(bounds: BoundsRectangle): Point {
+    return Point(randint(bounds.minX, bounds.maxX), randint(bounds.minY, bounds.maxY))
+}
 
-fun spawnRandomGeneralPathShape(width: Int, height: Int): QuadCurveShape {
-    val centre = spawnRandomPoint(width, height)
+fun spawnRandomQuadCurveShape(bounds: BoundsRectangle): QuadCurveShape {
+    val centre = spawnRandomPoint(bounds)
 
     val vertices = (0..polyVertices).map { Point(randint(centre.x - 20, centre.x + 20), randint(centre.y - 20, centre.y + 20)) }
     val colour = spawnRandomColour()
 
-    return QuadCurveShape(vertices, colour, width, height)
+    return QuadCurveShape(vertices, colour, BoundsRectangle(centre.x - 100, centre.y - 100, centre.x + 100, centre.y + 100))
 }
 
-fun spawnRandomTriangle(width: Int, height: Int): PolygonShape {
-    val centre = spawnRandomPoint(width, height)
+fun spawnRandomTriangle(bounds: BoundsRectangle): PolygonShape {
+    val centre = spawnRandomPoint(bounds)
 
     val vertices = (1..3).map { Point(randint(centre.x - 20, centre.x + 20), randint(centre.y - 20, centre.y + 20)) }
     val colour = spawnRandomColour()
 
-    return PolygonShape(vertices, colour, width, height)
+    return PolygonShape(vertices, colour, bounds)
 }
 
 private fun spawnRandomRadius() = random.nextInt(25)

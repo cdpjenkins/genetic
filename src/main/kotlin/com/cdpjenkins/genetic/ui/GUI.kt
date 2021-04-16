@@ -1,6 +1,6 @@
 package com.cdpjenkins.genetic.ui
 
-import com.cdpjenkins.genetic.model.EvolverListener
+import com.cdpjenkins.genetic.model.BoundsRectangle
 import com.cdpjenkins.genetic.model.makeEvolver
 import java.awt.BorderLayout
 import java.awt.LayoutManager
@@ -20,9 +20,7 @@ class GUI(title: String? = "Genetic!") : JFrame(title) {
         val masterIcon: ImageIcon = ImageIcon(masterImage)
 
         constructor() : this(BorderLayout()) {
-            val width = masterImage.width
-            val height = masterImage.height
-
+            val bounds = BoundsRectangle(0, 0, masterImage.width, masterImage.height)
 
             add(JLabel(masterIcon), BorderLayout.WEST)
             val individualImageLabel = JLabel(ImageIcon(masterImage))
@@ -31,11 +29,11 @@ class GUI(title: String? = "Genetic!") : JFrame(title) {
             val fitnessLabel = JLabel("", SwingConstants.RIGHT)
             add(fitnessLabel, BorderLayout.SOUTH)
 
-            val evolver = makeEvolver(width, height, masterImage)
+            val evolver = makeEvolver(masterImage, bounds)
             val swingWorker = EvolverWorker(evolver)
             swingWorker.addListener {
                 individualImageLabel.icon = ImageIcon(it.bufferedImage)
-                fitnessLabel.text = "Generation: ${it.generation} Fitness: ${it.fitness}"
+                fitnessLabel.text = "Time: ${it.timeInMillis} Generation: ${it.generation} Fitness: ${it.fitness}"
                 individualImageLabel.invalidate()
                 repaint()
             }

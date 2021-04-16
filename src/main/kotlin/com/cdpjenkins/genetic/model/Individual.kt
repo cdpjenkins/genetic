@@ -4,17 +4,16 @@ import java.awt.Color
 import java.awt.Graphics2D
 import java.awt.image.BufferedImage
 import java.awt.image.PixelGrabber
-import java.io.File
-import javax.imageio.ImageIO
+import kotlin.system.measureTimeMillis
 
 class Individual(
     var genome: List<Shape>,
     val masterImage: BufferedImage,
-    val width: Int,
-    val height: Int,
+    val bounds: BoundsRectangle,
     var generation: Int = 1
 ) {
-    var bufferedImage: BufferedImage = BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB)
+    var timeInMillis: Long = 0
+    var bufferedImage: BufferedImage = BufferedImage(bounds.width, bounds.height, BufferedImage.TYPE_INT_ARGB)
     var fitness = Integer.MAX_VALUE
     val masterPixels = grabPixels(masterImage)
 
@@ -27,14 +26,17 @@ class Individual(
     fun drawToBuffer() {
         val g = bufferedImage.createGraphics()
         g.setColor(Color.BLACK)
-        g.fillRect(0, 0, width, height)
+        g.fillRect(bounds.minX, bounds.minY, bounds.maxX, bounds.maxY)
 
         draw(g)
     }
 
     fun drawAndCalculateFitness() {
-        drawToBuffer()
-        fitness = calculateFitness()
+        val timeInMillis = measureTimeMillis {
+            drawToBuffer()
+            fitness = calculateFitness()
+        }
+        this.timeInMillis = timeInMillis
     }
 
     private fun calculateFitness(): Int {
@@ -71,15 +73,20 @@ class Individual(
     }
 
     private fun grabPixels(image: BufferedImage): IntArray {
-        val pixels = IntArray(width * height)
-        val pixelGrabber = PixelGrabber(image, 0, 0, width, height, pixels, 0, width)
+        val pixels = IntArray(bounds.width * bounds.height)
+        val pixelGrabber = PixelGrabber(image, bounds.minX, bounds.minY, bounds.maxX, bounds.maxY, pixels, 0, bounds.width)
         pixelGrabber.grabPixels()
         return pixels
     }
 
     fun mutate(): Individual {
         val newGenome = genome.map { it.maybeMutate() }
-        val newIndividual = Individual(newGenome, masterImage, width, height, generation + 1)
+        val newIndividual = Individual(
+            newGenome,
+            masterImage,
+            bounds,
+            generation + 1
+        )
         newIndividual.drawAndCalculateFitness()
 
         return newIndividual
