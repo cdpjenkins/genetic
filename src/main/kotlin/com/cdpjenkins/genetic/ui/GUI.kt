@@ -1,7 +1,6 @@
 package com.cdpjenkins.genetic.ui
 
-import com.cdpjenkins.genetic.model.Individual
-import com.cdpjenkins.genetic.model.makeIndividual
+import com.cdpjenkins.genetic.model.*
 import java.awt.BorderLayout
 import java.awt.LayoutManager
 import java.awt.image.BufferedImage
@@ -24,25 +23,32 @@ class GUI(title: String? = "Genetic!") : JFrame(title) {
             val width = masterImage.width
             val height = masterImage.height
 
-            val individual = makeIndividual(width, height, masterImage)
 
             add(JLabel(masterIcon), BorderLayout.WEST)
-            add(JLabel(ImageIcon(individual.bufferedImage)), BorderLayout.EAST)
+            val individualImageLabel = JLabel(ImageIcon(masterImage))
+            add(individualImageLabel, BorderLayout.EAST)
 
-            val mutateButton = JButton("Mutate!")
-            add(mutateButton, BorderLayout.SOUTH)
-            mutateButton.addActionListener { e ->
-                individual.mutate()
+            val evolver = makeEvolver(width, height, masterImage)
+            evolver.addListener {
+                individualImageLabel.icon = ImageIcon(it.bufferedImage)
+                individualImageLabel.invalidate()
                 repaint()
             }
+            evolver.addListener {
+                if (it.generation % 10 == 0) {
+                    val outputFile =
+                        File(String.format("output/cow_%010d.png", it.generation))
+                    ImageIO.write(it.bufferedImage, "png", outputFile)
+                }
+            }
 
-            startTimer(individual)
+            startTimer(evolver)
         }
 
-        private fun startTimer(individual: Individual) {
+        private fun startTimer(evolver: Evolver) {
             val timer = Timer(20) { e ->
                 val timeInMillis = measureTimeMillis {
-                    individual.mutate()
+                    evolver.mutate()
                     repaint()
                 }
 //                println("time taken: $timeInMillis")

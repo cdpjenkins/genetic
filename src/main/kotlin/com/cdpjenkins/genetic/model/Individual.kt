@@ -77,23 +77,11 @@ class Individual(
         return pixels
     }
 
-    fun mutate() {
+    fun mutate(): Individual {
         val newGenome = genome.map { it.maybeMutate() }
         val newIndividual = Individual(newGenome, masterImage, width, height, generation + 1)
         newIndividual.drawAndCalculateFitness()
 
-        this.generation++
-
-        if (newIndividual.fitness < this.fitness) {
-            this.genome = newIndividual.genome
-            this.drawAndCalculateFitness()
-            println("new fitness: ${this.fitness}")
-
-//            if (generation % 10 == 0) {
-//                val outputFile =
-//                    File(String.format("output/cow_%010d.png", newIndividual.generation))
-//                ImageIO.write(newIndividual.bufferedImage, "png", outputFile)
-//            }
-        }
+        return newIndividual
     }
 }
