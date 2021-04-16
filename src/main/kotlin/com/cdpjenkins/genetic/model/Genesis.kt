@@ -14,7 +14,7 @@ fun makeIndividual(
     val shapes = (1..GENOME_SIZE).map { spawnRandomShape(
         bounds
     ) }
-    return Individual(shapes, masterImage, bounds)
+    return Individual(shapes, bounds)
 }
 
 fun spawnRandomShape(bounds: BoundsRectangle): Shape {

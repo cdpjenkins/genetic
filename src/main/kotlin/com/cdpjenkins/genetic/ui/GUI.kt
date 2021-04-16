@@ -30,7 +30,7 @@ class GUI(title: String? = "Genetic!") : JFrame(title) {
             val fitnessLabel = JLabel("", SwingConstants.RIGHT)
             add(fitnessLabel, BorderLayout.SOUTH)
 
-            val evolver = makeEvolver(masterImage, bounds)
+            val evolver = makeEvolver(bounds, masterImage)
             val swingWorker = EvolverWorker(evolver)
             swingWorker.addListener {
                 individualImageLabel.icon = ImageIcon(it.bufferedImage)

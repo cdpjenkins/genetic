@@ -12,7 +12,7 @@ abstract class GeneralPathShape(
     abstract fun makeGeneralPath(): GeneralPath
 
     override fun draw(g: Graphics2D) {
-        g.color = colour.getColor()
+        g.color = colour.toAwtColor()
         g.fill(generalPath)
     }
 }

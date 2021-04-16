@@ -9,7 +9,7 @@ class Circle(
     val bounds: BoundsRectangle
 ) : Shape {
     override fun draw(g: Graphics2D) {
-        g.color = colour.getColor()
+        g.color = colour.toAwtColor()
         g.fillOval(centre.x - radius, centre.y - radius, radius*2, radius*2)
     }
 

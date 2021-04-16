@@ -1,12 +1,15 @@
 package com.cdpjenkins.genetic.model
 
+import com.cdpjenkins.genetic.image.grabPixels
 import java.awt.image.BufferedImage
 
-class Evolver(var individual: Individual) {
+class Evolver(var individual: Individual, masterImage: BufferedImage) {
     private var listeners: MutableList<EvolverListener> = mutableListOf()
+    private val masterPixels = grabPixels(masterImage)
 
     fun mutate() {
         val newIndividual = individual.mutate()
+        newIndividual.drawAndCalculateFitness(masterPixels)
         if (newIndividual.fitness < individual.fitness) {
             individual = newIndividual
             println("new fitness: ${individual.fitness}")
@@ -21,14 +24,14 @@ class Evolver(var individual: Individual) {
 }
 
 fun makeEvolver(
-    bufferedImage: BufferedImage,
-    boundsRectangle: BoundsRectangle
+    boundsRectangle: BoundsRectangle,
+    masterImage: BufferedImage
 ): Evolver {
     val individual = makeIndividual(
-        bufferedImage,
+        masterImage,
         boundsRectangle
     )
-    val evolver = Evolver(individual)
+    val evolver = Evolver(individual, masterImage)
     return evolver
 }
 

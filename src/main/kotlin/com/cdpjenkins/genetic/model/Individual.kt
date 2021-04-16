@@ -1,21 +1,22 @@
 package com.cdpjenkins.genetic.model
 
+import com.cdpjenkins.genetic.image.grabPixels
+import com.fasterxml.jackson.annotation.JsonIgnore
 import java.awt.Color
 import java.awt.Graphics2D
 import java.awt.image.BufferedImage
-import java.awt.image.PixelGrabber
 import kotlin.system.measureTimeMillis
 
 class Individual(
     var genome: List<Shape>,
-    val masterImage: BufferedImage,
     val bounds: BoundsRectangle,
     var generation: Int = 1
 ) {
     var timeInMillis: Long = 0
+
+    @JsonIgnore
     var bufferedImage: BufferedImage = BufferedImage(bounds.width, bounds.height, BufferedImage.TYPE_INT_ARGB)
     var fitness = Integer.MAX_VALUE
-    val masterPixels = grabPixels(masterImage)
 
     fun draw(g: Graphics2D) {
         for (shape in genome) {
@@ -31,15 +32,15 @@ class Individual(
         draw(g)
     }
 
-    fun drawAndCalculateFitness() {
+    fun drawAndCalculateFitness(masterPixels: IntArray) {
         val timeInMillis = measureTimeMillis {
             drawToBuffer()
-            fitness = calculateFitness()
+            fitness = calculateFitness(masterPixels)
         }
         this.timeInMillis = timeInMillis
     }
 
-    private fun calculateFitness(): Int {
+    private fun calculateFitness(masterPixels: IntArray): Int {
         val pixels = grabPixels(bufferedImage)
         val pixelDistance = comparePixels(masterPixels, pixels)
 
@@ -72,22 +73,13 @@ class Individual(
         return total
     }
 
-    private fun grabPixels(image: BufferedImage): IntArray {
-        val pixels = IntArray(bounds.width * bounds.height)
-        val pixelGrabber = PixelGrabber(image, bounds.minX, bounds.minY, bounds.maxX, bounds.maxY, pixels, 0, bounds.width)
-        pixelGrabber.grabPixels()
-        return pixels
-    }
-
     fun mutate(): Individual {
         val newGenome = genome.map { it.maybeMutate() }
         val newIndividual = Individual(
             newGenome,
-            masterImage,
             bounds,
             generation + 1
         )
-        newIndividual.drawAndCalculateFitness()
 
         return newIndividual
     }

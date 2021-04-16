@@ -6,7 +6,7 @@ import MIN_ALPHA
 import java.awt.Color
 
 data class Colour(val red: Int, val green:Int, val blue: Int, val alpha:Int) {
-    fun getColor(): Color {
+    fun toAwtColor(): Color {
         try {
             return Color(red, green, blue, alpha)
         } catch (e: Exception) {

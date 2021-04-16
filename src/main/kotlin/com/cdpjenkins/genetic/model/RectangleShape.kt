@@ -9,7 +9,7 @@ class RectangleShape(
     val bounds: BoundsRectangle
 ): Shape {
     override fun draw(g: Graphics2D) {
-        g.color = colour.getColor()
+        g.color = colour.toAwtColor()
         g.fillRect(topLeft.x, topLeft.y, bottomRight.x-topLeft.x, bottomRight.y-topLeft.y)
     }
 
