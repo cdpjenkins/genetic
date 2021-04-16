@@ -2,6 +2,7 @@ package com.cdpjenkins.genetic.ui
 
 import com.cdpjenkins.genetic.model.BoundsRectangle
 import com.cdpjenkins.genetic.model.makeEvolver
+import MASTER_IMAGE_FILE
 import java.awt.BorderLayout
 import java.awt.LayoutManager
 import java.awt.image.BufferedImage
@@ -16,7 +17,7 @@ class GUI(title: String? = "Genetic!") : JFrame(title) {
     }
 
     class UIPanel(layout: LayoutManager): JPanel(layout) {
-        val masterImage: BufferedImage = ImageIO.read(File("cow.jpg"))
+        val masterImage: BufferedImage = ImageIO.read(File(MASTER_IMAGE_FILE))
         val masterIcon: ImageIcon = ImageIcon(masterImage)
 
         constructor() : this(BorderLayout()) {
@@ -38,7 +39,7 @@ class GUI(title: String? = "Genetic!") : JFrame(title) {
                 repaint()
             }
             swingWorker.addListener {
-                if (it.generation % 10 == 0) {
+                if (it.generation % 100 == 0) {
                     val outputFile =
                         File(String.format("output/cow_%010d.png", it.generation))
                     ImageIO.write(it.bufferedImage, "png", outputFile)
