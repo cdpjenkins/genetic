@@ -17,11 +17,12 @@ fun makeIndividual(
 }
 
 fun spawnRandomShape(width: Int, height: Int): Shape {
-    val rand = randint(0, 3)
-    return when (2) {
+    val rand = randint(0, 4)
+    return when (3) {
         0 -> spawnRandomCircle(width, height)
         1 -> spawnRandomRect(width, height)
         2 -> spawnRandomGeneralPathShape(width, height)
+        3  -> spawnRandomTriangle(width, height)
         else -> throw AssertionError()
     }
 }
@@ -49,13 +50,22 @@ private fun spawnRandomPoint(
     height: Int
 ) = Point(random.nextInt(width), random.nextInt(height))
 
-fun spawnRandomGeneralPathShape(width: Int, height: Int): GeneralPathShape {
+fun spawnRandomGeneralPathShape(width: Int, height: Int): QuadCurveShape {
     val centre = spawnRandomPoint(width, height)
 
     val vertices = (0..polyVertices).map { Point(randint(centre.x - 20, centre.x + 20), randint(centre.y - 20, centre.y + 20)) }
     val colour = spawnRandomColour()
 
-    return GeneralPathShape(vertices, colour, width, height)
+    return QuadCurveShape(vertices, colour, width, height)
+}
+
+fun spawnRandomTriangle(width: Int, height: Int): PolygonShape {
+    val centre = spawnRandomPoint(width, height)
+
+    val vertices = (1..3).map { Point(randint(centre.x - 20, centre.x + 20), randint(centre.y - 20, centre.y + 20)) }
+    val colour = spawnRandomColour()
+
+    return PolygonShape(vertices, colour, width, height)
 }
 
 private fun spawnRandomRadius() = random.nextInt(25)
