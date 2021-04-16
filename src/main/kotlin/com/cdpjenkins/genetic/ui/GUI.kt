@@ -28,9 +28,13 @@ class GUI(title: String? = "Genetic!") : JFrame(title) {
             val individualImageLabel = JLabel(ImageIcon(masterImage))
             add(individualImageLabel, BorderLayout.EAST)
 
+            val fitnessLabel = JLabel("", SwingConstants.RIGHT)
+            add(fitnessLabel, BorderLayout.SOUTH)
+
             val evolver = makeEvolver(width, height, masterImage)
             evolver.addListener {
                 individualImageLabel.icon = ImageIcon(it.bufferedImage)
+                fitnessLabel.text = "Generation: ${it.generation} Fitness: ${it.fitness}"
                 individualImageLabel.invalidate()
                 repaint()
             }
