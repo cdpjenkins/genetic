@@ -1,24 +1,40 @@
 package com.cdpjenkins.genetic.model
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import json.JSON
 import org.junit.jupiter.api.Test
+import java.io.File
 
 internal class IndividualTest {
 
+    private val json = JSON()
+
+    private val individual: Individual = Individual(
+        listOf(
+            Circle(Point(0, 0), 10, Colour(1, 2, 3, 4), BoundsRectangle(0, 0, 100, 100)),
+            RectangleShape(
+                Point(0, 0),
+                Point(100, 100),
+                Colour(255, 255, 255, 255),
+                BoundsRectangle(0, 0, 1000, 1000)
+            )
+        ),
+        BoundsRectangle(0, 0, 100, 100)
+    )
+
     @Test
     internal fun `can serialise and deserialise Individuals`() {
-        val mapper = jacksonObjectMapper()
-        // Yuck this is deprecated but I haven't yet figured out how to do this the proper way
-        mapper.enableDefaultTyping()
+        val jsonString = json.serialise(individual)
+        println(jsonString)
+        val deserialise = json.deserialise(jsonString)
 
-        val individual = Individual(
-            listOf(
-                Circle(Point(0, 0), 10, Colour(1, 2, 3, 4), BoundsRectangle(0, 0, 100, 100))),
-                BoundsRectangle(0, 0, 100, 100)
-            )
+        // TODO probably can't do assertEquals on the resulting object unless we use data classes.
+        // Which is probably a good idea.
+    }
 
-        val json = mapper.writeValueAsString(individual)
-        println(json)
-        mapper.readValue(json, Individual::class.java)
+    @Test
+    internal fun `can serialise to and deserialise from a file`() {
+        val jsonFile = File.createTempFile("IndividualTest", ".json")
+        json.serialiseToFile(jsonFile, individual)
+        json.deserialiseFromFile(jsonFile)
     }
 }

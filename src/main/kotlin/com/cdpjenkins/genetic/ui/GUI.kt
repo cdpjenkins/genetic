@@ -1,8 +1,10 @@
 package com.cdpjenkins.genetic.ui
 
+import MASTER_IMAGE_FILE
+import com.cdpjenkins.genetic.image.writePng
 import com.cdpjenkins.genetic.model.BoundsRectangle
 import com.cdpjenkins.genetic.model.makeEvolver
-import MASTER_IMAGE_FILE
+import json.JSON
 import java.awt.BorderLayout
 import java.awt.LayoutManager
 import java.awt.image.BufferedImage
@@ -42,7 +44,9 @@ class GUI(title: String? = "Genetic!") : JFrame(title) {
                 if (it.generation % 100 == 0) {
                     val outputFile =
                         File(String.format("output/cow_%010d.png", it.generation))
-                    ImageIO.write(it.bufferedImage, "png", outputFile)
+                    writePng(it, outputFile)
+
+                    JSON().serialiseToFile(File(String.format("output/jsoncow_%010d.json", it.generation)), it)
                 }
             }
             swingWorker.execute()
