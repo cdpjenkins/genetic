@@ -3,6 +3,7 @@ package com.cdpjenkins.genetic.ui
 import MASTER_IMAGE_FILE
 import com.cdpjenkins.genetic.image.writePng
 import com.cdpjenkins.genetic.model.BoundsRectangle
+import com.cdpjenkins.genetic.model.Individual
 import com.cdpjenkins.genetic.model.makeEvolver
 import com.cdpjenkins.genetic.svg.SvgRenderer
 import json.JSON
@@ -13,9 +14,9 @@ import java.io.File
 import javax.imageio.ImageIO
 import javax.swing.*
 
-class GUI(title: String? = "Genetic!") : JFrame(title) {
-    constructor(): this("Genetic!") {
-        contentPane.add(UIPanel())
+class GUI(initialIndividual: Individual? = null) : JFrame("Genetic!") {
+    init {
+        contentPane.add(UIPanel(initialIndividual))
         pack()
     }
 
@@ -23,7 +24,7 @@ class GUI(title: String? = "Genetic!") : JFrame(title) {
         val masterImage: BufferedImage = ImageIO.read(File(MASTER_IMAGE_FILE))
         val masterIcon: ImageIcon = ImageIcon(masterImage)
 
-        constructor() : this(BorderLayout()) {
+        constructor(initialIndividual: Individual?) : this(BorderLayout()) {
             val bounds = BoundsRectangle(0, 0, masterImage.width, masterImage.height)
 
             add(JLabel(masterIcon), BorderLayout.WEST)
@@ -33,7 +34,7 @@ class GUI(title: String? = "Genetic!") : JFrame(title) {
             val fitnessLabel = JLabel("", SwingConstants.RIGHT)
             add(fitnessLabel, BorderLayout.SOUTH)
 
-            val evolver = makeEvolver(bounds, masterImage)
+            val evolver = makeEvolver(bounds, masterImage, initialIndividual)
             val swingWorker = EvolverWorker(evolver)
             swingWorker.addListener {
                 individualImageLabel.icon = ImageIcon(it.bufferedImage)

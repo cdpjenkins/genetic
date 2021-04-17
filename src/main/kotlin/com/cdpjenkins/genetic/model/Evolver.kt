@@ -25,12 +25,10 @@ class Evolver(var individual: Individual, masterImage: BufferedImage) {
 
 fun makeEvolver(
     boundsRectangle: BoundsRectangle,
-    masterImage: BufferedImage
+    masterImage: BufferedImage,
+    initialIndividual: Individual?
 ): Evolver {
-    val individual = makeIndividual(
-        masterImage,
-        boundsRectangle
-    )
+    val individual = initialIndividual ?: makeIndividual(masterImage, boundsRectangle)
     val evolver = Evolver(individual, masterImage)
     return evolver
 }
