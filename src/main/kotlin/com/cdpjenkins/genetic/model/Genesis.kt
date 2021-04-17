@@ -51,10 +51,11 @@ private fun spawnRandomPoint(bounds: BoundsRectangle): Point {
 fun spawnRandomQuadCurveShape(bounds: BoundsRectangle): QuadCurveShape {
     val centre = spawnRandomPoint(bounds)
 
-    val vertices = (0..polyVertices).map { Point(randint(centre.x - 20, centre.x + 20), randint(centre.y - 20, centre.y + 20)) }
+    val vertices = (1..polyVertices).map { Point(randint(0, bounds.width), randint(0, bounds.height)) }
     val colour = spawnRandomColour()
 
-    return QuadCurveShape(vertices, colour, BoundsRectangle(centre.x - 100, centre.y - 100, centre.x + 100, centre.y + 100))
+    return QuadCurveShape(vertices, colour, bounds)
+//    return QuadCurveShape(vertices, colour, BoundsRectangle(centre.x - 100, centre.y - 100, centre.x + 100, centre.y + 100))
 }
 
 fun spawnRandomTriangle(bounds: BoundsRectangle): PolygonShape {

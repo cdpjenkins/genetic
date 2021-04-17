@@ -2,7 +2,7 @@ package com.cdpjenkins.genetic.model
 
 import java.awt.Graphics2D
 
-class Circle(
+data class Circle(
     val centre: Point,
     val radius: Radius,
     val colour: Colour,

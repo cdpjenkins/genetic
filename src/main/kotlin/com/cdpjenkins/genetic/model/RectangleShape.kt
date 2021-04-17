@@ -2,7 +2,7 @@ package com.cdpjenkins.genetic.model
 
 import java.awt.Graphics2D
 
-class RectangleShape(
+data class RectangleShape(
     val topLeft: Point,
     val bottomRight: Point,
     val colour: Colour,

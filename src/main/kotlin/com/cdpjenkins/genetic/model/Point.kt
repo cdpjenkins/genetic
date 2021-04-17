@@ -1,6 +1,6 @@
 package com.cdpjenkins.genetic.model
 
-class Point(val x: Int, val y: Int) {
+data class Point(val x: Int, val y: Int) {
     fun mutate(bounds: BoundsRectangle): Point {
         val newX = mutateValueLinear(x, 5, bounds.minX, bounds.maxX)
         val newY = mutateValueLinear(y, 5, bounds.minY, bounds.maxY)

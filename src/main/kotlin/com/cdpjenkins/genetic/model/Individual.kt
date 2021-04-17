@@ -7,10 +7,10 @@ import java.awt.Graphics2D
 import java.awt.image.BufferedImage
 import kotlin.system.measureTimeMillis
 
-class Individual(
-    var genome: List<Shape>,
+data class Individual(
+    val genome: List<Shape>,
     val bounds: BoundsRectangle,
-    var generation: Int = 1
+    val generation: Int = 1
 ) {
     var timeInMillis: Long = 0
 
