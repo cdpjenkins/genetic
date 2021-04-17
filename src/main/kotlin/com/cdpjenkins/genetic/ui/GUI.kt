@@ -4,6 +4,7 @@ import MASTER_IMAGE_FILE
 import com.cdpjenkins.genetic.image.writePng
 import com.cdpjenkins.genetic.model.BoundsRectangle
 import com.cdpjenkins.genetic.model.makeEvolver
+import com.cdpjenkins.genetic.svg.SvgRenderer
 import json.JSON
 import java.awt.BorderLayout
 import java.awt.LayoutManager
@@ -40,16 +41,28 @@ class GUI(title: String? = "Genetic!") : JFrame(title) {
                 individualImageLabel.invalidate()
                 repaint()
             }
+
+            ensureDirExists("output")
+            ensureDirExists("output/png")
+            ensureDirExists("output/json")
+            ensureDirExists("output/svg")
             swingWorker.addListener {
-                if (it.generation % 100 == 0) {
+                if (it.generation % 10 == 0) {
                     val outputFile =
-                        File(String.format("output/cow_%010d.png", it.generation))
+                        File(String.format("output/png/cow_%010d.png", it.generation))
                     writePng(it, outputFile)
 
-                    JSON().serialiseToFile(File(String.format("output/jsoncow_%010d.json", it.generation)), it)
+                    JSON().serialiseToFile(File(String.format("output/json/cow_%010d.json", it.generation)), it)
+
+                    SvgRenderer().render(File(String.format("output/svg/cow_%010d.svg", it.generation)), it)
                 }
             }
             swingWorker.execute()
+        }
+
+        private fun ensureDirExists(dirName: String) {
+            val dir = File(dirName)
+            if (!dir.exists()) dir.mkdir()
         }
     }
 }

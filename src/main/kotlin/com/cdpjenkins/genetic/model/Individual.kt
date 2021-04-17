@@ -19,6 +19,9 @@ data class Individual(
     var fitness = Integer.MAX_VALUE
 
     fun draw(g: Graphics2D) {
+        g.setColor(Color.BLACK)
+        g.fillRect(bounds.minX, bounds.minY, bounds.maxX, bounds.maxY)
+
         for (shape in genome) {
             shape.draw(g)
         }
@@ -26,9 +29,6 @@ data class Individual(
 
     fun drawToBuffer() {
         val g = bufferedImage.createGraphics()
-        g.setColor(Color.BLACK)
-        g.fillRect(bounds.minX, bounds.minY, bounds.maxX, bounds.maxY)
-
         draw(g)
     }
 
