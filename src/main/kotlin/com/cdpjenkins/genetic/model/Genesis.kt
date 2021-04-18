@@ -1,9 +1,9 @@
 package com.cdpjenkins.genetic.model
 
-import java.awt.image.BufferedImage
 import GENOME_SIZE
 import MAX_ALPHA
 import MIN_ALPHA
+import java.awt.image.BufferedImage
 
 val polyVertices: Int = 4
 
@@ -18,6 +18,9 @@ fun makeIndividual(
 }
 
 fun spawnRandomShape(bounds: BoundsRectangle): Shape {
+
+    println("Spawning a random shape!!!1")
+
     val rand = randint(0, 4)
     return when (2) {
         0 -> spawnRandomCircle(bounds)
@@ -50,12 +53,15 @@ private fun spawnRandomPoint(bounds: BoundsRectangle): Point {
 
 fun spawnRandomQuadCurveShape(bounds: BoundsRectangle): QuadCurveShape {
     val centre = spawnRandomPoint(bounds)
-
-    val vertices = (1..polyVertices).map { Point(randint(0, bounds.width), randint(0, bounds.height)) }
+    val shapeBounds = BoundsRectangle(centre.x - 100, centre.y - 100, centre.x + 100, centre.y + 100)
+    val vertices = (1..polyVertices).map {
+        spawnRandomPoint(
+            BoundsRectangle(centre.x-10, centre.y-10, centre.x+10, centre.y+10)
+        )
+    }
     val colour = spawnRandomColour()
 
-    return QuadCurveShape(vertices, colour, bounds)
-//    return QuadCurveShape(vertices, colour, BoundsRectangle(centre.x - 100, centre.y - 100, centre.x + 100, centre.y + 100))
+    return QuadCurveShape(vertices, colour, shapeBounds)
 }
 
 fun spawnRandomTriangle(bounds: BoundsRectangle): PolygonShape {

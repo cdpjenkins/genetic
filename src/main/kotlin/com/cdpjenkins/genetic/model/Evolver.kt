@@ -12,8 +12,7 @@ class Evolver(var individual: Individual, masterImage: BufferedImage) {
         newIndividual.drawAndCalculateFitness(masterPixels)
         if (newIndividual.fitness < individual.fitness) {
             individual = newIndividual
-            println("new fitness: ${individual.fitness}")
-
+            println("new fitness: ${individual.fitness} genome size: ${individual.genome.size}")
             listeners.forEach{ it(individual) }
         }
     }

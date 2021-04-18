@@ -1,5 +1,6 @@
 package com.cdpjenkins.genetic.model
 
+import ADD_SHAPE_CHANCE
 import com.cdpjenkins.genetic.image.grabPixels
 import com.fasterxml.jackson.annotation.JsonIgnore
 import java.awt.Color
@@ -74,9 +75,19 @@ data class Individual(
     }
 
     fun mutate(): Individual {
-        val newGenome = genome.map { it.maybeMutate() }
+        val newGenome = genome
+            .map { it.maybeMutate() }
+
+        // Urgh this is freaking horrible
+        val newNewGenome =
+            if (randint(0, ADD_SHAPE_CHANCE) == 0) {
+                newGenome + spawnRandomShape(bounds)
+            } else {
+                newGenome
+            }
+
         val newIndividual = Individual(
-            newGenome,
+            newNewGenome,
             bounds,
             generation + 1
         )

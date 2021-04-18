@@ -38,7 +38,12 @@ class GUI(initialIndividual: Individual? = null) : JFrame("Genetic!") {
             val swingWorker = EvolverWorker(evolver)
             swingWorker.addListener {
                 individualImageLabel.icon = ImageIcon(it.bufferedImage)
-                fitnessLabel.text = "Time: ${it.timeInMillis} Generation: ${it.generation} Fitness: ${it.fitness}"
+                val size = it.genome.size
+                val time = it.timeInMillis
+                val generation = it.generation
+                val fitness = it.fitness
+                fitnessLabel.text =
+                    "Genome size: $size Time: $time Generation: $generation Fitness: $fitness"
                 individualImageLabel.invalidate()
                 repaint()
             }
