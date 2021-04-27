@@ -14,6 +14,7 @@ data class Individual(
     val generation: Int = 1
 ) {
     var timeInMillis: Long = 0
+    val createdTimestamp = System.currentTimeMillis()
 
     @JsonIgnore
     var bufferedImage: BufferedImage = BufferedImage(bounds.width, bounds.height, BufferedImage.TYPE_INT_ARGB)
