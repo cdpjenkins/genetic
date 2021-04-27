@@ -8,7 +8,6 @@ class JSON {
     val mapper = jacksonObjectMapper().also {
         // Yuck this is deprecated but I haven't yet figured out how to do this the proper way
         it.enableDefaultTyping()
-
     }
 
     fun serialise(individual: Individual): String {
