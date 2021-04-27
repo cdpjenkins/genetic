@@ -1,32 +1,29 @@
 package com.cdpjenkins.genetic.ui
 
-import MASTER_IMAGE_FILE
-import com.cdpjenkins.genetic.image.writePng
-import com.cdpjenkins.genetic.model.BoundsRectangle
+import com.cdpjenkins.genetic.model.Evolver
 import com.cdpjenkins.genetic.model.Individual
-import com.cdpjenkins.genetic.model.makeEvolver
-import com.cdpjenkins.genetic.svg.SvgRenderer
-import json.JSON
+import com.cdpjenkins.genetic.model.saveToDisk
 import java.awt.BorderLayout
-import java.awt.LayoutManager
 import java.awt.image.BufferedImage
 import java.io.File
-import javax.imageio.ImageIO
 import javax.swing.*
 
-class GUI(initialIndividual: Individual? = null) : JFrame("Genetic!") {
+class GUI(
+    masterImage: BufferedImage,
+    evolver: Evolver
+) : JFrame("Genetic!") {
     init {
-        contentPane.add(UIPanel(initialIndividual))
+        contentPane.add(EvolverPanel(masterImage, evolver))
         pack()
     }
 
-    class UIPanel(layout: LayoutManager): JPanel(layout) {
-        val masterImage: BufferedImage = ImageIO.read(File(MASTER_IMAGE_FILE))
+    class EvolverPanel(
+        masterImage: BufferedImage,
+        val evolver: Evolver
+    ): JPanel(BorderLayout()) {
         val masterIcon: ImageIcon = ImageIcon(masterImage)
 
-        constructor(initialIndividual: Individual?) : this(BorderLayout()) {
-            val bounds = BoundsRectangle(0, 0, masterImage.width, masterImage.height)
-
+        init {
             add(JLabel(masterIcon), BorderLayout.WEST)
             val individualImageLabel = JLabel(ImageIcon(masterImage))
             add(individualImageLabel, BorderLayout.EAST)
@@ -34,18 +31,9 @@ class GUI(initialIndividual: Individual? = null) : JFrame("Genetic!") {
             val fitnessLabel = JLabel("", SwingConstants.RIGHT)
             add(fitnessLabel, BorderLayout.SOUTH)
 
-            val evolver = makeEvolver(bounds, masterImage, initialIndividual)
-            val swingWorker = EvolverWorker(evolver)
+            val swingWorker = EvolverWorker(this.evolver)
             swingWorker.addListener {
-                individualImageLabel.icon = ImageIcon(it.bufferedImage)
-                val size = it.genome.size
-                val time = it.timeInMillis
-                val generation = it.generation
-                val fitness = it.fitness
-                fitnessLabel.text =
-                    "Genome size: $size Time: $time Generation: $generation Fitness: $fitness"
-                individualImageLabel.invalidate()
-                repaint()
+                updateUi(individualImageLabel, it, fitnessLabel)
             }
 
             ensureDirExists("output")
@@ -53,22 +41,30 @@ class GUI(initialIndividual: Individual? = null) : JFrame("Genetic!") {
             ensureDirExists("output/json")
             ensureDirExists("output/svg")
             swingWorker.addListener {
-                if (it.generation % 10 == 0) {
-                    val outputFile =
-                        File(String.format("output/png/cow_%010d.png", it.generation))
-                    writePng(it, outputFile)
-
-                    JSON().serialiseToFile(File(String.format("output/json/cow_%010d.json", it.generation)), it)
-
-                    SvgRenderer().render(File(String.format("output/svg/cow_%010d.svg", it.generation)), it)
-                }
+                it.saveToDisk()
             }
             swingWorker.execute()
         }
 
-        private fun ensureDirExists(dirName: String) {
-            val dir = File(dirName)
-            if (!dir.exists()) dir.mkdir()
+        private fun updateUi(
+            individualImageLabel: JLabel,
+            it: Individual,
+            fitnessLabel: JLabel
+        ) {
+            individualImageLabel.icon = ImageIcon(it.bufferedImage)
+            val size = it.genome.size
+            val time = it.timeInMillis
+            val generation = it.generation
+            val fitness = it.fitness
+            fitnessLabel.text =
+                "Genome size: $size Time: $time Generation: $generation Fitness: $fitness"
+            individualImageLabel.invalidate()
+            repaint()
         }
     }
+}
+
+fun ensureDirExists(dirName: String) {
+    val dir = File(dirName)
+    if (!dir.exists()) dir.mkdir()
 }
