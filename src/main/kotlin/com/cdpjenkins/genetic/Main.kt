@@ -21,11 +21,12 @@ fun main(args: Array<String>) {
     val masterImage = ImageIO.read(File(MASTER_IMAGE_FILE))
     val evolver = makeEvolver(masterImage, initialIndividual)
 
-    if (GraphicsEnvironment.isHeadless()) {
-        evolver.addListener { it.saveToDisk() }
-        evolver.start()
-    } else {
+    if (!GraphicsEnvironment.isHeadless()) {
         val gui = GUI(masterImage, evolver)
         gui.isVisible = true
     }
+
+    evolver.addListener { it.saveToDisk() }
+
+    evolver.start()
 }

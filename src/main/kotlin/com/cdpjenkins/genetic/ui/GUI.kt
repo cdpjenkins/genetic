@@ -19,7 +19,7 @@ class GUI(
 
     class EvolverPanel(
         masterImage: BufferedImage,
-        val evolver: Evolver
+        evolver: Evolver
     ): JPanel(BorderLayout()) {
         val masterIcon: ImageIcon = ImageIcon(masterImage)
 
@@ -31,15 +31,9 @@ class GUI(
             val fitnessLabel = JLabel("", SwingConstants.RIGHT)
             add(fitnessLabel, BorderLayout.SOUTH)
 
-            val swingWorker = EvolverWorker(this.evolver)
-            swingWorker.addListener {
-                updateUi(individualImageLabel, it, fitnessLabel)
+            evolver.addListener {
+                SwingUtilities.invokeLater { updateUi(individualImageLabel, it, fitnessLabel) }
             }
-
-            swingWorker.addListener {
-                it.saveToDisk()
-            }
-            swingWorker.execute()
         }
 
         private fun updateUi(
