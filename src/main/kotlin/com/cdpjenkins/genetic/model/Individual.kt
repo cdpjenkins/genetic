@@ -95,4 +95,14 @@ data class Individual(
 
         return newIndividual
     }
+
+    fun describe(): String {
+        val size = genome.size
+        val time = timeInMillis
+        val generation = generation
+        val fitness = fitness
+        val description =
+            "Genome size: $size Time: $time Generation: $generation Fitness: $fitness"
+        return description
+    }
 }

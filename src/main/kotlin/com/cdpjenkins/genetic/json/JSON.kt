@@ -1,4 +1,4 @@
-package json
+package com.cdpjenkins.genetic.json
 
 import com.cdpjenkins.genetic.model.Individual
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper

@@ -2,8 +2,9 @@ package com.cdpjenkins.genetic.model
 
 import com.cdpjenkins.genetic.image.grabPixels
 import com.cdpjenkins.genetic.image.writePng
+import com.cdpjenkins.genetic.json.JSON
 import com.cdpjenkins.genetic.svg.SvgRenderer
-import json.JSON
+import com.cdpjenkins.genetic.ui.ensureDirExists
 import java.awt.image.BufferedImage
 import java.io.File
 
@@ -11,18 +12,38 @@ class Evolver(var individual: Individual, masterImage: BufferedImage) {
     private var listeners: MutableList<EvolverListener> = mutableListOf()
     private val masterPixels = grabPixels(masterImage)
 
-    fun mutate() {
+    init {
+        ensureDirExists("output")
+        ensureDirExists("output/png")
+        ensureDirExists("output/json")
+        ensureDirExists("output/svg")
+    }
+
+    @Synchronized fun mutate() {
         val newIndividual = individual.mutate()
         newIndividual.drawAndCalculateFitness(masterPixels)
         if (newIndividual.fitness < individual.fitness) {
             individual = newIndividual
-            println("new fitness: ${individual.fitness} genome size: ${individual.genome.size}")
-            listeners.forEach{ it(individual) }
+            println(individual.describe())
+            listeners.forEach{ it.notify(individual) }
         }
     }
 
-    fun addListener(listener: EvolverListener) {
+    @Synchronized fun addListener(listener: EvolverListener) {
         this.listeners.add(listener)
+    }
+
+    @Synchronized
+    fun start() {
+        val runnableMeDo = object : Runnable {
+            override fun run() {
+                while (true) {
+                    mutate()
+                }
+            }
+        }
+        val threadMeDo = Thread(runnableMeDo)
+        threadMeDo.start()
     }
 }
 
@@ -58,5 +79,6 @@ fun Individual.saveToDisk() {
     }
 }
 
-typealias EvolverListener = (Individual) -> Unit
-
+fun interface EvolverListener {
+    fun notify(individual: Individual)
+}

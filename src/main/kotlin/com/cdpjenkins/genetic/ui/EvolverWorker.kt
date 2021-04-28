@@ -23,7 +23,7 @@ class EvolverWorker(val evolver: Evolver) : SwingWorker<Void?, Individual>() {
     override fun process(chunks: MutableList<Individual>) {
         chunks.forEach { chunk ->
             listeners.forEach { listener ->
-                listener.invoke(chunk)
+                listener.notify(chunk)
             }
         }
     }

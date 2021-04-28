@@ -36,10 +36,6 @@ class GUI(
                 updateUi(individualImageLabel, it, fitnessLabel)
             }
 
-            ensureDirExists("output")
-            ensureDirExists("output/png")
-            ensureDirExists("output/json")
-            ensureDirExists("output/svg")
             swingWorker.addListener {
                 it.saveToDisk()
             }
@@ -52,12 +48,7 @@ class GUI(
             fitnessLabel: JLabel
         ) {
             individualImageLabel.icon = ImageIcon(it.bufferedImage)
-            val size = it.genome.size
-            val time = it.timeInMillis
-            val generation = it.generation
-            val fitness = it.fitness
-            fitnessLabel.text =
-                "Genome size: $size Time: $time Generation: $generation Fitness: $fitness"
+            fitnessLabel.text = it.describe()
             individualImageLabel.invalidate()
             repaint()
         }
