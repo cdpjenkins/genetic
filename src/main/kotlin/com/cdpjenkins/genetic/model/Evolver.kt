@@ -4,7 +4,6 @@ import com.cdpjenkins.genetic.image.grabPixels
 import com.cdpjenkins.genetic.image.writePng
 import com.cdpjenkins.genetic.json.JSON
 import com.cdpjenkins.genetic.svg.SvgRenderer
-import com.cdpjenkins.genetic.ui.ensureDirExists
 import java.awt.image.BufferedImage
 import java.io.File
 
@@ -81,4 +80,9 @@ fun Individual.saveToDisk() {
 
 fun interface EvolverListener {
     fun notify(individual: Individual)
+}
+
+fun ensureDirExists(dirName: String) {
+    val dir = File(dirName)
+    if (!dir.exists()) dir.mkdir()
 }

@@ -2,10 +2,8 @@ package com.cdpjenkins.genetic.ui
 
 import com.cdpjenkins.genetic.model.Evolver
 import com.cdpjenkins.genetic.model.Individual
-import com.cdpjenkins.genetic.model.saveToDisk
 import java.awt.BorderLayout
 import java.awt.image.BufferedImage
-import java.io.File
 import javax.swing.*
 
 class GUI(
@@ -47,9 +45,4 @@ class GUI(
             repaint()
         }
     }
-}
-
-fun ensureDirExists(dirName: String) {
-    val dir = File(dirName)
-    if (!dir.exists()) dir.mkdir()
 }
