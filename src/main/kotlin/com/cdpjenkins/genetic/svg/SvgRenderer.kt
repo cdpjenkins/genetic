@@ -17,8 +17,8 @@ class SvgRenderer {
         svgGenerator.svgCanvasSize = Dimension(it.bounds.width, it.bounds.height)
         it.draw(svgGenerator)
 
-        // TODO that thing that is a bit like try with resources
-        val out = OutputStreamWriter(FileOutputStream(file), "UTF-8")
-        svgGenerator.stream(out, true)
+        OutputStreamWriter(FileOutputStream(file), "UTF-8").use {
+            svgGenerator.stream(it, true)
+        }
     }
 }
