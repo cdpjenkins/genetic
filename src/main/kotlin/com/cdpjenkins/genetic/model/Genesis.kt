@@ -4,6 +4,7 @@ import GENOME_SIZE
 import MAX_ALPHA
 import MIN_ALPHA
 import java.awt.image.BufferedImage
+import kotlin.random.Random
 
 val polyVertices: Int = 4
 
@@ -73,12 +74,12 @@ fun spawnRandomTriangle(bounds: BoundsRectangle): PolygonShape {
     return PolygonShape(vertices, colour, bounds)
 }
 
-private fun spawnRandomRadius() = random.nextInt(25)
+private fun spawnRandomRadius() = Random.nextInt(25)
 
 private fun spawnRandomColour() =
     Colour(
-        red = random.nextInt(255),
-        green = random.nextInt(255),
-        blue = random.nextInt(255),
+        red = Random.nextInt(255),
+        green = Random.nextInt(255),
+        blue = Random.nextInt(255),
         alpha = randint(MIN_ALPHA, MAX_ALPHA)
     )

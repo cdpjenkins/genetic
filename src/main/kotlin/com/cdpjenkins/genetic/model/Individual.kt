@@ -1,6 +1,6 @@
 package com.cdpjenkins.genetic.model
 
-import ADD_SHAPE_CHANCE
+import ADD_SHAPE_PROBABILITY
 import com.cdpjenkins.genetic.image.grabPixels
 import com.fasterxml.jackson.annotation.JsonIgnore
 import java.awt.Color
@@ -81,7 +81,7 @@ data class Individual(
 
         // Urgh this is freaking horrible
         val newNewGenome =
-            if (randint(0, ADD_SHAPE_CHANCE) == 0) {
+            if (withProbability(ADD_SHAPE_PROBABILITY)) {
                 newGenome + spawnRandomShape(bounds)
             } else {
                 newGenome
