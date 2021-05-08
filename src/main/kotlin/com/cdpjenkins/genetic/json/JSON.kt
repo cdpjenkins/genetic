@@ -2,7 +2,9 @@ package com.cdpjenkins.genetic.json
 
 import com.cdpjenkins.genetic.model.Individual
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import java.io.File
+import java.io.InputStream
 
 class JSON {
     val mapper = jacksonObjectMapper().also {
@@ -24,4 +26,6 @@ class JSON {
 
     fun deserialiseFromFile(jsonFile: File): Individual? =
         mapper.readValue(jsonFile, Individual::class.java)
+
+    fun fromStream(stream: InputStream): Individual = mapper.readValue(stream)
 }

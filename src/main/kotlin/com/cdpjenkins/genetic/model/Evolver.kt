@@ -71,7 +71,7 @@ fun Individual.saveToDisk() {
             ), this
         )
 
-        SvgRenderer().render(
+        SvgRenderer().renderToFile(
             File(String.format("output/svg/cow_%010d.svg", generation)),
             this
         )
