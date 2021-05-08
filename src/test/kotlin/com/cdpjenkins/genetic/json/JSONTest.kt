@@ -3,7 +3,6 @@ package com.cdpjenkins.genetic.json
 import com.cdpjenkins.genetic.model.*
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
-import json.JSON
 import org.junit.jupiter.api.Test
 import java.io.File
 
