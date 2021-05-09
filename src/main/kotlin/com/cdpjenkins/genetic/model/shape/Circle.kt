@@ -1,5 +1,6 @@
-package com.cdpjenkins.genetic.model
+package com.cdpjenkins.genetic.model.shape
 
+import com.cdpjenkins.genetic.model.mutateValueLinear
 import java.awt.Graphics2D
 
 data class Circle(

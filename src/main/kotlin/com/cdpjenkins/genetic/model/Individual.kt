@@ -2,6 +2,8 @@ package com.cdpjenkins.genetic.model
 
 import ADD_SHAPE_PROBABILITY
 import com.cdpjenkins.genetic.image.grabPixels
+import com.cdpjenkins.genetic.model.shape.BoundsRectangle
+import com.cdpjenkins.genetic.model.shape.Shape
 import com.fasterxml.jackson.annotation.JsonIgnore
 import java.awt.Color
 import java.awt.Graphics2D

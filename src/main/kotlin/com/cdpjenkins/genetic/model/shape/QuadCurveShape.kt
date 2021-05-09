@@ -1,4 +1,4 @@
-package com.cdpjenkins.genetic.model
+package com.cdpjenkins.genetic.model.shape
 
 import java.awt.geom.GeneralPath
 

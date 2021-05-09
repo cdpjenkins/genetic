@@ -1,6 +1,7 @@
 package com.cdpjenkins.genetic.json
 
 import com.cdpjenkins.genetic.model.*
+import com.cdpjenkins.genetic.model.shape.*
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
 import org.junit.jupiter.api.Test

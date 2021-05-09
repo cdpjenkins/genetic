@@ -1,8 +1,9 @@
-package com.cdpjenkins.genetic.model
+package com.cdpjenkins.genetic.model.shape
 
 import COLOUR_MUTATE_AMOUNT
 import MAX_ALPHA
 import MIN_ALPHA
+import com.cdpjenkins.genetic.model.mutateValueLinear
 import java.awt.Color
 
 data class Colour(val red: Int, val green:Int, val blue: Int, val alpha:Int) {

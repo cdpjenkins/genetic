@@ -3,6 +3,7 @@ package com.cdpjenkins.genetic.model
 import GENOME_SIZE
 import MAX_ALPHA
 import MIN_ALPHA
+import com.cdpjenkins.genetic.model.shape.*
 import java.awt.image.BufferedImage
 import kotlin.random.Random
 

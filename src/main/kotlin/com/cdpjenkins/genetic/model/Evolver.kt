@@ -3,6 +3,7 @@ package com.cdpjenkins.genetic.model
 import com.cdpjenkins.genetic.image.grabPixels
 import com.cdpjenkins.genetic.image.writePng
 import com.cdpjenkins.genetic.json.JSON
+import com.cdpjenkins.genetic.model.shape.BoundsRectangle
 import com.cdpjenkins.genetic.svg.SvgRenderer
 import java.awt.image.BufferedImage
 import java.io.File

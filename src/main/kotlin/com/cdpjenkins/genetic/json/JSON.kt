@@ -7,10 +7,7 @@ import java.io.File
 import java.io.InputStream
 
 class JSON {
-    val mapper = jacksonObjectMapper().also {
-        // Yuck this is deprecated but I haven't yet figured out how to do this the proper way
-        it.enableDefaultTyping()
-    }
+    val mapper = jacksonObjectMapper()
 
     fun serialise(individual: Individual): String {
         return mapper.writeValueAsString(individual)
