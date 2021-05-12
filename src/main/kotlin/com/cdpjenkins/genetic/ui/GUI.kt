@@ -22,12 +22,16 @@ class GUI(
         val masterIcon: ImageIcon = ImageIcon(masterImage)
 
         init {
-            add(JLabel(masterIcon), BorderLayout.WEST)
+            val dudePanel = JPanel()
+            dudePanel.layout = BoxLayout(dudePanel, BoxLayout.X_AXIS)
+            dudePanel.add(JLabel(masterIcon), BorderLayout.WEST)
             val individualImageLabel = JLabel(ImageIcon(masterImage))
-            add(individualImageLabel, BorderLayout.CENTER)
-
+            dudePanel.add(individualImageLabel, BorderLayout.CENTER)
             val diffImageLabel = JLabel(ImageIcon(masterImage))
-            add(diffImageLabel, BorderLayout.EAST)
+            dudePanel.add(diffImageLabel, BorderLayout.EAST)
+
+            val scrollPane = JScrollPane(dudePanel)
+            add(scrollPane, BorderLayout.CENTER)
 
             val fitnessLabel = JLabel("", SwingConstants.RIGHT)
             add(fitnessLabel, BorderLayout.SOUTH)
