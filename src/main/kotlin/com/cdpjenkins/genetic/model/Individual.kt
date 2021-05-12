@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import java.awt.Color
 import java.awt.Graphics2D
 import java.awt.image.BufferedImage
+import java.lang.Integer.min
 import kotlin.system.measureTimeMillis
 
 data class Individual(
@@ -20,6 +21,10 @@ data class Individual(
 
     @JsonIgnore
     var bufferedImage: BufferedImage = BufferedImage(bounds.width, bounds.height, BufferedImage.TYPE_INT_ARGB)
+
+    @JsonIgnore
+    var diffImage: BufferedImage = BufferedImage(bounds.width, bounds.height, BufferedImage.TYPE_INT_ARGB)
+
     var fitness = Integer.MAX_VALUE
 
     fun draw(g: Graphics2D) {
@@ -42,6 +47,37 @@ data class Individual(
             fitness = calculateFitness(masterPixels)
         }
         this.timeInMillis = timeInMillis
+    }
+
+    fun drawDiff(masterPixels: IntArray) {
+        val thisPixels = grabPixels(bufferedImage)
+
+        val pixels = IntArray(bufferedImage.width * bufferedImage.height)
+
+        for ((i, pi) in thisPixels.withIndex()) {
+            val mpi = masterPixels[i]
+
+            val pr: Int  =  (pi shr 16) and 0xFF
+            val pg: Int  =  (pi shr 8 ) and 0xFF
+            val pb: Int  =  (pi       ) and 0xFF
+            val mpr: Int = (mpi shr 16) and 0xFF
+            val mpg: Int = (mpi shr 8 ) and 0xFF
+            val mpb: Int = (mpi       ) and 0xFF
+
+            val dr: Int = pr - mpr
+            val dg: Int = pg - mpg
+            val db: Int = pb - mpb
+
+            val diff = (dr * dr + dg * dg + db * db) shr 6
+
+            val truncatedDiff = min(diff, 255)
+            pixels[i] = (0xFF shl 24) or (truncatedDiff shl 16) or (truncatedDiff shl 8) or truncatedDiff
+        }
+
+        diffImage = BufferedImage(bounds.width, bounds.height, BufferedImage.TYPE_INT_ARGB)
+        diffImage.setRGB(0, 0, bufferedImage.width, bufferedImage.height, pixels, 0, bufferedImage.width)
+
+        this.diffImage = diffImage
     }
 
     private fun calculateFitness(masterPixels: IntArray): Int {

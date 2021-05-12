@@ -25,6 +25,9 @@ class Evolver(var individual: Individual, masterImage: BufferedImage) {
         if (newIndividual.fitness < individual.fitness) {
             individual = newIndividual
             println(individual.describe())
+
+            individual.drawDiff(masterPixels)
+
             listeners.forEach{ it.notify(individual) }
         }
     }
@@ -59,18 +62,11 @@ fun makeEvolver(
 
 fun Individual.saveToDisk() {
     if (generation % 10 == 0) {
-        val outputFile =
-            File(String.format("output/png/cow_%010d.png", generation))
-        writePng(this, outputFile)
+        val pngFile = File(String.format("output/png/cow_%010d.png", generation))
+        writePng(this, pngFile)
 
-        JSON().serialiseToFile(
-            File(
-                String.format(
-                    "output/json/cow_%010d.json",
-                    generation
-                )
-            ), this
-        )
+        val jsonFile = File(String.format("output/json/cow_%010d.json", generation))
+        JSON().serialiseToFile(jsonFile, this)
 
         SvgRenderer().renderToFile(
             File(String.format("output/svg/cow_%010d.svg", generation)),

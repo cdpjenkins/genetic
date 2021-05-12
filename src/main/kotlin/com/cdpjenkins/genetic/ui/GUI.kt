@@ -24,22 +24,27 @@ class GUI(
         init {
             add(JLabel(masterIcon), BorderLayout.WEST)
             val individualImageLabel = JLabel(ImageIcon(masterImage))
-            add(individualImageLabel, BorderLayout.EAST)
+            add(individualImageLabel, BorderLayout.CENTER)
+
+            val diffImageLabel = JLabel(ImageIcon(masterImage))
+            add(diffImageLabel, BorderLayout.EAST)
 
             val fitnessLabel = JLabel("", SwingConstants.RIGHT)
             add(fitnessLabel, BorderLayout.SOUTH)
 
             evolver.addListener {
-                SwingUtilities.invokeLater { updateUi(individualImageLabel, it, fitnessLabel) }
+                SwingUtilities.invokeLater { updateUi(individualImageLabel, it, fitnessLabel, diffImageLabel) }
             }
         }
 
         private fun updateUi(
             individualImageLabel: JLabel,
             it: Individual,
-            fitnessLabel: JLabel
+            fitnessLabel: JLabel,
+            diffLabel: JLabel
         ) {
             individualImageLabel.icon = ImageIcon(it.bufferedImage)
+            diffLabel.icon = ImageIcon(it.diffImage)
             fitnessLabel.text = it.describe()
             individualImageLabel.invalidate()
             repaint()
