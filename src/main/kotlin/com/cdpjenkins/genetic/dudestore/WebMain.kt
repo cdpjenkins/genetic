@@ -1,4 +1,4 @@
-package com.cdpjenkins.genetic
+package com.cdpjenkins.genetic.dudestore
 
 import com.cdpjenkins.genetic.json.JSON
 import com.cdpjenkins.genetic.model.Individual
@@ -21,7 +21,9 @@ fun main(args: Array<String>) {
 }
 
 internal fun makeServer(port: Int, secret: String): Http4kServer =
-    makeApi(secret).asServer(Netty(port)).start()
+    makeApi(secret)
+        .asServer(Netty(port))
+        .start()
 
 var currentDude: Individual? = null
 

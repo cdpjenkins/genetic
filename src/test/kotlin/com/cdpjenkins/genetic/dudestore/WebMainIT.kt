@@ -1,4 +1,4 @@
-package com.cdpjenkins.genetic
+package com.cdpjenkins.genetic.dudestore
 
 import com.cdpjenkins.genetic.json.JSON
 import com.cdpjenkins.genetic.model.Individual
@@ -10,7 +10,6 @@ import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
 import org.http4k.asString
 import org.http4k.client.OkHttp
-import org.http4k.core.HttpHandler
 import org.http4k.core.Method
 import org.http4k.core.Request
 import org.http4k.core.Status
@@ -25,7 +24,7 @@ class WebMainIT {
 
     @BeforeEach
     internal fun startServer() {
-        server = makeServer(9000, "iAmTheSecret")
+        server = makeServer(9000, "theCorrectSecret")
     }
 
     @AfterEach
@@ -35,16 +34,10 @@ class WebMainIT {
 
     private val client = OkHttp()
 
-    private val function: HttpHandler
-        get() {
-            val client: HttpHandler = client
-            return client
-        }
-
     @Test
-    fun `can post and retrieve Individual`() {
+    fun `can post and retrieve Individual as JSON`() {
         val postResponse = client(
-            Request(Method.POST, "http://localhost:9000/dude?secret=iAmTheSecret")
+            Request(Method.POST, "http://localhost:9000/dude?secret=theCorrectSecret")
                 .body(json.serialise(anIndividual))
         )
         assertThat(postResponse.status, equalTo(Status.OK))
