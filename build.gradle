@@ -35,4 +35,7 @@ tasks.test {
     }
 }
 
-task stage(dependsOn: ['shadowJar'])
+build {
+    dependsOn shadowJar
+}
+task stage(dependsOn: ['build'])
