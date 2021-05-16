@@ -11,8 +11,9 @@ import org.http4k.routing.routes
 import org.http4k.server.Netty
 import org.http4k.server.asServer
 
-fun main() {
-    val server = api.asServer(Netty(9000)).start()
+fun main(args: Array<String>) {
+    val port = Integer.parseInt(args[0])
+    val server = api.asServer(Netty(port)).start()
     server.block()
 }
 
