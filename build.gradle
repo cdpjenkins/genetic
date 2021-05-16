@@ -1,5 +1,6 @@
 plugins {
     id 'org.jetbrains.kotlin.jvm' version '1.4.10'
+    id 'com.github.johnrengelman.shadow' version '5.2.0'
 }
 
 group 'org.example'
@@ -8,6 +9,9 @@ version '1.0-SNAPSHOT'
 repositories {
     mavenCentral()
 }
+
+apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'java'
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib"
@@ -30,3 +34,5 @@ tasks.test {
         events("passed", "skipped", "failed")
     }
 }
+
+task stage(dependsOn: ['shadowJar'])
