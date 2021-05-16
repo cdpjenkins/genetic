@@ -6,6 +6,7 @@ import com.cdpjenkins.genetic.svg.SvgRenderer
 import org.http4k.core.Method
 import org.http4k.core.Response
 import org.http4k.core.Status.Companion.OK
+import org.http4k.core.Status.Companion.UNAUTHORIZED
 import org.http4k.routing.bind
 import org.http4k.routing.routes
 import org.http4k.server.Netty
@@ -23,9 +24,13 @@ private val json = JSON()
 
 val api = routes(
         "/dude" bind Method.POST to {
-            val newDude: Individual = json.fromStream(it.body.stream)
-            currentDude = newDude
-            Response(OK)
+            if (System.getenv("SECRET") != it.query("secret")) {
+                 Response(UNAUTHORIZED)
+            } else {
+                val newDude: Individual = json.fromStream(it.body.stream)
+                currentDude = newDude
+                Response(OK)
+            }
         },
         "/dude" bind Method.GET to {
             Response(OK)
