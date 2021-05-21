@@ -1,7 +1,7 @@
 package com.cdpjenkins.genetic
 
 import MASTER_IMAGE_FILE
-import com.cdpjenkins.genetic.json.JSON
+import com.cdpjenkins.genetic.json.deserialiseFromFile
 import com.cdpjenkins.genetic.model.makeEvolver
 import com.cdpjenkins.genetic.model.saveToDisk
 import com.cdpjenkins.genetic.ui.GUI
@@ -13,7 +13,7 @@ import javax.imageio.ImageIO
 fun main(args: Array<String>) {
 
     val initialIndividual = if (args.size == 1) {
-        JSON().deserialiseFromFile(File(args[0]))
+        deserialiseFromFile(File(args[0]))
     } else {
         null
     }

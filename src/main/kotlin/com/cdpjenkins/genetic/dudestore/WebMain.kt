@@ -1,6 +1,7 @@
 package com.cdpjenkins.genetic.dudestore
 
-import com.cdpjenkins.genetic.json.JSON
+import com.cdpjenkins.genetic.json.fromStream
+import com.cdpjenkins.genetic.json.serialise
 import com.cdpjenkins.genetic.model.Individual
 import com.cdpjenkins.genetic.svg.SvgRenderer
 import org.http4k.core.Method
@@ -13,33 +14,41 @@ import org.http4k.routing.routes
 import org.http4k.server.Http4kServer
 import org.http4k.server.Netty
 import org.http4k.server.asServer
+import org.jdbi.v3.core.Jdbi
 
 fun main(args: Array<String>) {
     val port = Integer.parseInt(args[0])
-    val server = makeServer(port, System.getenv("SECRET"))
+    val dao = DudeDao(Jdbi
+        .create(
+            "jdbc:postgresql://localhost/dude_db",
+            "test_user",
+            "BUuVrC0QTe9A"
+        )
+    )
+
+    val server = makeServer(port, System.getenv("SECRET"), dao)
     server.block()
 }
 
-internal fun makeServer(port: Int, secret: String): Http4kServer =
-    makeApi(secret)
+internal fun makeServer(port: Int, secret: String, dudeDao: DudeDao): Http4kServer =
+    makeApi(secret, dudeDao)
         .asServer(Netty(port))
         .start()
 
-var currentDude: Individual? = null
-
-private val json = JSON()
-
-private fun makeApi(secret: String?) = routes(
+private fun makeApi(secret: String?, dao: DudeDao) = routes(
     "/dude" bind Method.POST to {
         if (secret != it.query("secret")) {
             Response(UNAUTHORIZED)
         } else {
-            val newDude: Individual = json.fromStream(it.body.stream)
-            currentDude = newDude
+            val newDude: Individual = fromStream(it.body.stream)
+            dao.createTable()
+            dao.insertDude(newDude)
             Response(OK)
         }
     },
     "/dude" bind Method.GET to {
+        val currentDude = dao.latestDude()
+
         if (it.query("type") == "json") {
                 currentDude?.serialiseToResponse() ?: Response(NOT_FOUND)
         } else {
@@ -49,4 +58,4 @@ private fun makeApi(secret: String?) = routes(
     }
 )
 
-fun Individual.serialiseToResponse(): Response = Response(OK).body(json.serialise(this))
+fun Individual.serialiseToResponse(): Response = Response(OK).body(serialise(this))

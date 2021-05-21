@@ -8,9 +8,6 @@ import org.junit.jupiter.api.Test
 import java.io.File
 
 internal class JSONTest {
-
-    private val json = JSON()
-
     private val individual: Individual = Individual(
         listOf(
             Circle(
@@ -35,8 +32,8 @@ internal class JSONTest {
 
     @Test
     internal fun `can serialise and deserialise Individuals`() {
-        val jsonString = json.serialise(individual)
-        val deserialisedIndividual: Individual = json.deserialise(jsonString)
+        val jsonString = serialise(individual)
+        val deserialisedIndividual: Individual = jsonString.deserialiseIndividual()
 
         assertThat(deserialisedIndividual, equalTo(individual))
     }
@@ -44,8 +41,8 @@ internal class JSONTest {
     @Test
     internal fun `can serialise to and deserialise from a file`() {
         val jsonFile = File.createTempFile("IndividualTest", ".json")
-        json.serialiseToFile(jsonFile, individual)
-        val deserlialisedIndividual = json.deserialiseFromFile(jsonFile)
+        serialiseToFile(jsonFile, individual)
+        val deserlialisedIndividual = deserialiseFromFile(jsonFile)
 
         assertThat(deserlialisedIndividual, equalTo(individual))
     }

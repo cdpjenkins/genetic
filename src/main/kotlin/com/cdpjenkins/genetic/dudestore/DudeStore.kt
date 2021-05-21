@@ -26,8 +26,4 @@ fun main(args: Array<String>) {
 
 }
 
-data class Dude(
-    var name: String,
-    var generation: Int = -1
-)
 

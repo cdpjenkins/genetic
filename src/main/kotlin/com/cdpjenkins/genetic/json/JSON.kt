@@ -6,23 +6,24 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import java.io.File
 import java.io.InputStream
 
-class JSON {
-    val mapper = jacksonObjectMapper()
+val mapper = jacksonObjectMapper()
 
-    fun serialise(individual: Individual): String {
-        return mapper.writeValueAsString(individual)
-    }
-
-    fun deserialise(json: String): Individual {
-        return mapper.readValue(json, Individual::class.java)
-    }
-
-    fun serialiseToFile(createTempFile: File, individual: Individual) {
-        mapper.writeValue(createTempFile, individual)
-    }
-
-    fun deserialiseFromFile(jsonFile: File): Individual? =
-        mapper.readValue(jsonFile, Individual::class.java)
-
-    fun fromStream(stream: InputStream): Individual = mapper.readValue(stream)
+fun serialise(individual: Individual): String {
+    return mapper.writeValueAsString(individual)
 }
+
+fun String.deserialiseIndividual(): Individual {
+    println("individual: ${this}" )
+    println(this)
+    return mapper.readValue(this, Individual::class.java)
+}
+
+fun serialiseToFile(createTempFile: File, individual: Individual) {
+    mapper.writeValue(createTempFile, individual)
+}
+
+fun deserialiseFromFile(jsonFile: File): Individual? =
+    mapper.readValue(jsonFile, Individual::class.java)
+
+fun fromStream(stream: InputStream): Individual = mapper.readValue(stream)
+

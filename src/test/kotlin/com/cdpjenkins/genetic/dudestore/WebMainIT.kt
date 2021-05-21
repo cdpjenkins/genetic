@@ -1,6 +1,7 @@
 package com.cdpjenkins.genetic.dudestore
 
-import com.cdpjenkins.genetic.json.JSON
+import com.cdpjenkins.genetic.json.deserialiseIndividual
+import com.cdpjenkins.genetic.json.serialise
 import com.cdpjenkins.genetic.model.Individual
 import com.cdpjenkins.genetic.model.shape.BoundsRectangle
 import com.cdpjenkins.genetic.model.shape.Circle
@@ -14,17 +15,36 @@ import org.http4k.core.Method
 import org.http4k.core.Request
 import org.http4k.core.Status
 import org.http4k.server.Http4kServer
+import org.jdbi.v3.core.Jdbi
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.testcontainers.containers.PostgreSQLContainer
+import org.junit.ClassRule
 
 class WebMainIT {
+    @ClassRule
+    var postgreSQLContainer = MyPostgreSQLContainer("postgres")
+        .withDatabaseName("dude_db")
+        .withUsername("test_user")
+        .withPassword("BUuVrC0QTe9A")
+
     lateinit var server: Http4kServer
-    private val json = JSON()
 
     @BeforeEach
     internal fun startServer() {
-        server = makeServer(9000, "theCorrectSecret")
+        postgreSQLContainer.start()
+
+        val dao = DudeDao(
+            Jdbi
+                .create(
+                    postgreSQLContainer.jdbcUrl,
+                    "test_user",
+                    "BUuVrC0QTe9A"
+                )
+        )
+
+        server = makeServer(9000, "theCorrectSecret", dao)
     }
 
     @AfterEach
@@ -36,16 +56,17 @@ class WebMainIT {
 
     @Test
     fun `can post and retrieve Individual as JSON`() {
+        val serialisedIndividual = serialise(anIndividual)
         val postResponse = client(
             Request(Method.POST, "http://localhost:9000/dude?secret=theCorrectSecret")
-                .body(json.serialise(anIndividual))
+                .body(serialisedIndividual)
         )
         assertThat(postResponse.status, equalTo(Status.OK))
 
         val getResponse = client(Request(Method.GET, "http://localhost:9000/dude?type=json"))
         assertThat(getResponse.status, equalTo(Status.OK))
         assertThat(
-            json.deserialise(getResponse.body.payload.asString()),
+            getResponse.body.payload.asString().deserialiseIndividual(),
             equalTo(anIndividual))
     }
 
@@ -53,7 +74,7 @@ class WebMainIT {
     fun `POST blows up without correct secret credentials`() {
         val postResponse = client(
             Request(Method.POST, "http://localhost:9000/dude?secret=theWrongSecert")
-                .body(json.serialise(anIndividual))
+                .body(serialise(anIndividual))
         )
         assertThat(postResponse.status, equalTo(Status.UNAUTHORIZED))
     }
@@ -71,3 +92,5 @@ val anIndividual = Individual(
         )
     )
 )
+
+class MyPostgreSQLContainer(imageName: String) : PostgreSQLContainer<MyPostgreSQLContainer>(imageName)

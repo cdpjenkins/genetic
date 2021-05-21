@@ -2,7 +2,7 @@ package com.cdpjenkins.genetic.model
 
 import com.cdpjenkins.genetic.image.grabPixels
 import com.cdpjenkins.genetic.image.writePng
-import com.cdpjenkins.genetic.json.JSON
+import com.cdpjenkins.genetic.json.serialiseToFile
 import com.cdpjenkins.genetic.model.shape.BoundsRectangle
 import com.cdpjenkins.genetic.svg.SvgRenderer
 import java.awt.image.BufferedImage
@@ -66,7 +66,7 @@ fun Individual.saveToDisk() {
         writePng(this, pngFile)
 
         val jsonFile = File(String.format("output/json/cow_%010d.json", generation))
-        JSON().serialiseToFile(jsonFile, this)
+        serialiseToFile(jsonFile, this)
 
         SvgRenderer().renderToFile(
             File(String.format("output/svg/cow_%010d.svg", generation)),
