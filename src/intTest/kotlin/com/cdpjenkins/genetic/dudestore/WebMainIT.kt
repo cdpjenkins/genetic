@@ -29,6 +29,8 @@ class WebMainIT {
         .withUsername("test_docker_postgres_user")
         .withPassword("test_docker_postgres_password")
 
+    val secret = System.getProperty("secret", "theCorrectSecret")
+
     lateinit var server: Http4kServer
 
     @BeforeEach
@@ -56,11 +58,9 @@ class WebMainIT {
 
     @Test
     fun `can post and retrieve Individual as JSON`() {
-        val serialisedIndividual = serialise(anIndividual)
-        val secret = System.getProperty("secret", "theCorrectSecret")
         val postResponse = client(
             Request(Method.POST, "http://localhost:9000/dude?secret=$secret")
-                .body(serialisedIndividual)
+                .body(serialise(anIndividual))
         )
         assertThat(postResponse.status, equalTo(Status.OK))
 
