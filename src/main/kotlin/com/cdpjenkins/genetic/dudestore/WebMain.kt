@@ -30,7 +30,7 @@ fun main(args: Array<String>) {
     server.block()
 }
 
-internal fun makeServer(port: Int, secret: String, dudeDao: DudeDao): Http4kServer =
+fun makeServer(port: Int, secret: String, dudeDao: DudeDao): Http4kServer =
     makeApi(secret, dudeDao)
         .asServer(Netty(port))
         .start()
@@ -50,7 +50,7 @@ private fun makeApi(secret: String?, dao: DudeDao) = routes(
         val currentDude = dao.latestDude()
 
         if (it.query("type") == "json") {
-                currentDude?.serialiseToResponse() ?: Response(NOT_FOUND)
+            currentDude?.serialiseToResponse() ?: Response(NOT_FOUND)
         } else {
             Response(OK)
                 .body(SvgRenderer().renderToString(currentDude))

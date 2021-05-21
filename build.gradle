@@ -13,6 +13,13 @@ repositories {
 apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'java'
 
+sourceSets {
+    intTest {
+        compileClasspath += sourceSets.main.output
+        runtimeClasspath += sourceSets.main.output
+    }
+}
+
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib"
     implementation "com.fasterxml.jackson.module:jackson-module-kotlin:2.12.+"
@@ -32,9 +39,15 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation('com.natpryce:hamkrest:1.8.0.1')
 
-    testImplementation "org.testcontainers:testcontainers:1.15.3"
-    testImplementation "org.testcontainers:junit-jupiter:1.15.3"
-    testImplementation "org.testcontainers:postgresql:1.15.3"
+    intTestImplementation(platform("org.junit:junit-bom:5.7.1"))
+    intTestImplementation("org.junit.jupiter:junit-jupiter")
+    intTestImplementation('com.natpryce:hamkrest:1.8.0.1')
+
+    intTestImplementation "org.testcontainers:testcontainers:1.15.3"
+    intTestImplementation "org.testcontainers:junit-jupiter:1.15.3"
+    intTestImplementation "org.testcontainers:postgresql:1.15.3"
+
+    intTestRuntime 'org.postgresql:postgresql:42.2.20'
 }
 
 tasks.test {
@@ -44,7 +57,23 @@ tasks.test {
     }
 }
 
+
 build {
     dependsOn shadowJar
 }
 task stage(dependsOn: ['build'])
+
+configurations {
+    intTestImplementation.extendsFrom implementation
+    intTestRuntimeOnly.extendsFrom runtimeOnly
+}
+
+task intTest(type: Test) {
+    testClassesDirs = sourceSets.intTest.output.classesDirs
+    classpath = sourceSets.intTest.runtimeClasspath
+
+    useJUnitPlatform()
+    testLogging {
+        events("passed", "skipped", "failed")
+    }
+}
