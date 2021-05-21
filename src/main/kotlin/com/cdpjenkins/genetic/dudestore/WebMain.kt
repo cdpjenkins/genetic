@@ -20,9 +20,7 @@ fun main(args: Array<String>) {
     val port = Integer.parseInt(args[0])
     val dao = DudeDao(Jdbi
         .create(
-            "jdbc:postgresql://localhost/dude_db",
-            "test_user",
-            "BUuVrC0QTe9A"
+            System.getenv("DATABASE_URL")
         )
     )
 
