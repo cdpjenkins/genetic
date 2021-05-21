@@ -20,7 +20,7 @@ fun main(args: Array<String>) {
     val port = Integer.parseInt(args[0])
     val dao = DudeDao(Jdbi
         .create(
-            System.getenv("DATABASE_URL")
+            System.getenv("JDBC_DATABASE_URL")
         )
     )
 
