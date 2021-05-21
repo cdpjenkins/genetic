@@ -26,8 +26,8 @@ class WebMainIT {
     @ClassRule
     var postgreSQLContainer = MyPostgreSQLContainer("postgres")
         .withDatabaseName("dude_db")
-        .withUsername("test_user")
-        .withPassword("BUuVrC0QTe9A")
+        .withUsername("test_docker_postgres_user")
+        .withPassword("test_docker_postgres_password")
 
     lateinit var server: Http4kServer
 
@@ -39,8 +39,8 @@ class WebMainIT {
             Jdbi
                 .create(
                     postgreSQLContainer.jdbcUrl,
-                    "test_user",
-                    "BUuVrC0QTe9A"
+                    "test_docker_postgres_user",
+                    "test_docker_postgres_password"
                 )
         )
 
@@ -57,8 +57,9 @@ class WebMainIT {
     @Test
     fun `can post and retrieve Individual as JSON`() {
         val serialisedIndividual = serialise(anIndividual)
+        val secret = System.getProperty("secret", "theCorrectSecret")
         val postResponse = client(
-            Request(Method.POST, "http://localhost:9000/dude?secret=theCorrectSecret")
+            Request(Method.POST, "http://localhost:9000/dude?secret=$secret")
                 .body(serialisedIndividual)
         )
         assertThat(postResponse.status, equalTo(Status.OK))
