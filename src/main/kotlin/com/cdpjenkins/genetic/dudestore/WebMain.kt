@@ -1,14 +1,13 @@
 package com.cdpjenkins.genetic.dudestore
 
-import com.cdpjenkins.genetic.json.fromStream
-import com.cdpjenkins.genetic.json.serialise
 import com.cdpjenkins.genetic.model.Individual
 import com.cdpjenkins.genetic.svg.SvgRenderer
-import org.http4k.core.Method
-import org.http4k.core.Response
+import org.http4k.core.*
 import org.http4k.core.Status.Companion.NOT_FOUND
 import org.http4k.core.Status.Companion.OK
 import org.http4k.core.Status.Companion.UNAUTHORIZED
+import org.http4k.format.Jackson.auto
+import org.http4k.lens.Query
 import org.http4k.routing.bind
 import org.http4k.routing.routes
 import org.http4k.server.Http4kServer
@@ -33,12 +32,15 @@ fun makeServer(port: Int, secret: String, dudeDao: DudeDao): Http4kServer =
         .asServer(Netty(port))
         .start()
 
+val individualLens = Body.auto<Individual>().toLens()
 private fun makeApi(secret: String?, dao: DudeDao) = routes(
-    "/dude" bind Method.POST to {
-        if (secret != it.query("secret")) {
+    "/dude" bind Method.POST to { request: Request ->
+        val secretLens = Query.required("secret")
+
+        if (secret != secretLens.extract(request)) {
             Response(UNAUTHORIZED)
         } else {
-            val newDude: Individual = fromStream(it.body.stream)
+            val newDude: Individual = individualLens(request)
             dao.createTable()
             dao.insertDude(newDude)
             Response(OK)
@@ -48,12 +50,14 @@ private fun makeApi(secret: String?, dao: DudeDao) = routes(
         val currentDude = dao.latestDude()
 
         if (it.query("type") == "json") {
-            currentDude?.serialiseToResponse() ?: Response(NOT_FOUND)
+            if (currentDude != null) {
+                Response(OK).with(individualLens of currentDude)
+            } else {
+                Response(NOT_FOUND)
+            }
         } else {
             Response(OK)
                 .body(SvgRenderer().renderToString(currentDude))
         }
     }
 )
-
-fun Individual.serialiseToResponse(): Response = Response(OK).body(serialise(this))
