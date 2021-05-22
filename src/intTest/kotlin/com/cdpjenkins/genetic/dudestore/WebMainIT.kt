@@ -11,9 +11,8 @@ import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
 import org.http4k.asString
 import org.http4k.client.OkHttp
-import org.http4k.core.Method
-import org.http4k.core.Request
-import org.http4k.core.Status
+import org.http4k.core.*
+import org.http4k.format.Jackson.auto
 import org.http4k.server.Http4kServer
 import org.jdbi.v3.core.Jdbi
 import org.junit.ClassRule
@@ -30,6 +29,8 @@ class WebMainIT {
         .withPassword("test_docker_postgres_password")
 
     val secret = System.getProperty("secret", "theCorrectSecret")
+
+    val individualLens = Body.auto<Individual>().toLens()
 
     lateinit var server: Http4kServer
 
@@ -49,6 +50,11 @@ class WebMainIT {
         server = makeServer(9000, "theCorrectSecret", dao)
     }
 
+    @BeforeEach
+    internal fun recreateDatabase() {
+        postRecreate()
+    }
+
     @AfterEach
     internal fun stopServer() {
         server.stop()
@@ -59,29 +65,68 @@ class WebMainIT {
     @Test
     fun `can post and retrieve Individual as JSON`() {
         val postResponse = client(
-            Request(Method.POST, "http://localhost:9000/dude?secret=$secret")
-                .body(serialise(anIndividual))
+            Request(Method.POST, "http://localhost:9000/dude/steve?secret=$secret")
+                .body(serialise(individualSteve))
         )
         assertThat(postResponse.status, equalTo(Status.OK))
 
-        val getResponse = client(Request(Method.GET, "http://localhost:9000/dude?type=json"))
+        val getResponse = client(Request(Method.GET, "http://localhost:9000/dude/steve?type=json"))
         assertThat(getResponse.status, equalTo(Status.OK))
         assertThat(
             getResponse.body.payload.asString().deserialiseIndividual(),
-            equalTo(anIndividual))
+            equalTo(individualSteve))
     }
 
     @Test
-    fun `POST blows up without correct secret credentials`() {
+    fun `multiple named individuals can be posted and retrieved`() {
+        postDude("steve", individualSteve)
+        postDude("brian", individualBrian)
+
+        val getResponse = getDude("steve")
+        assertThat(
+            individualLens(getResponse),
+            equalTo(individualSteve))
+
+    }
+
+    @Test
+    fun `POST dude blows up without correct secret credentials`() {
         val postResponse = client(
-            Request(Method.POST, "http://localhost:9000/dude?secret=theWrongSecert")
-                .body(serialise(anIndividual))
+            Request(Method.POST, "http://localhost:9000/dude/steve?secret=theWrongSecert")
+                .body(serialise(individualSteve))
         )
         assertThat(postResponse.status, equalTo(Status.UNAUTHORIZED))
     }
+
+    @Test
+    fun `POST recreate blows up without correct secret credentials`() {
+        val postResponse = client(
+            Request(Method.POST, "http://localhost:9000/recreate?secret=theWrongSecert"))
+        assertThat(postResponse.status, equalTo(Status.UNAUTHORIZED))
+    }
+
+    private fun postDude(name: String, dude: Individual) {
+        val postResponse = client(
+            Request(Method.POST, "http://localhost:9000/dude/$name?secret=$secret")
+                .body(serialise(dude))
+        )
+        assertThat(postResponse.status, equalTo(Status.OK))
+    }
+
+    private fun postRecreate() {
+        val postResponse = client(
+            Request(Method.POST, "http://localhost:9000/recreate?secret=$secret"))
+        assertThat(postResponse.status, equalTo(Status.OK))
+    }
+
+    private fun getDude(name: String): Response {
+        val getResponse = client(Request(Method.GET, "http://localhost:9000/dude/$name?type=json"))
+        assertThat(getResponse.status, equalTo(Status.OK))
+        return getResponse
+    }
 }
 
-val anIndividual = Individual(
+val individualSteve = Individual(
     bounds = BoundsRectangle(0, 0, 100, 100),
     generation = 1,
     genome = listOf(
@@ -93,5 +138,19 @@ val anIndividual = Individual(
         )
     )
 )
+
+val individualBrian = Individual(
+    bounds = BoundsRectangle(0, 0, 1000, 1000),
+    generation = 1,
+    genome = listOf(
+        Circle(
+            Point(250, 750),
+            12,
+            Colour(200, 50, 100, 255),
+            BoundsRectangle(0, 0, 1000, 1000)
+        )
+    )
+)
+
 
 class MyPostgreSQLContainer(imageName: String) : PostgreSQLContainer<MyPostgreSQLContainer>(imageName)

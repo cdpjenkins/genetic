@@ -8,29 +8,42 @@ import org.jdbi.v3.core.Jdbi
 class DudeDao(val jdbi: Jdbi) {
     fun createTable() {
         jdbi.withHandle<Int, Exception> {
-
-
-            it.execute(
-                """
-                DROP TABLE IF EXISTS Dudes;
-                """.trimIndent()
-            )
             it.execute(
                 """
                 CREATE TABLE IF NOT EXISTS Dudes(
-                    id SERIAL,
-                    individual JSONB NOT NULL
+                    name VARCHAR(50) NOT NULL,
+                    generation INT NOT NULL,
+                    individual JSONB NOT NULL,
+                    PRIMARY KEY (name, generation)
                 );
                 """.trimIndent())
         }
     }
 
-    fun insertDude(dude: Individual) {
+    fun recreate() {
+        jdbi.withHandle<Int, Exception> {
+            it.execute(
+                """
+                DROP TABLE IF EXISTS Dudes;
+                """.trimIndent()
+            )
+        }
+        createTable()
+    }
+
+    fun insertDude(dude: Individual, name: String, generation: Int) {
         val serialise = serialise(dude)
         println(serialise)
 
         jdbi.withHandle<Int, Exception> {
-            it.createUpdate("INSERT INTO Dudes (individual) VALUES(cast (:individual as JSONB))")
+            it.createUpdate(
+                """
+                    INSERT INTO Dudes (name, generation, individual)
+                    VALUES(:name, :generation, cast (:individual as JSONB))
+                """.trimIndent()
+            )
+                .bind("name", name)
+                .bind("generation", generation)
                 .bind("individual", serialise)
                 .execute();
         }
@@ -39,7 +52,13 @@ class DudeDao(val jdbi: Jdbi) {
     fun latestDude(): Individual? {
         try {
             return jdbi.withHandle<Individual, Exception> {
-                it.createQuery("SELECT * FROM Dudes ORDER BY ID DESC LIMIT 1")
+                it.createQuery(
+                    """
+                        SELECT individual FROM Dudes
+                        WHERE name=:name
+                        ORDER BY generation DESC LIMIT 1
+                    """.trimIndent())
+                    .bind("name", "steve")
                     .mapToBean(Dude::class.java)
                     .findOne()
                     .orElse(null)
