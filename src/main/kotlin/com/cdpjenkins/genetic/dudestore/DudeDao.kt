@@ -8,12 +8,19 @@ import org.jdbi.v3.core.Jdbi
 class DudeDao(val jdbi: Jdbi) {
     fun createTable() {
         jdbi.withHandle<Int, Exception> {
+
+
+            it.execute(
+                """
+                DROP TABLE IF EXISTS Dudes;
+                """.trimIndent()
+            )
             it.execute(
                 """
                 CREATE TABLE IF NOT EXISTS Dudes(
                     id SERIAL,
-                    individual TEXT NOT NULL
-                )
+                    individual JSONB NOT NULL
+                );
                 """.trimIndent())
         }
     }
@@ -23,7 +30,7 @@ class DudeDao(val jdbi: Jdbi) {
         println(serialise)
 
         jdbi.withHandle<Int, Exception> {
-            it.createUpdate("INSERT INTO Dudes (individual) VALUES(:individual)")
+            it.createUpdate("INSERT INTO Dudes (individual) VALUES(cast (:individual as JSONB))")
                 .bind("individual", serialise)
                 .execute();
         }
