@@ -49,16 +49,17 @@ class DudeDao(val jdbi: Jdbi) {
         }
     }
 
-    fun latestDude(): Individual? {
+    fun latestDude(name: String): Individual? {
         try {
             return jdbi.withHandle<Individual, Exception> {
                 it.createQuery(
                     """
-                        SELECT individual FROM Dudes
+                        SELECT individual FROM dudes
                         WHERE name=:name
                         ORDER BY generation DESC LIMIT 1
-                    """.trimIndent())
-                    .bind("name", "steve")
+                    """.trimIndent()
+                )
+                    .bind("name", name)
                     .mapToBean(Dude::class.java)
                     .findOne()
                     .orElse(null)

@@ -82,11 +82,8 @@ class WebMainIT {
         postDude("steve", individualSteve)
         postDude("brian", individualBrian)
 
-        val getResponse = getDude("steve")
-        assertThat(
-            individualLens(getResponse),
-            equalTo(individualSteve))
-
+        assertThat(individualLens(getDude("steve")), equalTo(individualSteve))
+        assertThat(individualLens(getDude("brian")), equalTo(individualBrian))
     }
 
     @Test
