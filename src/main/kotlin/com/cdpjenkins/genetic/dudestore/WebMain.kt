@@ -2,6 +2,7 @@ package com.cdpjenkins.genetic.dudestore
 
 import com.cdpjenkins.genetic.model.Individual
 import com.cdpjenkins.genetic.svg.SvgRenderer
+import org.http4k.cloudnative.env.Environment
 import org.http4k.core.*
 import org.http4k.core.Status.Companion.NOT_FOUND
 import org.http4k.core.Status.Companion.NOT_IMPLEMENTED
@@ -21,11 +22,11 @@ import org.jdbi.v3.core.Jdbi
 
 fun main(args: Array<String>) {
     val port = Integer.parseInt(args[0])
-    val dao = DudeDao(Jdbi
-        .create(
-            System.getenv("JDBC_DATABASE_URL")
-        )
-    )
+
+    val environment = Environment.ENV
+    val jdbcUrl = environment.get("JDBC_DATABASE_URL")
+
+    val dao = DudeDao(Jdbi.create(jdbcUrl))
 
     val server = makeServer(port, System.getenv("SECRET"), dao)
     server.block()
