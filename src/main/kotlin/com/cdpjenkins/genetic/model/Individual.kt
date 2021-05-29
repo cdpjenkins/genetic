@@ -114,19 +114,18 @@ data class Individual(
     }
 
     fun mutate(): Individual {
-        val newGenome = genome
-            .map { it.maybeMutate() }
 
         // Urgh this is freaking horrible
-        val newNewGenome =
+        val newGenome =
             if (withProbability(ADD_SHAPE_PROBABILITY)) {
-                newGenome + spawnRandomShape(bounds)
+                genome + spawnRandomShape(bounds)
             } else {
-                newGenome
+                genome
+                    .map { it.maybeMutate() }
             }
 
         val newIndividual = Individual(
-            newNewGenome,
+            newGenome,
             bounds,
             generation + 1
         )
