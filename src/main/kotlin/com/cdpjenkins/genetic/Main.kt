@@ -22,11 +22,7 @@ fun main(args: Array<String>) {
     val initialIndividual = if (args.size == 1) {
         deserialiseFromFile(File(args[0]))
     } else {
-        val response = dudeClient.getLatestDude()
-        println(response)
-
-        val individualLens = Body.auto<Individual>().toLens()
-        individualLens(response)
+        dudeClient.getLatestDude()
     }
 
     val masterImage = ImageIO.read(File(MASTER_IMAGE_FILE))
@@ -40,8 +36,7 @@ fun main(args: Array<String>) {
     evolver.addListener { it.saveToDisk() }
 
     evolver.addListener {
-        val response = dudeClient.postDude(it)
-        println(response)
+        dudeClient.postDude(it)
     }
 
     evolver.start()
