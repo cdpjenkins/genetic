@@ -10,7 +10,7 @@ class DudeClient(val baseUrl: String, val dudeName: String, val secret: String) 
     private val httpClient = OkHttp()
 
     fun getLatestDude() =
-        httpClient(Request(Method.GET, "$baseUrl/dude/${dudeName}?type=json"))
+        httpClient(Request(Method.GET, "$baseUrl/dude/${dudeName}/latest?type=json"))
 
     fun postDude(it: Individual) = httpClient(
         Request(Method.POST, "$baseUrl/dude/${dudeName}?secret=${this.secret}")

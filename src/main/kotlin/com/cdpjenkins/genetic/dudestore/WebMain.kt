@@ -63,7 +63,7 @@ private fun makeApi(secret: String?, dao: DudeDao): RoutingHttpHandler {
             dao.insertDude(newDude, name, newDude.generation)
             Response(OK)
         },
-        "/dude/{name}" bind Method.GET to { request: Request ->
+        "/dude/{name}/latest" bind Method.GET to { request: Request ->
             val currentDude = dao.latestDude(nameLens(request))
 
             if (typeLens(request) == "json") {

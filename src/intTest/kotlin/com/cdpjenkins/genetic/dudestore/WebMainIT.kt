@@ -70,7 +70,7 @@ class WebMainIT {
         )
         assertThat(postResponse.status, equalTo(Status.OK))
 
-        val getResponse = client(Request(Method.GET, "http://localhost:9000/dude/steve?type=json"))
+        val getResponse = client(Request(Method.GET, "http://localhost:9000/dude/steve/latest?type=json"))
         assertThat(getResponse.status, equalTo(Status.OK))
         assertThat(
             getResponse.body.payload.asString().deserialiseIndividual(),
@@ -117,7 +117,7 @@ class WebMainIT {
     }
 
     private fun getDude(name: String): Response {
-        val getResponse = client(Request(Method.GET, "http://localhost:9000/dude/$name?type=json"))
+        val getResponse = client(Request(Method.GET, "http://localhost:9000/dude/$name/latest?type=json"))
         assertThat(getResponse.status, equalTo(Status.OK))
         return getResponse
     }
