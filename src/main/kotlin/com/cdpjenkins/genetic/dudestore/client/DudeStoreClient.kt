@@ -10,7 +10,7 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
 
-class DudeClient(val baseUrl: String, val dudeName: String, val secret: String) {
+class DudeStoreClient(val baseUrl: String, val dudeName: String, val secret: String) {
     private val httpClient = OkHttp()
     private val executorService: ExecutorService = Executors.newSingleThreadExecutor()
     val individualLens = Body.auto<Individual>().toLens()

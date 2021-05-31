@@ -1,11 +1,10 @@
 package com.cdpjenkins.genetic
 
 import MASTER_IMAGE_FILE
-import com.cdpjenkins.genetic.dudestore.client.DudeClient
+import com.cdpjenkins.genetic.dudestore.client.DudeStoreClient
 import com.cdpjenkins.genetic.json.deserialiseFromFile
 import com.cdpjenkins.genetic.model.makeEvolver
-import com.cdpjenkins.genetic.model.saveToDisk
-import com.cdpjenkins.genetic.model.saveToS3
+import com.cdpjenkins.genetic.persistence.S3Client
 import com.cdpjenkins.genetic.ui.GUI
 import java.awt.GraphicsEnvironment
 import java.io.File
@@ -14,8 +13,9 @@ import javax.imageio.ImageIO
 
 fun main(args: Array<String>) {
     val secret = System.getenv("SECRET")
+    val name = "brian"
 
-    val dudeClient = DudeClient("https://genetic-dude.herokuapp.com", "colin", secret)
+    val dudeClient = DudeStoreClient("https://genetic-dude.herokuapp.com", name, secret)
 
     val initialIndividual = if (args.size == 1) {
         deserialiseFromFile(File(args[0]))
@@ -31,9 +31,9 @@ fun main(args: Array<String>) {
         gui.isVisible = true
     }
 
-    evolver.addListener { it.saveToDisk() }
+//    evolver.addListener { it.saveToDisk(name) }
     evolver.addListener { dudeClient.postDude(it) }
-    evolver.addListener { it.saveToS3(); }
+    evolver.addListener { S3Client(name).saveToS3(it); }
 
     evolver.start()
 }
