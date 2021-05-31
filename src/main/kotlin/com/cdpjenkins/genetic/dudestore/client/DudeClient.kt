@@ -15,11 +15,15 @@ class DudeClient(val baseUrl: String, val dudeName: String, val secret: String) 
     private val executorService: ExecutorService = Executors.newSingleThreadExecutor()
     val individualLens = Body.auto<Individual>().toLens()
 
-    fun getLatestDude(): Individual {
-        val future: Future<Individual> = executorService.submit(Callable<Individual> {
+    fun getLatestDude(): Individual? {
+        val future: Future<Individual?> = executorService.submit(Callable<Individual> {
             val response: Response =
                 httpClient(Request(Method.GET, "$baseUrl/dude/${dudeName}/latest?type=json"))
-            individualLens(response)
+            if (response.status == Status.OK) {
+                individualLens(response)
+            } else {
+                null
+            }
         })
 
         return future.get()

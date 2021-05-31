@@ -2,11 +2,18 @@ package com.cdpjenkins.genetic.model
 
 import com.cdpjenkins.genetic.image.grabPixels
 import com.cdpjenkins.genetic.image.writePng
+import com.cdpjenkins.genetic.json.serialise
 import com.cdpjenkins.genetic.json.serialiseToFile
 import com.cdpjenkins.genetic.model.shape.BoundsRectangle
 import com.cdpjenkins.genetic.svg.SvgRenderer
+import software.amazon.awssdk.core.sync.RequestBody
+import software.amazon.awssdk.regions.Region
+import software.amazon.awssdk.services.s3.S3Client
+import software.amazon.awssdk.services.s3.model.PutObjectRequest
 import java.awt.image.BufferedImage
+import java.io.ByteArrayOutputStream
 import java.io.File
+import javax.imageio.ImageIO
 
 class Evolver(var individual: Individual, masterImage: BufferedImage) {
     private var listeners: MutableList<EvolverListener> = mutableListOf()
@@ -26,7 +33,7 @@ class Evolver(var individual: Individual, masterImage: BufferedImage) {
             individual = newIndividual
             println(individual.describe())
 
-            individual.drawDiff(masterPixels)
+//            individual.drawDiff(masterPixels)
 
             listeners.forEach{ it.notify(individual) }
         }
@@ -71,6 +78,43 @@ fun Individual.saveToDisk() {
         SvgRenderer().renderToFile(
             File(String.format("output/svg/cow_%010d.svg", generation)),
             this
+        )
+    }
+}
+
+fun Individual.saveToS3() {
+    if (generation % 10 == 0) {
+        val region: Region = Region.EU_WEST_1
+        val s3: S3Client = S3Client.builder()
+            .region(region)
+            .build()
+
+        val baos = ByteArrayOutputStream()
+        ImageIO.write(this.bufferedImage, "png", baos)
+        s3.putObject(
+            PutObjectRequest.builder()
+                .bucket("cdpjenkins-bovine-assets")
+                .key(String.format("colin/png/cow_%010d.png", generation))
+                .build(),
+            RequestBody.fromBytes(baos.toByteArray())
+        )
+
+        s3.putObject(
+            PutObjectRequest.builder()
+                .bucket("cdpjenkins-bovine-assets")
+                .key(String.format("colin/json/cow_%010d.json", generation))
+                .build(),
+            RequestBody.fromString(serialise(this))
+        )
+
+        val svgString = SvgRenderer().renderToString(this)
+        val svgFile = String.format("colin/svg/cow_%010d.svg", generation)
+        s3.putObject(
+            PutObjectRequest.builder()
+                .bucket("cdpjenkins-bovine-assets")
+                .key(svgFile)
+                .build(),
+            RequestBody.fromString(svgString)
         )
     }
 }
