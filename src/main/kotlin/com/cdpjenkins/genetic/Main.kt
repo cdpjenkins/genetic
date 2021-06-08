@@ -13,16 +13,12 @@ import javax.imageio.ImageIO
 
 fun main(args: Array<String>) {
     val secret = System.getenv("SECRET")
-    val name = "ston"
+    val name = args[0]
 
     val dudeClient = DudeStoreClient("https://genetic-dude.herokuapp.com", name, secret)
     val s3Client = S3Client(name)
 
-    val initialIndividual = if (args.size == 1) {
-        deserialiseFromFile(File(args[0]))
-    } else {
-        dudeClient.getLatestDude()
-    }
+    val initialIndividual = dudeClient.getLatestDude()
 
     val masterImage = ImageIO.read(File(MASTER_IMAGE_FILE))
     val evolver = makeEvolver(masterImage, initialIndividual)

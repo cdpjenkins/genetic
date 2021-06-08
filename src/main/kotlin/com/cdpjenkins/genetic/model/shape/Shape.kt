@@ -1,6 +1,5 @@
 package com.cdpjenkins.genetic.model.shape
 
-import SHAPE_MUTATE_CHANCE
 import com.cdpjenkins.genetic.model.withProbability
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
@@ -19,5 +18,5 @@ import java.awt.Graphics2D
 interface Shape {
     fun draw(g: Graphics2D)
     fun mutate(): Shape
-    fun maybeMutate(): Shape = if (withProbability(SHAPE_MUTATE_CHANCE)) mutate() else this
+    fun maybeMutate(mutateProbability: Double): Shape = if (withProbability(mutateProbability)) mutate() else this
 }

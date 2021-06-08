@@ -1,6 +1,8 @@
 package com.cdpjenkins.genetic.model
 
-import ADD_SHAPE_PROBABILITY
+import AVG_SHAPES_TO_MUTATE
+import MAX_GENOME_SIZE
+import SHAPE_MUTATE_CHANCE
 import com.cdpjenkins.genetic.image.grabPixels
 import com.cdpjenkins.genetic.model.shape.BoundsRectangle
 import com.cdpjenkins.genetic.model.shape.Shape
@@ -115,13 +117,13 @@ data class Individual(
 
     fun mutate(): Individual {
 
-        // Urgh this is freaking horrible
+        val addShapeProbability = (MAX_GENOME_SIZE - genome.size) / MAX_GENOME_SIZE / 100
         val newGenome =
-            if (withProbability(ADD_SHAPE_PROBABILITY)) {
+            if (withProbability(addShapeProbability)) {
                 genome + spawnRandomShape(bounds)
             } else {
                 genome
-                    .map { it.maybeMutate() }
+                    .map { it.maybeMutate(minOf(AVG_SHAPES_TO_MUTATE / genome.size, 1.0)) }
             }
 
         val newIndividual = Individual(
