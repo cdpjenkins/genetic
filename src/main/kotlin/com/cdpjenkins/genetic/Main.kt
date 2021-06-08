@@ -13,9 +13,10 @@ import javax.imageio.ImageIO
 
 fun main(args: Array<String>) {
     val secret = System.getenv("SECRET")
-    val name = "brian"
+    val name = "ston"
 
     val dudeClient = DudeStoreClient("https://genetic-dude.herokuapp.com", name, secret)
+    val s3Client = S3Client(name)
 
     val initialIndividual = if (args.size == 1) {
         deserialiseFromFile(File(args[0]))
@@ -33,7 +34,7 @@ fun main(args: Array<String>) {
 
 //    evolver.addListener { it.saveToDisk(name) }
     evolver.addListener { dudeClient.postDude(it) }
-    evolver.addListener { S3Client(name).saveToS3(it); }
+    evolver.addListener { s3Client.saveToS3(it); }
 
     evolver.start()
 }
