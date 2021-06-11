@@ -1,5 +1,5 @@
 const val GENOME_SIZE = 0
-const val MIN_ALPHA = 0
+const val MIN_ALPHA = 32
 const val MAX_ALPHA = 64
 const val COLOUR_MUTATE_AMOUNT = 20
 const val POINT_MUTATE_RANGE = 10
