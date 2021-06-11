@@ -56,6 +56,7 @@ private fun spawnRandomPoint(bounds: BoundsRectangle): Point {
 fun spawnRandomQuadCurveShape(bounds: BoundsRectangle): QuadCurveShape {
     val centre = spawnRandomPoint(bounds)
     val shapeBounds = BoundsRectangle(centre.x - 100, centre.y - 100, centre.x + 100, centre.y + 100)
+//    val shapeBounds = bounds
     val vertices = (1..polyVertices).map {
         spawnRandomPoint(
             BoundsRectangle(centre.x-10, centre.y-10, centre.x+10, centre.y+10)

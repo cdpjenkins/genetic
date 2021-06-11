@@ -2,7 +2,7 @@ package com.cdpjenkins.genetic.model
 
 import AVG_SHAPES_TO_MUTATE
 import MAX_GENOME_SIZE
-import SHAPE_MUTATE_CHANCE
+import NEW_SHAPE_PROBABILITY_FACTOR
 import com.cdpjenkins.genetic.image.grabPixels
 import com.cdpjenkins.genetic.model.shape.BoundsRectangle
 import com.cdpjenkins.genetic.model.shape.Shape
@@ -117,7 +117,8 @@ data class Individual(
 
     fun mutate(): Individual {
 
-        val addShapeProbability = (MAX_GENOME_SIZE - genome.size) / MAX_GENOME_SIZE / 100
+        val addShapeProbability = ((MAX_GENOME_SIZE - genome.size) / MAX_GENOME_SIZE) *
+                NEW_SHAPE_PROBABILITY_FACTOR
         val newGenome =
             if (withProbability(addShapeProbability)) {
                 genome + spawnRandomShape(bounds)

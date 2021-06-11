@@ -79,3 +79,7 @@ data class Dude(
 ) {
     constructor() : this(0, null)
 }
+
+// select generation, individual->'fitness' as fitness, to_timestamp(CAST(individual->'createdTimestamp' AS BIGINT) / 1000) as timestamp
+// from dudes
+// where name='stour';
