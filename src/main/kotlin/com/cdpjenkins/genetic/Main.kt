@@ -26,7 +26,7 @@ fun main(args: Array<String>) {
 
     val initialIndividual = dudeClient.getLatestDude()
 
-    val masterImage = ImageIO.read(File(MASTER_IMAGE_FILE))
+    val masterImage = ImageIO.read(File(MASTER_IMAGE_FILE).toURI().toURL())
     val evolver = makeEvolver(masterImage, initialIndividual)
 
     if (!GraphicsEnvironment.isHeadless()) {

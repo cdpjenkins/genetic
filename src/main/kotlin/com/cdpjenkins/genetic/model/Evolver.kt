@@ -11,7 +11,7 @@ class Evolver(var individual: Individual, masterImage: BufferedImage) {
     private val logger: Logger = LoggerFactory.getLogger(Evolver::class.java)
 
     private var listeners: MutableList<EvolverListener> = mutableListOf()
-    private val masterPixels = grabPixels(masterImage)
+    private val masterPixels: IntArray = grabPixels(masterImage)
 
     init {
         ensureDirExists("output")

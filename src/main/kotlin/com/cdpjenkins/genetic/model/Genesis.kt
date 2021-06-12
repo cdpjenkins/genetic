@@ -1,6 +1,6 @@
 package com.cdpjenkins.genetic.model
 
-import EvolverSettings.GENOME_SIZE
+import EvolverSettings.INITIAL_GENOME_SIZE
 import EvolverSettings.MAX_ALPHA
 import EvolverSettings.MIN_ALPHA
 import com.cdpjenkins.genetic.model.shape.*
@@ -16,7 +16,7 @@ fun makeIndividual(
     masterImage: BufferedImage,
     bounds: BoundsRectangle
 ): Individual {
-    val shapes = (1..GENOME_SIZE).map { spawnRandomShape(
+    val shapes = (1..INITIAL_GENOME_SIZE).map { spawnRandomShape(
         bounds
     ) }
     return Individual(shapes, bounds)
