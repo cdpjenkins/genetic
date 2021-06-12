@@ -123,8 +123,7 @@ data class Individual(
             if (withProbability(addShapeProbability)) {
                 genome + spawnRandomShape(bounds)
             } else {
-                genome
-                    .map { it.maybeMutate(minOf(AVG_SHAPES_TO_MUTATE / genome.size, 1.0)) }
+                genome.map { it.maybeMutate(minOf(AVG_SHAPES_TO_MUTATE / genome.size, 1.0)) }
             }
 
         val newIndividual = Individual(

@@ -46,6 +46,9 @@ dependencies {
     implementation "org.jdbi:jdbi3-postgres:3.20.0"
     runtime "org.postgresql:postgresql:42.2.20"
 
+    implementation 'org.slf4j:slf4j-api:1.7.30'
+    implementation 'ch.qos.logback:logback-classic:1.2.3'
+
     implementation platform("software.amazon.awssdk:bom:2.15.15")
     implementation "software.amazon.awssdk:s3"
 
