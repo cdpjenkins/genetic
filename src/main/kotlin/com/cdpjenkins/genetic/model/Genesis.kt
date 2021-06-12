@@ -4,9 +4,12 @@ import GENOME_SIZE
 import MAX_ALPHA
 import MIN_ALPHA
 import com.cdpjenkins.genetic.model.shape.*
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.awt.image.BufferedImage
 import kotlin.random.Random
 
+val logger: Logger = LoggerFactory.getLogger(object{}::class.java)
 val polyVertices: Int = 4
 
 fun makeIndividual(
@@ -20,8 +23,7 @@ fun makeIndividual(
 }
 
 fun spawnRandomShape(bounds: BoundsRectangle): Shape {
-
-    println("Spawning a random shape!!!1")
+    logger.info("Try spawning a random shape")
 
     val rand = randint(0, 4)
     return when (2) {
