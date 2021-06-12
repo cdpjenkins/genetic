@@ -1,6 +1,6 @@
 package com.cdpjenkins.genetic.model.shape
 
-import POINT_MUTATE_RANGE
+import EvolverSettings.POINT_MUTATE_RANGE
 import com.cdpjenkins.genetic.model.mutateValueLinear
 
 data class Point(val x: Int, val y: Int) {

@@ -1,19 +1,25 @@
 package com.cdpjenkins.genetic
 
-import MASTER_IMAGE_FILE
+import EvolverSettings.MASTER_IMAGE_FILE
 import com.cdpjenkins.genetic.dudestore.client.DudeStoreClient
-import com.cdpjenkins.genetic.json.deserialiseFromFile
 import com.cdpjenkins.genetic.model.makeEvolver
 import com.cdpjenkins.genetic.persistence.S3Client
 import com.cdpjenkins.genetic.ui.GUI
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.awt.GraphicsEnvironment
 import java.io.File
 import javax.imageio.ImageIO
 
 
+val logger: Logger = LoggerFactory.getLogger(object{}::class.java)
+
 fun main(args: Array<String>) {
     val secret = System.getenv("SECRET")
+
     val name = args[0]
+
+    logger.info("Creating evolver for name {}", name)
 
     val dudeClient = DudeStoreClient("https://genetic-dude.herokuapp.com", name, secret)
     val s3Client = S3Client(name)

@@ -1,8 +1,8 @@
 package com.cdpjenkins.genetic.model.shape
 
-import COLOUR_MUTATE_AMOUNT
-import MAX_ALPHA
-import MIN_ALPHA
+import EvolverSettings.COLOUR_MUTATE_AMOUNT
+import EvolverSettings.MAX_ALPHA
+import EvolverSettings.MIN_ALPHA
 import com.cdpjenkins.genetic.model.mutateValueLinear
 import java.awt.Color
 

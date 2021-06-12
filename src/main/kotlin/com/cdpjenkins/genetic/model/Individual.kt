@@ -1,8 +1,8 @@
 package com.cdpjenkins.genetic.model
 
-import AVG_SHAPES_TO_MUTATE
-import MAX_GENOME_SIZE
-import NEW_SHAPE_PROBABILITY_FACTOR
+import EvolverSettings.AVG_SHAPES_TO_MUTATE
+import EvolverSettings.MAX_GENOME_SIZE
+import EvolverSettings.NEW_SHAPE_PROBABILITY_FACTOR
 import com.cdpjenkins.genetic.image.grabPixels
 import com.cdpjenkins.genetic.model.shape.BoundsRectangle
 import com.cdpjenkins.genetic.model.shape.Shape

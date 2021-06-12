@@ -1,8 +1,8 @@
 package com.cdpjenkins.genetic.model
 
-import GENOME_SIZE
-import MAX_ALPHA
-import MIN_ALPHA
+import EvolverSettings.GENOME_SIZE
+import EvolverSettings.MAX_ALPHA
+import EvolverSettings.MIN_ALPHA
 import com.cdpjenkins.genetic.model.shape.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
