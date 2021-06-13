@@ -1,9 +1,7 @@
 package com.cdpjenkins.genetic.model
 
-import EvolverSettings.INITIAL_GENOME_SIZE
-import EvolverSettings.MAX_ALPHA
-import EvolverSettings.MIN_ALPHA
 import com.cdpjenkins.genetic.model.shape.*
+import evolverSettings
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.awt.image.BufferedImage
@@ -16,7 +14,7 @@ fun makeIndividual(
     masterImage: BufferedImage,
     bounds: BoundsRectangle
 ): Individual {
-    val shapes = (1..INITIAL_GENOME_SIZE).map { spawnRandomShape(
+    val shapes = (1..evolverSettings.initialGenomeSize).map { spawnRandomShape(
         bounds
     ) }
     return Individual(shapes, bounds)
@@ -85,5 +83,5 @@ private fun spawnRandomColour() =
         red = Random.nextInt(255),
         green = Random.nextInt(255),
         blue = Random.nextInt(255),
-        alpha = randint(MIN_ALPHA, MAX_ALPHA)
+        alpha = randint(evolverSettings.minAlpha, evolverSettings.maxAlpha)
     )

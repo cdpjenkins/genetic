@@ -1,8 +1,6 @@
 package com.cdpjenkins.genetic.model
 
-import EvolverSettings.AVG_SHAPES_TO_MUTATE
-import EvolverSettings.MAX_GENOME_SIZE
-import EvolverSettings.NEW_SHAPE_PROBABILITY_FACTOR
+import EvolverSettings
 import com.cdpjenkins.genetic.image.grabPixels
 import com.cdpjenkins.genetic.model.shape.BoundsRectangle
 import com.cdpjenkins.genetic.model.shape.Shape
@@ -115,15 +113,19 @@ data class Individual(
         return total
     }
 
-    fun mutate(): Individual {
+    fun mutate(evolverSettings: EvolverSettings): Individual {
 
-        val addShapeProbability = ((MAX_GENOME_SIZE - genome.size) / MAX_GENOME_SIZE) *
-                NEW_SHAPE_PROBABILITY_FACTOR
+        val addShapeProbability = ((evolverSettings.maxGenomeSize - genome.size) / evolverSettings.maxGenomeSize) *
+                evolverSettings.newShapeProbabilityFactor
         val newGenome =
             if (withProbability(addShapeProbability)) {
                 genome + spawnRandomShape(bounds)
             } else {
-                genome.map { it.maybeMutate(minOf(AVG_SHAPES_TO_MUTATE / genome.size, 1.0)) }
+                genome.map {
+                    it.maybeMutate(minOf(
+                        evolverSettings.avgShapesToMutate / genome.size, 1.0), evolverSettings
+                    )
+                }
             }
 
         val newIndividual = Individual(

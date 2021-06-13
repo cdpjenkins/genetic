@@ -1,13 +1,16 @@
 package com.cdpjenkins.genetic.model
 
+import EvolverSettings
 import com.cdpjenkins.genetic.image.grabPixels
 import com.cdpjenkins.genetic.model.shape.BoundsRectangle
+import evolverSettings
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.awt.image.BufferedImage
 import java.io.File
 
 class Evolver(var individual: Individual, masterImage: BufferedImage) {
+    private val settings: EvolverSettings = evolverSettings
     private val logger: Logger = LoggerFactory.getLogger(Evolver::class.java)
 
     private var listeners: MutableList<EvolverListener> = mutableListOf()
@@ -21,7 +24,7 @@ class Evolver(var individual: Individual, masterImage: BufferedImage) {
     }
 
     @Synchronized fun mutate() {
-        val newIndividual = individual.mutate()
+        val newIndividual = individual.mutate(settings)
         newIndividual.drawAndCalculateFitness(masterPixels)
         if (newIndividual.fitness < individual.fitness) {
             individual = newIndividual

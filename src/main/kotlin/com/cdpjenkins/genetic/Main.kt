@@ -1,10 +1,10 @@
 package com.cdpjenkins.genetic
 
-import EvolverSettings.MASTER_IMAGE_FILE
 import com.cdpjenkins.genetic.dudestore.client.DudeStoreClient
 import com.cdpjenkins.genetic.model.makeEvolver
 import com.cdpjenkins.genetic.persistence.S3Client
 import com.cdpjenkins.genetic.ui.GUI
+import evolverSettings
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.awt.GraphicsEnvironment
@@ -26,7 +26,7 @@ fun main(args: Array<String>) {
 
     val initialIndividual = dudeClient.getLatestDude()
 
-    val masterImage = ImageIO.read(File(MASTER_IMAGE_FILE).toURI().toURL())
+    val masterImage = ImageIO.read(File(evolverSettings.masterImageFile).toURI().toURL())
     val evolver = makeEvolver(masterImage, initialIndividual)
 
     if (!GraphicsEnvironment.isHeadless()) {

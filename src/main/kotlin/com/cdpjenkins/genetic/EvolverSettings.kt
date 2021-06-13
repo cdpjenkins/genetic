@@ -1,13 +1,15 @@
-object EvolverSettings {
-    const val INITIAL_GENOME_SIZE = 0
-    const val MAX_GENOME_SIZE = 600.0
+class EvolverSettings {
+    val initialGenomeSize = 0
+    val maxGenomeSize = 600.0
 
-    const val MASTER_IMAGE_FILE = "cow_half_size.jpg"
+    val masterImageFile = "cow_half_size.jpg"
 
-    const val MIN_ALPHA = 32
-    const val MAX_ALPHA = 64
-    const val COLOUR_MUTATE_AMOUNT = 20
-    const val POINT_MUTATE_RANGE = 10
-    const val NEW_SHAPE_PROBABILITY_FACTOR = 0.01
-    const val AVG_SHAPES_TO_MUTATE = 10.0
+    val minAlpha = 32
+    val maxAlpha = 64
+    val colourMutateAmount = 20
+    val pointMutateRange = 10
+    val newShapeProbabilityFactor = 0.01
+    val avgShapesToMutate = 10.0
 }
+
+val evolverSettings = EvolverSettings()

@@ -1,5 +1,6 @@
 package com.cdpjenkins.genetic.model.shape
 
+import EvolverSettings
 import java.awt.geom.GeneralPath
 
 data class QuadCurveShape(
@@ -23,9 +24,9 @@ data class QuadCurveShape(
         return generalPath
     }
 
-    override fun mutate(): Shape {
+    override fun mutate(evolverSettings: EvolverSettings): Shape {
         val newPath = quadCurvePath.map { it.mutate(bounds) }
-        val newColour = quadCurveColour.mutate()
+        val newColour = quadCurveColour.mutate(evolverSettings)
 
         return QuadCurveShape(newPath, newColour, bounds)
     }

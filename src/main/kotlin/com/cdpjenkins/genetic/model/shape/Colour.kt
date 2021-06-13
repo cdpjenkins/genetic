@@ -1,8 +1,6 @@
 package com.cdpjenkins.genetic.model.shape
 
-import EvolverSettings.COLOUR_MUTATE_AMOUNT
-import EvolverSettings.MAX_ALPHA
-import EvolverSettings.MIN_ALPHA
+import EvolverSettings
 import com.cdpjenkins.genetic.model.mutateValueLinear
 import java.awt.Color
 
@@ -16,11 +14,11 @@ data class Colour(val red: Int, val green:Int, val blue: Int, val alpha:Int) {
         }
     }
 
-    fun mutate(): Colour {
-        val red = mutateValueLinear(red, COLOUR_MUTATE_AMOUNT, 0, 255)
-        val green = mutateValueLinear(green, COLOUR_MUTATE_AMOUNT, 0, 255)
-        val blue = mutateValueLinear(blue, COLOUR_MUTATE_AMOUNT, 0, 255)
-        val alpha = mutateValueLinear(alpha, COLOUR_MUTATE_AMOUNT, MIN_ALPHA, MAX_ALPHA)
+    fun mutate(evolverSettings: EvolverSettings): Colour {
+        val red = mutateValueLinear(red, evolverSettings.colourMutateAmount, 0, 255)
+        val green = mutateValueLinear(green, evolverSettings.colourMutateAmount, 0, 255)
+        val blue = mutateValueLinear(blue, evolverSettings.colourMutateAmount, 0, 255)
+        val alpha = mutateValueLinear(alpha, evolverSettings.colourMutateAmount, evolverSettings.minAlpha, evolverSettings.maxAlpha)
 
         val newColour = Colour(red, green, blue, alpha)
         return newColour

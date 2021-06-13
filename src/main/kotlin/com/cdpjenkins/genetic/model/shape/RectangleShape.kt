@@ -1,5 +1,6 @@
 package com.cdpjenkins.genetic.model.shape
 
+import EvolverSettings
 import java.awt.Graphics2D
 
 data class RectangleShape(
@@ -13,10 +14,10 @@ data class RectangleShape(
         g.fillRect(topLeft.x, topLeft.y, bottomRight.x-topLeft.x, bottomRight.y-topLeft.y)
     }
 
-    override fun mutate(): Shape {
+    override fun mutate(evolverSettings: EvolverSettings): Shape {
         val newTopLeft = topLeft.mutate(bounds)
         val newBottomRight = bottomRight.mutate(bounds)
-        val newColour = colour.mutate()
+        val newColour = colour.mutate(evolverSettings)
         return RectangleShape(newTopLeft, newBottomRight, newColour, bounds)
     }
 }

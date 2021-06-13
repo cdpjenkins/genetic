@@ -1,5 +1,6 @@
 package com.cdpjenkins.genetic.model.shape
 
+import EvolverSettings
 import com.cdpjenkins.genetic.model.mutateValueLinear
 import java.awt.Graphics2D
 
@@ -14,11 +15,11 @@ data class Circle(
         g.fillOval(centre.x - radius, centre.y - radius, radius*2, radius*2)
     }
 
-    override fun mutate(): Circle {
+    override fun mutate(evolverSettings: EvolverSettings): Circle {
         return Circle(
             centre.mutate(bounds),
             radius.mutate(),
-            colour.mutate(),
+            colour.mutate(evolverSettings),
             bounds
         )
     }

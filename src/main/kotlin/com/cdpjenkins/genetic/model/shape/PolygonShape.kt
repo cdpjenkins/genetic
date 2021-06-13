@@ -1,5 +1,6 @@
 package com.cdpjenkins.genetic.model.shape
 
+import EvolverSettings
 import java.awt.geom.GeneralPath
 
 class PolygonShape(
@@ -18,9 +19,9 @@ class PolygonShape(
         return generalPath
     }
 
-    override fun mutate(): Shape {
+    override fun mutate(evolverSettings: EvolverSettings): Shape {
         val newPath = path.map { it.mutate(bounds) }
-        val newColour = colour.mutate()
+        val newColour = colour.mutate(evolverSettings)
 
         return PolygonShape(newPath, newColour, bounds)
     }
