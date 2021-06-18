@@ -25,7 +25,7 @@ data class QuadCurveShape(
     }
 
     override fun mutate(evolverSettings: EvolverSettings): Shape {
-        val newPath = quadCurvePath.map { it.mutate(bounds) }
+        val newPath = quadCurvePath.map { it.mutate(bounds, evolverSettings) }
         val newColour = quadCurveColour.mutate(evolverSettings)
 
         return QuadCurveShape(newPath, newColour, bounds)

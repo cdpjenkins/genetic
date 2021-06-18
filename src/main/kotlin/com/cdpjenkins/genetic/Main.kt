@@ -1,10 +1,10 @@
 package com.cdpjenkins.genetic
 
+import EvolverSettings
 import com.cdpjenkins.genetic.dudestore.client.DudeStoreClient
 import com.cdpjenkins.genetic.model.makeEvolver
 import com.cdpjenkins.genetic.persistence.S3Client
 import com.cdpjenkins.genetic.ui.GUI
-import evolverSettings
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.awt.GraphicsEnvironment
@@ -19,6 +19,16 @@ fun main(args: Array<String>) {
 
     val name = args[0]
 
+    // TODOs
+    // three things in here" +
+    // pull out into separate methods" +
+    // listeners houldn't be here...
+    //
+    // level of abstraction missing:
+    // GeneticEvolverApplication
+    //
+    // want to acceptance test it
+
     logger.info("Creating evolver for name {}", name)
 
     val dudeClient = DudeStoreClient("https://genetic-dude.herokuapp.com", name, secret)
@@ -26,8 +36,9 @@ fun main(args: Array<String>) {
 
     val initialIndividual = dudeClient.getLatestDude()
 
+    val evolverSettings = EvolverSettings(name)
     val masterImage = ImageIO.read(File(evolverSettings.masterImageFile).toURI().toURL())
-    val evolver = makeEvolver(masterImage, initialIndividual)
+    val evolver = makeEvolver(masterImage, initialIndividual, evolverSettings)
 
     if (!GraphicsEnvironment.isHeadless()) {
         val gui = GUI(masterImage, evolver)

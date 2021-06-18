@@ -15,8 +15,8 @@ data class RectangleShape(
     }
 
     override fun mutate(evolverSettings: EvolverSettings): Shape {
-        val newTopLeft = topLeft.mutate(bounds)
-        val newBottomRight = bottomRight.mutate(bounds)
+        val newTopLeft = topLeft.mutate(bounds, evolverSettings)
+        val newBottomRight = bottomRight.mutate(bounds, evolverSettings)
         val newColour = colour.mutate(evolverSettings)
         return RectangleShape(newTopLeft, newBottomRight, newColour, bounds)
     }

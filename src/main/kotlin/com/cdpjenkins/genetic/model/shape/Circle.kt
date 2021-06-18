@@ -17,7 +17,7 @@ data class Circle(
 
     override fun mutate(evolverSettings: EvolverSettings): Circle {
         return Circle(
-            centre.mutate(bounds),
+            centre.mutate(bounds, evolverSettings),
             radius.mutate(),
             colour.mutate(evolverSettings),
             bounds

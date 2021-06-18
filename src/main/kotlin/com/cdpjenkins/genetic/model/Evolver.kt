@@ -3,14 +3,16 @@ package com.cdpjenkins.genetic.model
 import EvolverSettings
 import com.cdpjenkins.genetic.image.grabPixels
 import com.cdpjenkins.genetic.model.shape.BoundsRectangle
-import evolverSettings
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.awt.image.BufferedImage
 import java.io.File
 
-class Evolver(var individual: Individual, masterImage: BufferedImage) {
-    private val settings: EvolverSettings = evolverSettings
+class Evolver(
+    var individual: Individual,
+    masterImage: BufferedImage,
+    val settings: EvolverSettings
+) {
     private val logger: Logger = LoggerFactory.getLogger(Evolver::class.java)
 
     private var listeners: MutableList<EvolverListener> = mutableListOf()
@@ -56,11 +58,12 @@ class Evolver(var individual: Individual, masterImage: BufferedImage) {
 
 fun makeEvolver(
     masterImage: BufferedImage,
-    initialIndividual: Individual?
+    initialIndividual: Individual?,
+    evolverSettings: EvolverSettings
 ): Evolver {
     val boundsRectangle = BoundsRectangle(0, 0, masterImage.width, masterImage.height)
-    val individual = initialIndividual ?: makeIndividual(masterImage, boundsRectangle)
-    val evolver = Evolver(individual, masterImage)
+    val individual = initialIndividual ?: makeIndividual(masterImage, boundsRectangle, evolverSettings)
+    val evolver = Evolver(individual, masterImage, evolverSettings)
     return evolver
 }
 
@@ -69,6 +72,7 @@ fun interface EvolverListener {
 }
 
 fun ensureDirExists(dirName: String) {
-    val dir = File(dirName)
-    if (!dir.exists()) dir.mkdir()
+    File(dirName).also {
+        if (!it.exists()) it.mkdir()
+    }
 }

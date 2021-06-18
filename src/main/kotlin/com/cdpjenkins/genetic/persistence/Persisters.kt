@@ -28,6 +28,10 @@ fun Individual.saveToDisk(name: String) {
     }
 }
 
+// TODO violates single responsibility principle
+// separate S3 stuff from stuff that knows about file names, formats etc
+// pull out bucket-na
+
 class S3Client(val name: String) {
     fun saveToS3(individual: Individual) {
         if (individual.generation % 10 == 0) {

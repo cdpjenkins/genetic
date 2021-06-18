@@ -20,7 +20,7 @@ class PolygonShape(
     }
 
     override fun mutate(evolverSettings: EvolverSettings): Shape {
-        val newPath = path.map { it.mutate(bounds) }
+        val newPath = path.map { it.mutate(bounds, evolverSettings) }
         val newColour = colour.mutate(evolverSettings)
 
         return PolygonShape(newPath, newColour, bounds)

@@ -119,7 +119,7 @@ data class Individual(
                 evolverSettings.newShapeProbabilityFactor
         val newGenome =
             if (withProbability(addShapeProbability)) {
-                genome + spawnRandomShape(bounds)
+                genome + spawnRandomShape(bounds, evolverSettings)
             } else {
                 genome.map {
                     it.maybeMutate(minOf(

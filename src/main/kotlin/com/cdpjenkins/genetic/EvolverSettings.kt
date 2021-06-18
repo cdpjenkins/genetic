@@ -1,4 +1,4 @@
-class EvolverSettings {
+class EvolverSettings(val name: String) {
     val initialGenomeSize = 0
     val maxGenomeSize = 600.0
 
@@ -11,5 +11,3 @@ class EvolverSettings {
     val newShapeProbabilityFactor = 0.01
     val avgShapesToMutate = 10.0
 }
-
-val evolverSettings = EvolverSettings()
