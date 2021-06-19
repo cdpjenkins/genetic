@@ -34,7 +34,7 @@ fun main(args: Array<String>) {
     val evolver = makeEvolver(masterImage, initialIndividual, evolverSettings)
 
     if (!GraphicsEnvironment.isHeadless()) {
-        val gui = GUI(masterImage, evolver)
+        val gui = GUI(masterImage)
         evolver.addListener { gui.updateUiWithNewIndividual(it) }
         gui.isVisible = true
     }
