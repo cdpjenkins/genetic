@@ -4,14 +4,12 @@ import EvolverSettings
 import com.cdpjenkins.genetic.model.shape.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.awt.image.BufferedImage
 import kotlin.random.Random
 
 val logger: Logger = LoggerFactory.getLogger(object{}::class.java)
 val polyVertices: Int = 4
 
 fun makeIndividual(
-    masterImage: BufferedImage,
     bounds: BoundsRectangle,
     evolverSettings: EvolverSettings
 ): Individual {

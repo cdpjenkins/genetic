@@ -11,7 +11,6 @@ import java.awt.GraphicsEnvironment
 import java.io.File
 import javax.imageio.ImageIO
 
-
 val logger: Logger = LoggerFactory.getLogger(object{}::class.java)
 
 fun main(args: Array<String>) {
@@ -19,15 +18,9 @@ fun main(args: Array<String>) {
 
     val name = args[0]
 
-    // TODOs
-    // three things in here" +
-    // pull out into separate methods" +
-    // listeners houldn't be here...
-    //
-    // level of abstraction missing:
-    // GeneticEvolverApplication
-    //
-    // want to acceptance test it
+    // TODO
+    // - Pull out the three things here into their own methods
+    // - Extract class GeneticEvolverApplication
 
     logger.info("Creating evolver for name {}", name)
 
@@ -42,6 +35,7 @@ fun main(args: Array<String>) {
 
     if (!GraphicsEnvironment.isHeadless()) {
         val gui = GUI(masterImage, evolver)
+        evolver.addListener { gui.updateUiWithNewIndividual(it) }
         gui.isVisible = true
     }
 

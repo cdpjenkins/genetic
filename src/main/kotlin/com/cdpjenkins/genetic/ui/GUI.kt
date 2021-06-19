@@ -10,48 +10,53 @@ class GUI(
     masterImage: BufferedImage,
     evolver: Evolver
 ) : JFrame("Genetic!") {
+    val individualImageLabel: JLabel
+    val fitnessLabel: JLabel
+
     init {
-        contentPane.add(EvolverPanel(masterImage, evolver))
+        val evolverPanel = JPanel(BorderLayout())
+
+        val masterIcon = ImageIcon(masterImage)
+        val dudePanel = JPanel()
+        dudePanel.layout = BoxLayout(dudePanel, BoxLayout.X_AXIS)
+        dudePanel.add(JLabel(masterIcon))
+
+        individualImageLabel = JLabel(ImageIcon(masterImage))
+        dudePanel.add(individualImageLabel)
+        evolverPanel.add(dudePanel, BorderLayout.CENTER)
+
+        fitnessLabel = JLabel("", SwingConstants.RIGHT)
+        evolverPanel.add(fitnessLabel, BorderLayout.SOUTH)
+
+        contentPane.add(evolverPanel)
         pack()
+    }
+
+    internal fun updateUiWithNewIndividual(it: Individual) {
+        SwingUtilities.invokeLater {
+            individualImageLabel.icon = ImageIcon(it.bufferedImage)
+            fitnessLabel.text = it.describe()
+            individualImageLabel.invalidate()
+            pack()
+            repaint()
+        }
+    }
+
+    private fun updateUi(
+        individualImageLabel: JLabel,
+        it: Individual,
+        fitnessLabel: JLabel,
+        diffLabel: JLabel
+    ) {
+        individualImageLabel.icon = ImageIcon(it.bufferedImage)
+        diffLabel.icon = ImageIcon(it.diffImage)
+        fitnessLabel.text = it.describe()
+        individualImageLabel.invalidate()
+        repaint()
     }
 
     class EvolverPanel(
         masterImage: BufferedImage,
         evolver: Evolver
-    ): JPanel(BorderLayout()) {
-        val masterIcon: ImageIcon = ImageIcon(masterImage)
-
-        init {
-            val dudePanel = JPanel()
-            dudePanel.layout = BoxLayout(dudePanel, BoxLayout.X_AXIS)
-            dudePanel.add(JLabel(masterIcon), BorderLayout.WEST)
-            val individualImageLabel = JLabel(ImageIcon(masterImage))
-            dudePanel.add(individualImageLabel, BorderLayout.CENTER)
-            val diffImageLabel = JLabel(ImageIcon(masterImage))
-            dudePanel.add(diffImageLabel, BorderLayout.EAST)
-
-            val scrollPane = JScrollPane(dudePanel)
-            add(scrollPane, BorderLayout.CENTER)
-
-            val fitnessLabel = JLabel("", SwingConstants.RIGHT)
-            add(fitnessLabel, BorderLayout.SOUTH)
-
-            evolver.addListener {
-                SwingUtilities.invokeLater { updateUi(individualImageLabel, it, fitnessLabel, diffImageLabel) }
-            }
-        }
-
-        private fun updateUi(
-            individualImageLabel: JLabel,
-            it: Individual,
-            fitnessLabel: JLabel,
-            diffLabel: JLabel
-        ) {
-            individualImageLabel.icon = ImageIcon(it.bufferedImage)
-            diffLabel.icon = ImageIcon(it.diffImage)
-            fitnessLabel.text = it.describe()
-            individualImageLabel.invalidate()
-            repaint()
-        }
-    }
+    ): JPanel(BorderLayout())
 }

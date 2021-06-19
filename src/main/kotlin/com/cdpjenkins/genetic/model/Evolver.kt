@@ -62,7 +62,7 @@ fun makeEvolver(
     evolverSettings: EvolverSettings
 ): Evolver {
     val boundsRectangle = BoundsRectangle(0, 0, masterImage.width, masterImage.height)
-    val individual = initialIndividual ?: makeIndividual(masterImage, boundsRectangle, evolverSettings)
+    val individual = initialIndividual ?: makeIndividual(boundsRectangle, evolverSettings)
     val evolver = Evolver(individual, masterImage, evolverSettings)
     return evolver
 }
