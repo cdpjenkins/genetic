@@ -20,7 +20,7 @@ class GeneticApplication(
     }
 
     companion object {
-        fun create(name: String, secret: String): GeneticApplication {
+        fun create(name: String, secret: String, masterImageFileName: String): GeneticApplication {
 
             val dudeClient = DudeStoreClient("https://genetic-dude.herokuapp.com", name, secret)
             val s3Client = S3Client(name)
@@ -29,7 +29,7 @@ class GeneticApplication(
             val maybeInitialIndividual = dudeClient.getLatestDude()
 
             val evolverSettings = EvolverSettings(name)
-            val masterImage = ImageIO.read(File(evolverSettings.masterImageFile).toURI().toURL())
+            val masterImage = ImageIO.read(File(masterImageFileName).toURI().toURL())
             val evolver = makeEvolver(masterImage, maybeInitialIndividual, evolverSettings)
 
             if (!GraphicsEnvironment.isHeadless()) {

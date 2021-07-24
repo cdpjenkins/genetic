@@ -115,15 +115,18 @@ data class Individual(
 
     fun mutate(evolverSettings: EvolverSettings): Individual {
 
-        val addShapeProbability = ((evolverSettings.maxGenomeSize - genome.size) / evolverSettings.maxGenomeSize) *
+        val headRoom = evolverSettings.maxGenomeSize - genome.size
+        val addShapeProbability = (headRoom / evolverSettings.maxGenomeSize) *
                 evolverSettings.newShapeProbabilityFactor
         val newGenome =
             if (withProbability(addShapeProbability)) {
                 genome + spawnRandomShape(bounds, evolverSettings)
             } else {
                 genome.map {
+                    val avgShapesToMutate = evolverSettings.avgShapesToMutate + (headRoom / 20)
+
                     it.maybeMutate(minOf(
-                        evolverSettings.avgShapesToMutate / genome.size, 1.0), evolverSettings
+                        avgShapesToMutate / genome.size, 1.0), evolverSettings
                     )
                 }
             }

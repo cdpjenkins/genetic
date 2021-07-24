@@ -8,6 +8,6 @@ class EvolverSettings(val name: String) {
     val maxAlpha = 64
     val colourMutateAmount = 20
     val pointMutateRange = 10
-    val newShapeProbabilityFactor = 0.01
+    val newShapeProbabilityFactor = 0.005
     val avgShapesToMutate = 10.0
 }
