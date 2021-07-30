@@ -23,4 +23,8 @@ data class Colour(val red: Int, val green:Int, val blue: Int, val alpha:Int) {
         val newColour = Colour(red, green, blue, alpha)
         return newColour
     }
+
+    override fun toString(): String {
+        return "Colour($red, $green, $blue, $alpha)"
+    }
 }

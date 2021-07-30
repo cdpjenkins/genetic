@@ -10,4 +10,8 @@ data class Point(val x: Int, val y: Int) {
         val newCentre = Point(newX, newY)
         return newCentre
     }
+
+    override fun toString(): String {
+        return "Point($x, $y)"
+    }
 }

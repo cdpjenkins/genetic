@@ -3,7 +3,7 @@ package com.cdpjenkins.genetic.model
 import kotlin.random.Random
 
 internal fun mutateValueLinear(oldValue: Int, range: Int, min: Int, max: Int): Int {
-    var newValue = oldValue + Random.nextInt(range * 2) - range
+    var newValue = oldValue + Random.nextInt(range * 2 + 1) - range
     if (newValue < min) newValue = min
     if (newValue > max) newValue = max
     return newValue
