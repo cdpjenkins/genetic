@@ -125,7 +125,8 @@ class WebMainIT {
                 IndividualSummary(
                     generation = 123,
                     fitness = 123456789,
-                    timeInMillis = 1234
+                    timeInMillis = 1234,
+                    genomeSize = 1
                 )
             )
         )
