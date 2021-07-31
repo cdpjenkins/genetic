@@ -45,6 +45,7 @@ fun makeServer(port: Int, secret: String, dudeDao: DudeDao): Http4kServer {
 private fun makeApi(secret: String?, dao: DudeDao): RoutingHttpHandler {
     val typeLens = Query.optional("type")
     val individualLens = Body.auto<Individual>().toLens()
+    val individualSummaryLens = Body.auto<IndividualSummary>().toLens()
     val nameLens = Path.string().of("name")
 
     return routes(
@@ -75,6 +76,16 @@ private fun makeApi(secret: String?, dao: DudeDao): RoutingHttpHandler {
             } else {
                 Response(OK)
                     .body(SvgRenderer().renderToString(currentDude))
+            }
+        },
+        "/dude/{name}/latest/summary" bind Method.GET to { request: Request ->
+            val currentDude = dao.latestDude(nameLens(request))
+
+            if (currentDude != null) {
+                Response(OK)
+                    .with(individualSummaryLens of IndividualSummary.of(currentDude))
+            } else {
+                Response(NOT_FOUND)
             }
         }
     )
