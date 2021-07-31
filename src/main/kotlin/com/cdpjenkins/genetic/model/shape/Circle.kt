@@ -1,7 +1,7 @@
 package com.cdpjenkins.genetic.model.shape
 
 import EvolverSettings
-import com.cdpjenkins.genetic.model.mutateValueLinear
+import com.cdpjenkins.genetic.model.mutateValueGaussian
 import java.awt.Graphics2D
 
 data class Circle(
@@ -26,5 +26,5 @@ data class Circle(
 }
 
 typealias Radius = Int
-fun Radius.mutate() = mutateValueLinear(this, 5, 1, 20)
+fun Radius.mutate() = mutateValueGaussian(this, 2, 1, 20)
 

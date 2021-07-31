@@ -39,8 +39,8 @@ class GeneticApplication(
             }
 
             // evolver.addListener { it.saveToDisk(name) }
-            evolver.addListener { dudeClient.postDude(it) }
-            evolver.addListener { s3Client.saveToS3(it); }
+//            evolver.addListener { dudeClient.postDude(it) }
+//            evolver.addListener { s3Client.saveToS3(it); }
 
             val geneticApplication = GeneticApplication(name, evolver)
 
