@@ -3,8 +3,8 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '5.2.0'
 }
 
-group 'org.example'
-version '1.0-SNAPSHOT'
+group 'com.cdpjenkins'
+version '1.01-SNAPSHOT'
 
 repositories {
     mavenCentral()
@@ -46,8 +46,8 @@ dependencies {
     implementation "org.jdbi:jdbi3-postgres:3.20.0"
     runtime "org.postgresql:postgresql:42.2.20"
 
-    implementation 'org.slf4j:slf4j-api:1.7.30'
-    implementation 'ch.qos.logback:logback-classic:1.2.3'
+    implementation 'org.slf4j:slf4j-api:2.0.17'
+    implementation 'ch.qos.logback:logback-classic:1.5.13'
 
     implementation platform("software.amazon.awssdk:bom:2.15.15")
     implementation "software.amazon.awssdk:s3"
