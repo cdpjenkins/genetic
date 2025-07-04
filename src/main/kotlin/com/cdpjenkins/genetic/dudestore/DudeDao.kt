@@ -45,7 +45,7 @@ class DudeDao(val jdbi: Jdbi) {
                 .bind("name", name)
                 .bind("generation", generation)
                 .bind("individual", serialise)
-                .execute();
+                .execute()
         }
     }
 
@@ -72,10 +72,10 @@ class DudeDao(val jdbi: Jdbi) {
         }
     }
 
-    fun listDudeSummaries(): List<DudeSummary> {
+    fun listDudeSummaries(): DudeSummaryList {
         return try {
-            jdbi.withHandle<List<DudeSummary>, Exception> {
-                it.createQuery(
+            jdbi.withHandle<DudeSummaryList, Exception> {
+                val summaries = it.createQuery(
                     """
                         SELECT name, count(*) as numGenerations FROM dudes
                         GROUP BY name
@@ -83,6 +83,7 @@ class DudeDao(val jdbi: Jdbi) {
                 )
                     .mapToBean(DudeSummary::class.java)
                     .list()
+                DudeSummaryList(summaries)
             }
         } catch (e: Exception) {
             e.printStackTrace()

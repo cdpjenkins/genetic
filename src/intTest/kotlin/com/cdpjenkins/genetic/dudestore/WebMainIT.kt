@@ -32,7 +32,7 @@ class WebMainIT {
 
     val individualLens = Body.auto<Individual>().toLens()
     val individualSummaryLens = Body.auto<IndividualSummary>().toLens()
-    val dudeSummaryLens = Body.auto<List<DudeSummary>>().toLens()
+    val dudeSummaryListLens = Body.auto<DudeSummaryList>().toLens()
 
     lateinit var server: Http4kServer
 
@@ -159,10 +159,16 @@ class WebMainIT {
         )
 
         assertThat(getResponse.status, equalTo(Status.OK))
-        assertThat(dudeSummaryLens(getResponse), equalTo(listOf(
-            DudeSummary("brian", 1),
-            DudeSummary("steve", 2)
-        )))
+        assertThat(
+            dudeSummaryListLens(getResponse), equalTo(
+                DudeSummaryList(
+                    listOf(
+                        DudeSummary("brian", 1),
+                        DudeSummary("steve", 2)
+                    )
+                )
+            )
+        )
     }
 
     private fun individualWithFields(
