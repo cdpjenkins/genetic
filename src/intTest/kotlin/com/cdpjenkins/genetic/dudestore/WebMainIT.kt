@@ -32,6 +32,7 @@ class WebMainIT {
 
     val individualLens = Body.auto<Individual>().toLens()
     val individualSummaryLens = Body.auto<IndividualSummary>().toLens()
+    val dudeSummaryLens = Body.auto<List<DudeSummary>>().toLens()
 
     lateinit var server: Http4kServer
 
@@ -104,7 +105,7 @@ class WebMainIT {
     }
 
     @Test
-    fun `summary endpoint returns a summary`() {
+    fun `summary endpoint returns a summary of the latest individual`() {
         postDude(
             "steveCopy", individualWithFields(
                 generation = 123,
@@ -141,6 +142,27 @@ class WebMainIT {
             )
         )
         assertThat(getResponse.status, equalTo(Status.NOT_FOUND))
+    }
+
+    @Test
+    fun `list dudes enpoint returns a list of dude summaries`() {
+        postDude("steve", individualSteve.copy(generation = 1))
+        postDude("steve", individualSteve.copy(generation = 2))
+
+        postDude("brian", individualBrian.copy(generation = 1))
+
+        val getResponse = client(
+            Request(
+                Method.GET,
+                "http://localhost:9000/dudes"
+            )
+        )
+
+        assertThat(getResponse.status, equalTo(Status.OK))
+        assertThat(dudeSummaryLens(getResponse), equalTo(listOf(
+            DudeSummary("brian", 1),
+            DudeSummary("steve", 2)
+        )))
     }
 
     private fun individualWithFields(

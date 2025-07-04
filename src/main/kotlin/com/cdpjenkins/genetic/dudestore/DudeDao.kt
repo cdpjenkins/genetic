@@ -71,6 +71,24 @@ class DudeDao(val jdbi: Jdbi) {
             throw e
         }
     }
+
+    fun listDudeSummaries(): List<DudeSummary> {
+        return try {
+            jdbi.withHandle<List<DudeSummary>, Exception> {
+                it.createQuery(
+                    """
+                        SELECT name, count(*) as numGenerations FROM dudes
+                        GROUP BY name
+                    """.trimIndent()
+                )
+                    .mapToBean(DudeSummary::class.java)
+                    .list()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            throw e
+        }
+    }
 }
 
 data class Dude(

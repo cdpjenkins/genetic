@@ -46,6 +46,7 @@ private fun makeApi(secret: String?, dao: DudeDao): RoutingHttpHandler {
     val typeLens = Query.optional("type")
     val individualLens = Body.auto<Individual>().toLens()
     val individualSummaryLens = Body.auto<IndividualSummary>().toLens()
+    val dudeSummarLens = Body.auto<List<DudeSummary>>().toLens()
     val nameLens = Path.string().of("name")
 
     return routes(
@@ -87,6 +88,11 @@ private fun makeApi(secret: String?, dao: DudeDao): RoutingHttpHandler {
             } else {
                 Response(NOT_FOUND)
             }
+        },
+        "dudes" bind Method.GET to { request: Request ->
+            val dudeSummaries = dao.listDudeSummaries()
+
+            Response(OK).with(dudeSummarLens of dudeSummaries)
         }
     )
 }
