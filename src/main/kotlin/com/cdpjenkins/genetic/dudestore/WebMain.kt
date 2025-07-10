@@ -17,6 +17,81 @@ import org.http4k.server.Netty
 import org.http4k.server.asServer
 import org.jdbi.v3.core.Jdbi
 
+class DudeStoreApplication(val dao: DudeDao, val port: Int, val secret: String) {
+    val typeLens = Query.optional("type")
+    val individualLens = Body.auto<Individual>().toLens()
+    val individualSummaryLens = Body.auto<IndividualSummary>().toLens()
+    val dudeSummariesLens = Body.auto<DudeSummaryList>().toLens()
+    val nameLens = Path.string().of("name")
+
+    fun startServer(): Http4kServer =
+        ExceptionLoggingFilter
+            .then(makeApi(secret))
+            .asServer(Netty(port))
+            .start()
+
+    private fun makeApi(secret: String?): RoutingHttpHandler =
+        routes(
+            "setup" bind Method.POST to SecretAuthFilter(secret).then(::setupHandler),
+            "recreate" bind Method.POST to SecretAuthFilter(secret).then(::recreateHandler),
+            "/dude/{name}" bind Method.POST to SecretAuthFilter(secret).then(::postDudeHandler),
+            "/dude/{name}/latest" bind Method.GET to ::getDudeLatest,
+            "/dude/{name}/latest/summary" bind Method.GET to ::getDudeLatestSummary,
+            "dudes" bind Method.GET to ::getDudesList
+        )
+
+    @Suppress("UNUSED_PARAMETER")
+    private fun setupHandler(request: Request): Response {
+        dao.createTable()
+        return Response(OK)
+    }
+
+    private fun recreateHandler(request: Request): Response {
+        dao.recreate()
+        return Response(OK)
+    }
+
+    private fun postDudeHandler(request: Request): Response {
+        val name = nameLens(request)
+        val newDude: Individual = individualLens(request)
+        dao.createTable()
+        dao.insertDude(newDude, name, newDude.generation)
+        return Response(OK)
+    }
+
+    private fun getDudeLatest(request: Request): Response {
+        val currentDude = dao.latestDude(nameLens(request))
+
+        return if (typeLens(request) == "json") {
+            if (currentDude != null) {
+                Response(OK).with(individualLens of currentDude)
+            } else {
+                Response(NOT_FOUND)
+            }
+        } else {
+            Response(OK)
+                .body(SvgRenderer().renderToString(currentDude))
+        }
+    }
+
+    private fun getDudeLatestSummary(request: Request): Response {
+        val currentDude = dao.latestDude(nameLens(request))
+
+        return if (currentDude != null) {
+            Response(OK)
+                .with(individualSummaryLens of IndividualSummary.of(currentDude))
+        } else {
+            Response(NOT_FOUND)
+        }
+    }
+
+    private fun getDudesList(request: Request): Response {
+        val dudeSummaries = dao.listDudeSummaries()
+
+        return Response(OK).with(dudeSummariesLens of dudeSummaries)
+    }
+}
+
 fun main(args: Array<String>) {
 
     val defaultConfig = Environment.from(
@@ -30,69 +105,14 @@ fun main(args: Array<String>) {
     val secretLens = EnvironmentKey.string().required("SECRET")
     val jdbcDatabaseUrlLens = EnvironmentKey.string().required("JDBC_DATABASE_URL")
 
+    val port = portLens(environment)
+    val secret = secretLens(environment)
+
     val dao = DudeDao(Jdbi.create(jdbcDatabaseUrlLens(environment)))
-    val server = makeServer(portLens(environment), secretLens(environment), dao)
+
+    val application = DudeStoreApplication(dao, port, secret)
+
+    val server = application.startServer()
     server.block()
 }
 
-fun makeServer(port: Int, secret: String, dudeDao: DudeDao): Http4kServer {
-    return ExceptionLoggingFilter
-        .then(makeApi(secret, dudeDao))
-        .asServer(Netty(port))
-        .start()
-}
-
-private fun makeApi(secret: String?, dao: DudeDao): RoutingHttpHandler {
-    val typeLens = Query.optional("type")
-    val individualLens = Body.auto<Individual>().toLens()
-    val individualSummaryLens = Body.auto<IndividualSummary>().toLens()
-    val dudeSummariesLens = Body.auto<DudeSummaryList>().toLens()
-    val nameLens = Path.string().of("name")
-
-    return routes(
-        "setup" bind Method.POST to SecretAuthFilter(secret).then { request: Request ->
-            dao.createTable()
-            Response(OK)
-        },
-        "recreate" bind Method.POST to SecretAuthFilter(secret).then { request: Request ->
-            dao.recreate()
-            Response(OK)
-        },
-        "/dude/{name}" bind Method.POST to SecretAuthFilter(secret).then { request: Request ->
-            val name = nameLens(request)
-            val newDude: Individual = individualLens(request)
-            dao.createTable()
-            dao.insertDude(newDude, name, newDude.generation)
-            Response(OK)
-        },
-        "/dude/{name}/latest" bind Method.GET to { request: Request ->
-            val currentDude = dao.latestDude(nameLens(request))
-
-            if (typeLens(request) == "json") {
-                if (currentDude != null) {
-                    Response(OK).with(individualLens of currentDude)
-                } else {
-                    Response(NOT_FOUND)
-                }
-            } else {
-                Response(OK)
-                    .body(SvgRenderer().renderToString(currentDude))
-            }
-        },
-        "/dude/{name}/latest/summary" bind Method.GET to { request: Request ->
-            val currentDude = dao.latestDude(nameLens(request))
-
-            if (currentDude != null) {
-                Response(OK)
-                    .with(individualSummaryLens of IndividualSummary.of(currentDude))
-            } else {
-                Response(NOT_FOUND)
-            }
-        },
-        "dudes" bind Method.GET to { request: Request ->
-            val dudeSummaries = dao.listDudeSummaries()
-
-            Response(OK).with(dudeSummariesLens of dudeSummaries)
-        }
-    )
-}

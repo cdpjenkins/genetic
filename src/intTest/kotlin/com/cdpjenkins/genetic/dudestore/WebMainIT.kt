@@ -49,7 +49,9 @@ class WebMainIT {
                 )
         )
 
-        server = makeServer(9000, "theCorrectSecret", dao)
+        val application = DudeStoreApplication(dao, 9000, "theCorrectSecret")
+
+        server = application.startServer()
     }
 
     @BeforeEach
