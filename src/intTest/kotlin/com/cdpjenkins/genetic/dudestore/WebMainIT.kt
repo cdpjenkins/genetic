@@ -69,12 +69,12 @@ class WebMainIT {
     @Test
     fun `can post and retrieve Individual as JSON`() {
         val postResponse = client(
-            Request(Method.POST, "http://localhost:9000/dude/steve?secret=$secret")
+            Request(Method.POST, "http://localhost:9000/dudes/steve?secret=$secret")
                 .body(serialise(individualSteve))
         )
         assertThat(postResponse.status, equalTo(Status.OK))
 
-        val getResponse = client(Request(Method.GET, "http://localhost:9000/dude/steve/latest?type=json"))
+        val getResponse = client(Request(Method.GET, "http://localhost:9000/dudes/steve/latest?type=json"))
         assertThat(getResponse.status, equalTo(Status.OK))
         assertThat(
             getResponse.body.payload.asString().deserialiseIndividual(),
@@ -93,7 +93,7 @@ class WebMainIT {
     @Test
     fun `POST dude blows up without correct secret credentials`() {
         val postResponse = client(
-            Request(Method.POST, "http://localhost:9000/dude/steve?secret=theWrongSecert")
+            Request(Method.POST, "http://localhost:9000/dudes/steve?secret=theWrongSecert")
                 .body(serialise(individualSteve))
         )
         assertThat(postResponse.status, equalTo(Status.UNAUTHORIZED))
@@ -119,7 +119,7 @@ class WebMainIT {
         val getResponse = client(
             Request(
                 Method.GET,
-                "http://localhost:9000/dude/${"steveCopy"}/latest/summary"
+                "http://localhost:9000/dudes/${"steveCopy"}/latest/summary"
             )
         )
         assertThat(getResponse.status, equalTo(Status.OK))
@@ -140,7 +140,7 @@ class WebMainIT {
         val getResponse = client(
             Request(
                 Method.GET,
-                "http://localhost:9000/dude/doesNotExist/latest/summary"
+                "http://localhost:9000/dudes/doesNotExist/latest/summary"
             )
         )
         assertThat(getResponse.status, equalTo(Status.NOT_FOUND))
@@ -186,7 +186,7 @@ class WebMainIT {
 
     private fun postDude(name: String, dude: Individual) {
         val postResponse = client(
-            Request(Method.POST, "http://localhost:9000/dude/$name?secret=$secret")
+            Request(Method.POST, "http://localhost:9000/dudes/$name?secret=$secret")
                 .body(serialise(dude))
         )
         assertThat(postResponse.status, equalTo(Status.OK))
@@ -199,7 +199,7 @@ class WebMainIT {
     }
 
     private fun getDude(name: String): Response {
-        val getResponse = client(Request(Method.GET, "http://localhost:9000/dude/$name/latest?type=json"))
+        val getResponse = client(Request(Method.GET, "http://localhost:9000/dudes/$name/latest?type=json"))
         assertThat(getResponse.status, equalTo(Status.OK))
         return getResponse
     }

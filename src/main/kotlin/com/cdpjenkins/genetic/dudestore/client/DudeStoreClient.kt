@@ -18,7 +18,7 @@ class DudeStoreClient(val baseUrl: String, val dudeName: String, val secret: Str
     fun getLatestDude(): Individual? {
         val future: Future<Individual?> = executorService.submit(Callable<Individual> {
             val response: Response =
-                httpClient(Request(Method.GET, "$baseUrl/dude/${dudeName}/latest?type=json"))
+                httpClient(Request(Method.GET, "$baseUrl/dudes/${dudeName}/latest?type=json"))
             if (response.status == Status.OK) {
                 individualLens(response)
             } else {
@@ -31,7 +31,7 @@ class DudeStoreClient(val baseUrl: String, val dudeName: String, val secret: Str
 
     fun postDude(it: Individual) {
         executorService.submit {
-            val request: Request = Request(Method.POST, "$baseUrl/dude/${dudeName}?secret=${this.secret}")
+            val request: Request = Request(Method.POST, "$baseUrl/dudes/${dudeName}?secret=${this.secret}")
                 .body(serialise(it))
             val response = httpClient(request)
             if (response.status != Status.OK) {
