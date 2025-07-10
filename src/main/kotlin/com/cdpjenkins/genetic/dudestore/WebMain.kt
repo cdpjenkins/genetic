@@ -32,12 +32,20 @@ class DudeStoreApplication(val dao: DudeDao, val port: Int, val secret: String) 
 
     private fun makeApi(secret: String?): RoutingHttpHandler =
         routes(
+            // mega dangerous stuff that maybe shouldn't be there
             "setup" bind Method.POST to SecretAuthFilter(secret).then(::setupHandler),
             "recreate" bind Method.POST to SecretAuthFilter(secret).then(::recreateHandler),
+
+            // endpoints that we want to use
+            "/dudes" bind Method.GET to ::getDudesList,
+            "/dudes/{name}" bind Method.POST to SecretAuthFilter(secret).then(::postDudeHandler),
+            "/dudes/{name}/latest" bind Method.GET to ::getDudeLatest,
+            "/dudes/{name}/latest/summary" bind Method.GET to ::getDudeLatestSummary,
+
+            // legacy endpoints that we should stop using
             "/dude/{name}" bind Method.POST to SecretAuthFilter(secret).then(::postDudeHandler),
             "/dude/{name}/latest" bind Method.GET to ::getDudeLatest,
             "/dude/{name}/latest/summary" bind Method.GET to ::getDudeLatestSummary,
-            "dudes" bind Method.GET to ::getDudesList
         )
 
     @Suppress("UNUSED_PARAMETER")
@@ -46,6 +54,7 @@ class DudeStoreApplication(val dao: DudeDao, val port: Int, val secret: String) 
         return Response(OK)
     }
 
+    @Suppress("UNUSED_PARAMETER")
     private fun recreateHandler(request: Request): Response {
         dao.recreate()
         return Response(OK)
@@ -85,6 +94,7 @@ class DudeStoreApplication(val dao: DudeDao, val port: Int, val secret: String) 
         }
     }
 
+    @Suppress("UNUSED_PARAMETER")
     private fun getDudesList(request: Request): Response {
         val dudeSummaries = dao.listDudeSummaries()
 
@@ -92,8 +102,7 @@ class DudeStoreApplication(val dao: DudeDao, val port: Int, val secret: String) 
     }
 }
 
-fun main(args: Array<String>) {
-
+fun main() {
     val defaultConfig = Environment.from(
 
     )
@@ -110,9 +119,7 @@ fun main(args: Array<String>) {
 
     val dao = DudeDao(Jdbi.create(jdbcDatabaseUrlLens(environment)))
 
-    val application = DudeStoreApplication(dao, port, secret)
-
-    val server = application.startServer()
-    server.block()
+    DudeStoreApplication(dao, port, secret)
+        .startServer()
+        .also { it.block() }
 }
-
