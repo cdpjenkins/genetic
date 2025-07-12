@@ -2,6 +2,8 @@ package com.cdpjenkins.genetic
 
 import EvolverSettings
 import com.cdpjenkins.genetic.dudestore.client.DudeStoreClient
+import com.cdpjenkins.genetic.json.deserialiseFromFile
+import com.cdpjenkins.genetic.json.serialiseToFile
 import com.cdpjenkins.genetic.model.Evolver
 import com.cdpjenkins.genetic.model.makeEvolver
 import com.cdpjenkins.genetic.persistence.S3Client
@@ -22,15 +24,19 @@ class GeneticApplication(
     companion object {
         fun create(name: String, secret: String, masterImageFileName: String): GeneticApplication {
 
+            val settings = readSettingsOrDefault(name)
+
+            serialiseToFile(File("written-evolver-settings.json"), settings)
+
             val dudeClient = DudeStoreClient("https://genetic-dude.herokuapp.com", name, secret)
             val s3Client = S3Client(name)
 
             logger.info("Creating evolver for name {}", name)
             val maybeInitialIndividual = dudeClient.getLatestDude()
 
-            val evolverSettings = EvolverSettings(name)
             val masterImage = ImageIO.read(File(masterImageFileName).toURI().toURL())
-            val evolver = makeEvolver(masterImage, maybeInitialIndividual, evolverSettings)
+            val evolver = makeEvolver(
+                masterImage, maybeInitialIndividual, settings)
 
             if (!GraphicsEnvironment.isHeadless()) {
                 val gui = GUI(masterImage)
@@ -46,5 +52,12 @@ class GeneticApplication(
 
             return geneticApplication
         }
+
+        private fun readSettingsOrDefault(name: String) =
+            if (File("evolver-settings.json").exists()) {
+                deserialiseFromFile<EvolverSettings>(File("evolver-settings.json"))!!
+            } else {
+                EvolverSettings.default(name)
+            }
     }
 }

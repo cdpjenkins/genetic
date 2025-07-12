@@ -10,6 +10,8 @@ fun main(args: Array<String>) {
     val name = args[0]
     val masterImageFileName = args[1]
 
-    val application = GeneticApplication.create(name, secret, masterImageFileName)
+    val application = GeneticApplication.create(
+        name, secret, masterImageFileName
+    )
     application.start()
 }

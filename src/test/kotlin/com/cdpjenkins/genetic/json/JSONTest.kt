@@ -1,10 +1,9 @@
 package com.cdpjenkins.genetic.json
 
-import com.cdpjenkins.genetic.model.*
+import com.cdpjenkins.genetic.model.Individual
 import com.cdpjenkins.genetic.model.shape.*
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.io.File
 
@@ -43,7 +42,7 @@ internal class JSONTest {
     internal fun `can serialise to and deserialise from a file`() {
         val jsonFile = File.createTempFile("IndividualTest", ".json")
         serialiseToFile(jsonFile, individual)
-        val deserlialisedIndividual = deserialiseFromFile(jsonFile)
+        val deserlialisedIndividual: Individual? = deserialiseFromFile(jsonFile)
 
         assertThat(deserlialisedIndividual, equalTo(individual))
     }

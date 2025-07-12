@@ -13,17 +13,15 @@ fun serialise(individual: Individual): String {
 }
 
 fun String.deserialiseIndividual(): Individual {
-    println("individual: ${this}" )
-    println(this)
     return mapper.readValue(this, Individual::class.java)
 }
 
-fun serialiseToFile(createTempFile: File, individual: Individual) {
-    mapper.writeValue(createTempFile, individual)
+fun <T> serialiseToFile(file: File, obj: T) {
+    mapper.writeValue(file, obj)
 }
 
-fun deserialiseFromFile(jsonFile: File): Individual? =
-    mapper.readValue(jsonFile, Individual::class.java)
+inline fun <reified T> deserialiseFromFile(jsonFile: File): T? =
+    mapper.readValue(jsonFile, T::class.java)
 
 fun fromStream(stream: InputStream): Individual = mapper.readValue(stream)
 
