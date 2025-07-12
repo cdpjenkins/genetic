@@ -29,6 +29,14 @@ compileKotlin {
     }
 }
 
+compileTestKotlin {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
+
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib"
     implementation "com.fasterxml.jackson.module:jackson-module-kotlin:2.12.+"
@@ -66,6 +74,7 @@ dependencies {
 
     intTestRuntime 'org.postgresql:postgresql:42.2.20'
 }
+
 
 tasks.test {
     useJUnitPlatform()
