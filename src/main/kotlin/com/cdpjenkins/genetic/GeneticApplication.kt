@@ -33,6 +33,14 @@ class GeneticApplication(
 
             logger.info("Creating evolver for name {}", name)
             val maybeInitialIndividual = dudeClient.getLatestDude()
+            if (maybeInitialIndividual != null) {
+                logger.info(
+                    "Found initial individual with generation: {} fitness: {} genomSize: {}",
+                    maybeInitialIndividual.generation,
+                    maybeInitialIndividual.fitness,
+                    maybeInitialIndividual.genome.size
+                )
+            }
 
             val masterImage = ImageIO.read(File(masterImageFileName).toURI().toURL())
             val evolver = makeEvolver(
