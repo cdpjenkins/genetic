@@ -2,6 +2,8 @@ package com.cdpjenkins.genetic.dudestore
 
 import com.cdpjenkins.genetic.model.Individual
 import com.cdpjenkins.genetic.svg.SvgRenderer
+import java.io.ByteArrayOutputStream
+import javax.imageio.ImageIO
 import org.http4k.cloudnative.env.Environment
 import org.http4k.cloudnative.env.EnvironmentKey
 import org.http4k.core.*
@@ -71,15 +73,30 @@ class DudeStoreApplication(val dao: DudeDao, val port: Int, val secret: String) 
     private fun getDudeLatest(request: Request): Response {
         val currentDude = dao.latestDude(nameLens(request))
 
-        return if (typeLens(request) == "json") {
-            if (currentDude != null) {
-                Response(OK).with(individualLens of currentDude)
-            } else {
-                Response(NOT_FOUND)
+        return when (typeLens(request)) {
+            "json" -> {
+                if (currentDude != null) {
+                    Response(OK).with(individualLens of currentDude)
+                } else {
+                    Response(NOT_FOUND)
+                }
             }
-        } else {
-            Response(OK)
-                .body(SvgRenderer().renderToString(currentDude))
+            "png" -> {
+                if (currentDude != null) {
+                    currentDude.drawToBuffer()
+                    val outputStream = ByteArrayOutputStream()
+                    ImageIO.write(currentDude.bufferedImage, "png", outputStream)
+                    Response(OK)
+                        .header("Content-Type", "image/png")
+                        .body(outputStream.toByteArray().inputStream())
+                } else {
+                    Response(NOT_FOUND)
+                }
+            }
+            else -> {
+                Response(OK)
+                    .body(SvgRenderer().renderToString(currentDude))
+            }
         }
     }
 
