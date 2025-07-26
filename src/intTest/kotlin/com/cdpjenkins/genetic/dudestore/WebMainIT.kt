@@ -9,7 +9,7 @@ import com.cdpjenkins.genetic.model.shape.Colour
 import com.cdpjenkins.genetic.model.shape.Point
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
-import com.natpryce.hamkrest.startsWith
+import com.natpryce.hamkrest.present
 import org.http4k.asString
 import org.http4k.client.OkHttp
 import org.http4k.core.*
@@ -21,8 +21,8 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.testcontainers.containers.PostgreSQLContainer
-import javax.imageio.ImageIO
 import java.io.ByteArrayInputStream
+import javax.imageio.ImageIO
 
 class WebMainIT {
     @ClassRule
@@ -185,21 +185,23 @@ class WebMainIT {
         assertThat(getResponse.status, equalTo(Status.OK))
         assertThat(getResponse.header("Content-Type"), equalTo("image/png"))
 
-        // Verify the response contains valid PNG data
-        val imageBytes = getResponse.body.payload.array()
-        assertThat(imageBytes.size > 0, equalTo(true))
-
-        // Verify it's a valid PNG by reading it with ImageIO
-        val bufferedImage = ImageIO.read(ByteArrayInputStream(imageBytes))
-        assertThat(bufferedImage != null, equalTo(true))
-        assertThat(bufferedImage.width, equalTo(100))
-        assertThat(bufferedImage.height, equalTo(100))
+        containsValidPngWithSameDimensionsAs(getResponse, individualSteve)
     }
 
     @Test
     fun `returns 404 when requesting PNG for non-existent dude`() {
         val getResponse = client(Request(Method.GET, "http://localhost:9000/dudes/nonexistent/latest?type=png"))
         assertThat(getResponse.status, equalTo(Status.NOT_FOUND))
+    }
+
+    private fun containsValidPngWithSameDimensionsAs(getResponse: Response, individualSteve: Individual) {
+        val imageBytes = getResponse.body.payload.array()
+        assertThat(imageBytes.size > 0, equalTo(true))
+
+        val bufferedImage = ImageIO.read(ByteArrayInputStream(imageBytes))
+        assertThat(bufferedImage, present())
+        assertThat(bufferedImage.width, equalTo(individualSteve.bounds.width))
+        assertThat(bufferedImage.height, equalTo(individualSteve.bounds.height))
     }
 
     private fun individualWithFields(
