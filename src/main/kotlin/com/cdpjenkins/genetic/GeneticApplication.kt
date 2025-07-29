@@ -8,6 +8,8 @@ import com.cdpjenkins.genetic.model.Evolver
 import com.cdpjenkins.genetic.model.makeEvolver
 import com.cdpjenkins.genetic.persistence.S3Client
 import com.cdpjenkins.genetic.ui.GUI
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.awt.GraphicsEnvironment
 import java.io.File
 import javax.imageio.ImageIO
@@ -22,6 +24,8 @@ class GeneticApplication(
     }
 
     companion object {
+        private val logger: Logger = LoggerFactory.getLogger(GeneticApplication::class.java)
+
         fun create(name: String, secret: String, masterImageFileName: String): GeneticApplication {
 
             val settings = readSettingsOrDefault(name)
@@ -61,11 +65,16 @@ class GeneticApplication(
             return geneticApplication
         }
 
-        private fun readSettingsOrDefault(name: String) =
-            if (File("evolver-settings.json").exists()) {
-                deserialiseFromFile<EvolverSettings>(File("evolver-settings.json"))!!
+        private fun readSettingsOrDefault(name: String): EvolverSettings {
+            return if (File("evolver-settings.json").exists()) {
+                val settings = deserialiseFromFile<EvolverSettings>(File("evolver-settings.json"))!!
+                logger.info("Loaded evolver settings: {}", settings)
+                settings
             } else {
-                EvolverSettings.default(name)
+                val settings = EvolverSettings.default(name)
+                logger.info("Using default evolver settings: {}", settings)
+                settings
             }
+        }
     }
 }
