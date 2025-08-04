@@ -1,4 +1,4 @@
-class EvolverSettings(
+data class EvolverSettings(
     val name: String,
     val initialGenomeSize: Int,
     val maxGenomeSize: Double,
