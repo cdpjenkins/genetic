@@ -2,7 +2,7 @@ package com.cdpjenkins.genetic.dudestore.client
 
 import com.cdpjenkins.genetic.json.serialise
 import com.cdpjenkins.genetic.model.Individual
-import com.cdpjenkins.genetic.model.logger
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.http4k.client.OkHttp
 import org.http4k.core.*
 import org.http4k.format.Jackson.auto
@@ -12,6 +12,8 @@ import java.util.concurrent.Executors
 import java.util.concurrent.Future
 
 class DudeStoreClient(val baseUrl: String, val dudeName: String, val secret: String) {
+    private val logger = KotlinLogging.logger {}
+
     private val httpClient = OkHttp()
     private val executorService: ExecutorService = Executors.newSingleThreadExecutor()
     val individualLens = Body.auto<Individual>().toLens()
@@ -32,7 +34,7 @@ class DudeStoreClient(val baseUrl: String, val dudeName: String, val secret: Str
 
     fun postDude(it: Individual) {
 
-        logger.info("Posting new individual generation={}, fitness={}", it.generation, it.fitness)
+        logger.debug { "${"Posting new individual generation={}, fitness={}"} ${it.generation} ${it.fitness}" }
 
         executorService.submit {
             val request: Request = Request(Method.POST, "$baseUrl/dudes/${dudeName}?secret=${this.secret}")

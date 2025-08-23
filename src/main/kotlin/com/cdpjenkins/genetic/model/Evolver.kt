@@ -3,8 +3,7 @@ package com.cdpjenkins.genetic.model
 import EvolverSettings
 import com.cdpjenkins.genetic.image.grabPixels
 import com.cdpjenkins.genetic.model.shape.BoundsRectangle
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+import io.github.oshai.kotlinlogging.KotlinLogging
 import java.awt.image.BufferedImage
 import java.io.File
 
@@ -13,7 +12,7 @@ class Evolver(
     masterImage: BufferedImage,
     val settings: EvolverSettings
 ) {
-    private val logger: Logger = LoggerFactory.getLogger(Evolver::class.java)
+    private val logger = KotlinLogging.logger {}
 
     private var listeners: MutableList<EvolverListener> = mutableListOf()
     private val masterPixels: IntArray = grabPixels(masterImage)
@@ -30,7 +29,7 @@ class Evolver(
         newIndividual.drawAndCalculateFitness(masterPixels)
         if (newIndividual.fitness < individual.fitness) {
             individual = newIndividual
-            logger.info(individual.describe())
+            logger.info { individual.describe() }
 
 //            individual.drawDiff(masterPixels)
 

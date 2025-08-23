@@ -8,8 +8,7 @@ import com.cdpjenkins.genetic.model.Evolver
 import com.cdpjenkins.genetic.model.makeEvolver
 import com.cdpjenkins.genetic.persistence.S3Client
 import com.cdpjenkins.genetic.ui.GUI
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+import io.github.oshai.kotlinlogging.KotlinLogging
 import java.awt.GraphicsEnvironment
 import java.io.File
 import javax.imageio.ImageIO
@@ -24,7 +23,7 @@ class GeneticApplication(
     }
 
     companion object {
-        private val logger: Logger = LoggerFactory.getLogger(GeneticApplication::class.java)
+        private val logger = KotlinLogging.logger {}
 
         fun create(name: String, secret: String, masterImageFileName: String): GeneticApplication {
 
@@ -35,15 +34,15 @@ class GeneticApplication(
             val dudeClient = DudeStoreClient("https://genetic-dude.herokuapp.com", name, secret)
             val s3Client = S3Client(name)
 
-            logger.info("Creating evolver for name {}", name)
+            logger.info { "${"Creating evolver for name {}"} $name" }
             val maybeInitialIndividual = dudeClient.getLatestDude()
             if (maybeInitialIndividual != null) {
-                logger.info(
-                    "Found initial individual with generation: {} fitness: {} genomSize: {}",
-                    maybeInitialIndividual.generation,
-                    maybeInitialIndividual.fitness,
-                    maybeInitialIndividual.genome.size
-                )
+                logger.info {
+                    val generation = maybeInitialIndividual.generation
+                    val fitness = maybeInitialIndividual.fitness
+                    val size = maybeInitialIndividual.genome.size
+                    "Found initial individual with generation: $generation fitness: $fitness genomeSize: $size"
+                }
             }
 
             val masterImage = ImageIO.read(File(masterImageFileName).toURI().toURL())
@@ -68,11 +67,11 @@ class GeneticApplication(
         private fun readSettingsOrDefault(name: String): EvolverSettings {
             return if (File("evolver-settings.json").exists()) {
                 val settings = deserialiseFromFile<EvolverSettings>(File("evolver-settings.json"))!!
-                logger.info("Loaded evolver settings: {}", settings)
+                logger.info { "Loaded evolver settings: $settings" }
                 settings
             } else {
                 val settings = EvolverSettings.default(name)
-                logger.info("Using default evolver settings: {}", settings)
+                logger.info { "Using default evolver settings: ${settings}" }
                 settings
             }
         }

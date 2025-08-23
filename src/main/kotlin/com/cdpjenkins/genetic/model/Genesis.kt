@@ -2,11 +2,10 @@ package com.cdpjenkins.genetic.model
 
 import EvolverSettings
 import com.cdpjenkins.genetic.model.shape.*
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlin.random.Random
 
-val logger: Logger = LoggerFactory.getLogger(object{}::class.java)
+private val logger = KotlinLogging.logger {}
 val polyVertices: Int = 4
 
 fun makeIndividual(
@@ -20,7 +19,7 @@ fun makeIndividual(
 }
 
 fun spawnRandomShape(bounds: BoundsRectangle, evolverSettings: EvolverSettings): Shape {
-    logger.info("Try spawning a random shape")
+    logger.info { "Try spawning a random shape" }
 
     val rand = randint(0, 5)
     return when (2) {

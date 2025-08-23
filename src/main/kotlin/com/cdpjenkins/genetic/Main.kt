@@ -1,14 +1,15 @@
 package com.cdpjenkins.genetic
 
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+import io.github.oshai.kotlinlogging.KotlinLogging
 
-val logger: Logger = LoggerFactory.getLogger(object{}::class.java)
+private val logger = KotlinLogging.logger {}
 
 fun main(args: Array<String>) {
     val secret = System.getenv("SECRET")
     val name = args[0]
     val masterImageFileName = args[1]
+
+    logger.info { "Starting application with name $name and master image $masterImageFileName" }
 
     val application = GeneticApplication.create(
         name, secret, masterImageFileName
