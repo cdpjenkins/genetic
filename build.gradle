@@ -20,21 +20,8 @@ sourceSets {
     }
 }
 
-compileKotlin {
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
-
-    kotlinOptions {
-        jvmTarget = "21"
-    }
-}
-
-compileTestKotlin {
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
-    kotlinOptions {
-        jvmTarget = "21"
-    }
+kotlin {
+    jvmToolchain(21)
 }
 
 dependencies {
@@ -68,7 +55,7 @@ dependencies {
     intTestImplementation("org.junit.jupiter:junit-jupiter")
     intTestImplementation('com.natpryce:hamkrest:1.8.0.1')
 
-    intTestImplementation "org.testcontainers:testcontainers:1.15.3"
+    intTestImplementation "org.testcontainers:testcontainers:1.21.3"
     intTestImplementation "org.testcontainers:junit-jupiter:1.15.3"
     intTestImplementation "org.testcontainers:postgresql:1.15.3"
 
