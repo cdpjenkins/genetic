@@ -21,19 +21,19 @@ sourceSets {
 }
 
 compileKotlin {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
 
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "21"
     }
 }
 
 compileTestKotlin {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "21"
     }
 }
 
@@ -42,12 +42,12 @@ dependencies {
     implementation "com.fasterxml.jackson.module:jackson-module-kotlin:2.12.+"
     implementation 'org.apache.xmlgraphics:batik-all:1.19'
 
-    implementation platform("org.http4k:http4k-bom:4.9.1.0")
+    implementation platform("org.http4k:http4k-bom:6.15.1.0")
     implementation "org.http4k:http4k-core"
     implementation "org.http4k:http4k-format-jackson"
     implementation "org.http4k:http4k-server-netty"
     implementation "org.http4k:http4k-client-okhttp"
-    implementation "org.http4k:http4k-cloudnative"
+    implementation "org.http4k:http4k-config"
 
     implementation "org.jdbi:jdbi3-bom:3.20.0"
     implementation "org.jdbi:jdbi3-core"

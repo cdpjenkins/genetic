@@ -2,10 +2,10 @@ package com.cdpjenkins.genetic.dudestore
 
 import com.cdpjenkins.genetic.model.Individual
 import com.cdpjenkins.genetic.svg.SvgRenderer
+import org.http4k.config.Environment
+import org.http4k.config.EnvironmentKey
 import java.io.ByteArrayOutputStream
 import javax.imageio.ImageIO
-import org.http4k.cloudnative.env.Environment
-import org.http4k.cloudnative.env.EnvironmentKey
 import org.http4k.core.*
 import org.http4k.core.Status.Companion.NOT_FOUND
 import org.http4k.core.Status.Companion.OK
