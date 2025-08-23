@@ -3,6 +3,7 @@ package com.cdpjenkins.genetic.dudestore
 import EvolverSettings
 import com.cdpjenkins.genetic.model.Individual
 import com.cdpjenkins.genetic.svg.SvgRenderer
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.http4k.config.Environment
 import org.http4k.config.EnvironmentKey
 import java.io.ByteArrayOutputStream
@@ -21,6 +22,8 @@ import org.http4k.server.asServer
 import org.jdbi.v3.core.Jdbi
 
 class DudeStoreApplication(val dao: DudeDao, val port: Int, val secret: String) {
+    private val logger = KotlinLogging.logger {}
+
     val typeLens = Query.optional("type")
     val individualLens = Body.auto<Individual>().toLens()
     val individualSummaryLens = Body.auto<IndividualSummary>().toLens()
@@ -123,8 +126,12 @@ class DudeStoreApplication(val dao: DudeDao, val port: Int, val secret: String) 
     }
 
     private fun postEvolverSettingsHandler(request: Request): Response {
+
+
         val name = nameLens(request)
         val evolverSettings: EvolverSettings = evolveSettingsLens(request)
+
+        logger.info { "POST evolver settings for $name: $evolverSettings" }
 
         // TODO if the name doesn't match, return HTTP 400
 
