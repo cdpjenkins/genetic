@@ -33,7 +33,7 @@ internal class JSONTest {
     @Test
     internal fun `can serialise and deserialise Individuals`() {
         val jsonString = serialise(individual)
-        val deserialisedIndividual: Individual = jsonString.deserialiseIndividual()
+        val deserialisedIndividual: Individual = jsonString.deserialise<Individual>()
 
         assertThat(deserialisedIndividual, equalTo(individual))
     }

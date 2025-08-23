@@ -1,6 +1,7 @@
 package com.cdpjenkins.genetic.dudestore
 
-import com.cdpjenkins.genetic.json.deserialiseIndividual
+import EvolverSettings
+import com.cdpjenkins.genetic.json.deserialise
 import com.cdpjenkins.genetic.json.serialise
 import com.cdpjenkins.genetic.model.Individual
 import com.cdpjenkins.genetic.model.shape.BoundsRectangle
@@ -36,6 +37,7 @@ class WebMainIT {
     val individualLens = Body.auto<Individual>().toLens()
     val individualSummaryLens = Body.auto<IndividualSummary>().toLens()
     val dudeSummaryListLens = Body.auto<DudeSummaryList>().toLens()
+    val evolverSettingsLens = Body.auto<EvolverSettings>().toLens()
 
     lateinit var server: Http4kServer
 
@@ -80,7 +82,7 @@ class WebMainIT {
         val getResponse = client(Request(Method.GET, "http://localhost:9000/dudes/steve/latest?type=json"))
         assertThat(getResponse.status, equalTo(Status.OK))
         assertThat(
-            getResponse.body.payload.asString().deserialiseIndividual(),
+            getResponse.body.payload.asString().deserialise(),
             equalTo(individualSteve))
     }
 
@@ -192,6 +194,33 @@ class WebMainIT {
     fun `returns 404 when requesting PNG for non-existent dude`() {
         val getResponse = client(Request(Method.GET, "http://localhost:9000/dudes/nonexistent/latest?type=png"))
         assertThat(getResponse.status, equalTo(Status.NOT_FOUND))
+    }
+
+    @Test
+    fun `can POST and GET evolver settings`() {
+        val evolverSettings = EvolverSettings(
+            "steve",
+            0,
+            10,
+            15,
+            64,
+            1,
+            1,
+            0.5,
+            0.9
+        )
+
+        val postResponse = client(
+            Request(Method.POST, "http://localhost:9000/dudes/steve/settings?secret=$secret")
+                .body(serialise(evolverSettings))
+        )
+        assertThat(postResponse.status, equalTo(Status.OK))
+
+        val getResponse = client(Request(Method.GET, "http://localhost:9000/dudes/steve/settings?type=json"))
+        assertThat(getResponse.status, equalTo(Status.OK))
+        val returnedSettings = evolverSettingsLens(getResponse)
+
+        assertThat(returnedSettings, equalTo(evolverSettings))
     }
 
     private fun containsValidPngWithSameDimensionsAs(getResponse: Response, individualSteve: Individual) {

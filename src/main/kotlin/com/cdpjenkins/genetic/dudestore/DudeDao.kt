@@ -1,12 +1,13 @@
 package com.cdpjenkins.genetic.dudestore
 
-import com.cdpjenkins.genetic.json.deserialiseIndividual
+import EvolverSettings
+import com.cdpjenkins.genetic.json.deserialise
 import com.cdpjenkins.genetic.json.serialise
 import com.cdpjenkins.genetic.model.Individual
 import org.jdbi.v3.core.Jdbi
 
 class DudeDao(val jdbi: Jdbi) {
-    fun createTable() {
+    fun createTables() {
         jdbi.withHandle<Int, Exception> {
             it.execute(
                 """
@@ -15,6 +16,16 @@ class DudeDao(val jdbi: Jdbi) {
                     generation INT NOT NULL,
                     individual JSONB NOT NULL,
                     PRIMARY KEY (name, generation)
+                );
+                """.trimIndent())
+        }
+
+        jdbi.withHandle<Int, Exception> {
+            it.execute(
+                """
+                CREATE TABLE IF NOT EXISTS EvolverSettings(
+                    name VARCHAR PRIMARY KEY,
+                    settings JSONB NOT NULL
                 );
                 """.trimIndent())
         }
@@ -28,7 +39,7 @@ class DudeDao(val jdbi: Jdbi) {
                 """.trimIndent()
             )
         }
-        createTable()
+        createTables()
     }
 
     fun insertDude(dude: Individual, name: String, generation: Int) {
@@ -64,7 +75,7 @@ class DudeDao(val jdbi: Jdbi) {
                     .findOne()
                     .orElse(null)
                     ?.individual
-                    ?.deserialiseIndividual()
+                    ?.deserialise()
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -90,6 +101,37 @@ class DudeDao(val jdbi: Jdbi) {
             throw e
         }
     }
+
+    fun insertEvolverSettings(evolverSettings: EvolverSettings) {
+        jdbi.withHandle<Int, Exception> {
+            it.createUpdate(
+                """
+                    INSERT INTO EvolverSettings (name, settings)
+                    VALUES(:name, cast (:settings as JSONB))
+                """.trimIndent()
+            )
+                .bind("name", evolverSettings.name)
+                .bind("settings", serialise(evolverSettings))
+                .execute()
+        }
+    }
+
+    fun getEvolverSettings(name: String): EvolverSettings? {
+        return jdbi.withHandle<EvolverSettings, Exception> {
+            it.createQuery(
+                """
+                    SELECT name, settings FROM EvolverSettings
+                    WHERE name=:name
+                """.trimIndent()
+            )
+                .bind("name", name)
+                .mapToBean(EvolverSettingsRow::class.java)
+                .findOne()
+                .orElse(null)
+                ?.settings
+                ?.deserialise()
+        }
+    }
 }
 
 data class Dude(
@@ -99,6 +141,9 @@ data class Dude(
     constructor() : this(0, null)
 }
 
-// select generation, individual->'fitness' as fitness, to_timestamp(CAST(individual->'createdTimestamp' AS BIGINT) / 1000) as timestamp
-// from dudes
-// where name='stour';
+data class EvolverSettingsRow(
+    var name: String,
+    var settings: String?
+) {
+    constructor() : this("", null)
+}

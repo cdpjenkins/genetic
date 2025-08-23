@@ -8,12 +8,12 @@ import java.io.InputStream
 
 val mapper = jacksonObjectMapper()
 
-fun serialise(individual: Individual): String {
-    return mapper.writeValueAsString(individual)
+fun <T> serialise(obj: T): String {
+    return mapper.writeValueAsString(obj)
 }
 
-fun String.deserialiseIndividual(): Individual {
-    return mapper.readValue(this, Individual::class.java)
+ inline fun <reified T> String.deserialise(): T {
+    return mapper.readValue(this, T::class.java)
 }
 
 fun <T> serialiseToFile(file: File, obj: T) {

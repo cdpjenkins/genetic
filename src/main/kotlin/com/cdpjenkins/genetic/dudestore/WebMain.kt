@@ -1,5 +1,6 @@
 package com.cdpjenkins.genetic.dudestore
 
+import EvolverSettings
 import com.cdpjenkins.genetic.model.Individual
 import com.cdpjenkins.genetic.svg.SvgRenderer
 import org.http4k.config.Environment
@@ -25,6 +26,7 @@ class DudeStoreApplication(val dao: DudeDao, val port: Int, val secret: String) 
     val individualSummaryLens = Body.auto<IndividualSummary>().toLens()
     val dudeSummariesLens = Body.auto<DudeSummaryList>().toLens()
     val nameLens = Path.string().of("name")
+    val evolveSettingsLens = Body.auto<EvolverSettings>().toLens()
 
     fun startServer(): Http4kServer =
         ExceptionLoggingFilter
@@ -43,6 +45,8 @@ class DudeStoreApplication(val dao: DudeDao, val port: Int, val secret: String) 
             "/dudes/{name}" bind Method.POST to SecretAuthFilter(secret).then(::postDudeHandler),
             "/dudes/{name}/latest" bind Method.GET to ::getDudeLatest,
             "/dudes/{name}/latest/summary" bind Method.GET to ::getDudeLatestSummary,
+            "/dudes/{name}/settings" bind Method.POST to SecretAuthFilter(secret).then(::postEvolverSettingsHandler),
+            "/dudes/{name}/settings" bind Method.GET to ::getEvolverSettingsHandler,
 
             // legacy endpoints that we should stop using
             "/dude/{name}" bind Method.POST to SecretAuthFilter(secret).then(::postDudeHandler),
@@ -52,7 +56,7 @@ class DudeStoreApplication(val dao: DudeDao, val port: Int, val secret: String) 
 
     @Suppress("UNUSED_PARAMETER")
     private fun setupHandler(request: Request): Response {
-        dao.createTable()
+        dao.createTables()
         return Response(OK)
     }
 
@@ -65,7 +69,7 @@ class DudeStoreApplication(val dao: DudeDao, val port: Int, val secret: String) 
     private fun postDudeHandler(request: Request): Response {
         val name = nameLens(request)
         val newDude: Individual = individualLens(request)
-        dao.createTable()
+        dao.createTables()
         dao.insertDude(newDude, name, newDude.generation)
         return Response(OK)
     }
@@ -116,6 +120,25 @@ class DudeStoreApplication(val dao: DudeDao, val port: Int, val secret: String) 
         val dudeSummaries = dao.listDudeSummaries()
 
         return Response(OK).with(dudeSummariesLens of dudeSummaries)
+    }
+
+    private fun postEvolverSettingsHandler(request: Request): Response {
+        val name = nameLens(request)
+        val evolverSettings: EvolverSettings = evolveSettingsLens(request)
+
+        // TODO if the name doesn't match, return HTTP 400
+
+        dao.insertEvolverSettings(evolverSettings)
+        return Response(OK)
+    }
+
+    private fun getEvolverSettingsHandler(request: Request): Response {
+        val name = nameLens(request)
+        val evolverSettings = dao.getEvolverSettings(name)
+
+        return evolverSettings?.let {
+            Response(OK).with(evolveSettingsLens of it)
+        } ?: Response(NOT_FOUND)
     }
 }
 
