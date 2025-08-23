@@ -40,7 +40,7 @@ compileTestKotlin {
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib"
     implementation "com.fasterxml.jackson.module:jackson-module-kotlin:2.12.+"
-    implementation 'org.apache.xmlgraphics:batik-all:1.14'
+    implementation 'org.apache.xmlgraphics:batik-all:1.19'
 
     implementation platform("org.http4k:http4k-bom:4.9.1.0")
     implementation "org.http4k:http4k-core"
