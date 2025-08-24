@@ -25,11 +25,14 @@ import java.io.ByteArrayInputStream
 import javax.imageio.ImageIO
 
 class WebMainIT {
-    @ClassRule
-    var postgreSQLContainer = MyPostgreSQLContainer("postgres")
-        .withDatabaseName("dude_db")
-        .withUsername("test_docker_postgres_user")
-        .withPassword("test_docker_postgres_password")
+    companion object {
+        @JvmField
+        @ClassRule
+        val postgreSQLContainer = MyPostgreSQLContainer("postgres")
+            .withDatabaseName("dude_db")
+            .withUsername("test_docker_postgres_user")
+            .withPassword("test_docker_postgres_password")
+    }
 
     val secret = System.getProperty("secret", "theCorrectSecret")
 
