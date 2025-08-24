@@ -2,7 +2,8 @@
 
 ## TODO
 
-- Get integration tests to use the dude-client
+- HTTP client - Get integration tests to use the dudestore-client
+- HTTP client - Stop using threads in dudestore-client... there ought to be an option involving coroutines, surely...
 
 - JSON - use kotlinx serialisation, not Jackson
 

@@ -11,7 +11,10 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
 
-class DudeStoreClient(val baseUrl: String, val dudeName: String, val secret: String) {
+// Tech debt: Not sure what I was thinking doing this with threads. This is Kotlin and coroutines are available.
+// Future enhancement: turn these calls into something non-blocking that doesn't require firing up a whole thread
+// for each HTTP request.
+class NonBlockingDudeStoreClient(val baseUrl: String, val dudeName: String, val secret: String) {
     private val logger = KotlinLogging.logger {}
 
     private val httpClient = OkHttp()

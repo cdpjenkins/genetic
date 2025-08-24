@@ -1,7 +1,7 @@
 package com.cdpjenkins.genetic
 
 import EvolverSettings
-import com.cdpjenkins.genetic.dudestore.client.DudeStoreClient
+import com.cdpjenkins.genetic.dudestore.client.NonBlockingDudeStoreClient
 import com.cdpjenkins.genetic.json.deserialiseFromFile
 import com.cdpjenkins.genetic.json.serialiseToFile
 import com.cdpjenkins.genetic.model.Evolver
@@ -31,7 +31,7 @@ class GeneticApplication(
 
             serialiseToFile(File("written-evolver-settings.json"), settings)
 
-            val dudeClient = DudeStoreClient("https://genetic-dude.herokuapp.com", name, secret)
+            val dudeClient = NonBlockingDudeStoreClient("https://genetic-dude.herokuapp.com", name, secret)
             val s3Client = S3Client(name)
 
             logger.info { "${"Creating evolver for name {}"} $name" }
