@@ -4,9 +4,12 @@ import EvolverSettings
 import com.cdpjenkins.genetic.json.deserialise
 import com.cdpjenkins.genetic.json.serialise
 import com.cdpjenkins.genetic.model.Individual
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jdbi.v3.core.Jdbi
 
 class DudeDao(val jdbi: Jdbi) {
+    val logger = KotlinLogging.logger {}
+
     fun createTables() {
         jdbi.withHandle<Int, Exception> {
             it.execute(
@@ -43,8 +46,8 @@ class DudeDao(val jdbi: Jdbi) {
     }
 
     fun insertDude(dude: Individual, name: String, generation: Int) {
-        val serialise = serialise(dude)
-        println(serialise)
+        val serialisedIndividual = serialise(dude)
+        logger.debug { "Serialised individual: $serialisedIndividual" }
 
         jdbi.withHandle<Int, Exception> {
             it.createUpdate(
@@ -55,7 +58,7 @@ class DudeDao(val jdbi: Jdbi) {
             )
                 .bind("name", name)
                 .bind("generation", generation)
-                .bind("individual", serialise)
+                .bind("individual", serialisedIndividual)
                 .execute()
         }
     }

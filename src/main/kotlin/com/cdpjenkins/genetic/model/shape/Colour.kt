@@ -2,14 +2,17 @@ package com.cdpjenkins.genetic.model.shape
 
 import EvolverSettings
 import com.cdpjenkins.genetic.model.mutateValueGaussian
+import io.github.oshai.kotlinlogging.KotlinLogging
 import java.awt.Color
+
+val logger = KotlinLogging.logger {}
 
 data class Colour(val red: Int, val green:Int, val blue: Int, val alpha:Int) {
     fun toAwtColor(): Color {
         try {
             return Color(red, green, blue, alpha)
         } catch (e: Exception) {
-            println("$this")
+            logger.error(e) { "Failed to convert colour to AWT Color" }
             throw e
         }
     }
