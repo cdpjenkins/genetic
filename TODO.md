@@ -2,6 +2,8 @@
 
 ## TODO
 
+- Assertions - use kotest assertions, not hamkrest
+
 - HTTP client - Do we add methods to the dudestore-client for recreate, summary, list, download image...?
 - HTTP client - maybe use Result type (either Kotlin's builtin Result or maybe kotlin-result...?)
 

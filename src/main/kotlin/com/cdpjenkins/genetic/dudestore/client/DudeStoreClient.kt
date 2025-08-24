@@ -1,5 +1,6 @@
 package com.cdpjenkins.genetic.dudestore.client
 
+import EvolverSettings
 import com.cdpjenkins.genetic.json.serialise
 import com.cdpjenkins.genetic.model.Individual
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -16,6 +17,7 @@ class BlockingDudeStoreClient(val baseUrl: String, val secret: String) {
 
     private val httpClient = OkHttp()
     val individualLens = Body.auto<Individual>().toLens()
+    val settingsLens = Body.auto<EvolverSettings>().toLens()
 
     fun getLatestDude(dudeName: String): Individual? {
         val response: Response =
@@ -36,6 +38,29 @@ class BlockingDudeStoreClient(val baseUrl: String, val secret: String) {
         }
 
         return response.status
+    }
+
+    fun postSettings(name: String, evolverSettings: EvolverSettings): Status {
+        val postResponse = httpClient(
+            Request(Method.POST, "${baseUrl}/dudes/$name/settings?secret=$secret")
+                .body(serialise(evolverSettings))
+        )
+
+        if (postResponse.status != Status.OK) {
+            logger.error { "Failed to post evolver settings; status: ${postResponse.status}, body: ${postResponse.bodyString()}" }
+        }
+
+        return postResponse.status
+    }
+
+    fun getSettings(name: String): EvolverSettings? {
+        val getResponse = httpClient(Request(Method.GET, "${baseUrl}/dudes/${name}/settings"))
+
+        return if (getResponse.status == Status.OK) {
+            settingsLens(getResponse)
+        } else {
+            null
+        }
     }
 }
 

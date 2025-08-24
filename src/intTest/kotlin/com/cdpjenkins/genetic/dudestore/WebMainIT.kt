@@ -2,7 +2,6 @@ package com.cdpjenkins.genetic.dudestore
 
 import EvolverSettings
 import com.cdpjenkins.genetic.dudestore.client.BlockingDudeStoreClient
-import com.cdpjenkins.genetic.json.serialise
 import com.cdpjenkins.genetic.model.Individual
 import com.cdpjenkins.genetic.model.shape.BoundsRectangle
 import com.cdpjenkins.genetic.model.shape.Circle
@@ -71,7 +70,6 @@ class WebMainIT {
     val individualLens = Body.auto<Individual>().toLens()
     val individualSummaryLens = Body.auto<IndividualSummary>().toLens()
     val dudeSummaryListLens = Body.auto<DudeSummaryList>().toLens()
-    val evolverSettingsLens = Body.auto<EvolverSettings>().toLens()
 
     val baseUrl = "http://localhost:9000"
 
@@ -198,29 +196,12 @@ class WebMainIT {
 
     @Test
     fun `can POST and GET evolver settings`() {
-        val evolverSettings = EvolverSettings(
-            "steve",
-            0,
-            10,
-            15,
-            64,
-            1,
-            1,
-            0.5,
-            0.9
-        )
+        val postStatus = dudeStoreClient.postSettings("steve", EVOLVER_SETTINGS)
+        assertThat(postStatus, equalTo(Status.OK))
 
-        val postResponse = client(
-            Request(Method.POST, "${baseUrl}/dudes/steve/settings?secret=$secret")
-                .body(serialise(evolverSettings))
-        )
-        assertThat(postResponse.status, equalTo(Status.OK))
+        val returnedSettings = dudeStoreClient.getSettings("steve")
 
-        val getResponse = client(Request(Method.GET, "${baseUrl}/dudes/steve/settings?type=json"))
-        assertThat(getResponse.status, equalTo(Status.OK))
-        val returnedSettings = evolverSettingsLens(getResponse)
-
-        assertThat(returnedSettings, equalTo(evolverSettings))
+        assertThat(returnedSettings, equalTo(EVOLVER_SETTINGS))
     }
 
     private fun containsValidPngWithSameDimensionsAs(getResponse: Response, individualSteve: Individual) {
@@ -295,3 +276,15 @@ class WebMainIT {
 }
 
 class MyPostgreSQLContainer(imageName: String) : PostgreSQLContainer<MyPostgreSQLContainer>(imageName)
+
+val EVOLVER_SETTINGS = EvolverSettings(
+    "steve",
+    0,
+    10,
+    15,
+    64,
+    1,
+    1,
+    0.5,
+    0.9
+)
