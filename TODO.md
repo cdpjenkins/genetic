@@ -2,8 +2,7 @@
 
 ## TODO
 
-- Config - dude config parameters in DB
-- Config - API to change said parameters (note the need to inform the evolver about the change)
+- Get integration tests to use the dude-client
 
 - JSON - use kotlinx serialisation, not Jackson
 
@@ -18,6 +17,10 @@
   - dudestore client
   - evolver
   - individual-model
+ 
+## Doing
+- Config - dude config parameters in DB
+- Config - API to change said parameters (note the need to inform the evolver about the change)
 
 ## Done
 - Logging - use kotlin-logging instead of using SLF4J directly
