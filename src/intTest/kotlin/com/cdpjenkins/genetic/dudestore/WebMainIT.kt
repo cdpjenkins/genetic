@@ -17,21 +17,53 @@ import org.http4k.format.Jackson.auto
 import org.http4k.server.Http4kServer
 import org.jdbi.v3.core.Jdbi
 import org.junit.ClassRule
-import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.testcontainers.containers.PostgreSQLContainer
 import java.io.ByteArrayInputStream
 import javax.imageio.ImageIO
 
+private const val DB_USER = "test_docker_postgres_user"
+private const val DB_PASSWORD = "test_docker_postgres_password"
+
 class WebMainIT {
     companion object {
+
         @JvmField
         @ClassRule
         val postgreSQLContainer = MyPostgreSQLContainer("postgres")
             .withDatabaseName("dude_db")
-            .withUsername("test_docker_postgres_user")
-            .withPassword("test_docker_postgres_password")
+            .withUsername(DB_USER)
+            .withPassword(DB_PASSWORD)
+
+        lateinit var server: Http4kServer
+
+        @JvmStatic
+        @BeforeAll
+        fun setup() {
+            postgreSQLContainer.start()
+
+            val dao = DudeDao(
+                Jdbi.create(
+                    postgreSQLContainer.jdbcUrl,
+                    DB_USER,
+                    DB_PASSWORD
+                )
+            )
+
+            server = DudeStoreApplication(dao, 9000, "theCorrectSecret")
+                .startServer()
+        }
+
+        @JvmStatic
+        @AfterAll
+        fun tearDown() {
+            server.stop()
+
+            postgreSQLContainer.stop()
+        }
     }
 
     val secret = System.getProperty("secret", "theCorrectSecret")
@@ -44,38 +76,12 @@ class WebMainIT {
     val baseUrl = "http://localhost:9000"
 
     val dudeStoreClient = BlockingDudeStoreClient(baseUrl, secret)
-
-    lateinit var server: Http4kServer
-
-    @BeforeEach
-    internal fun startServer() {
-        postgreSQLContainer.start()
-
-        val dao = DudeDao(
-            Jdbi
-                .create(
-                    postgreSQLContainer.jdbcUrl,
-                    "test_docker_postgres_user",
-                    "test_docker_postgres_password"
-                )
-        )
-
-        val application = DudeStoreApplication(dao, 9000, "theCorrectSecret")
-
-        server = application.startServer()
-    }
+    private val client = OkHttp()
 
     @BeforeEach
     internal fun recreateDatabase() {
         postRecreate()
     }
-
-    @AfterEach
-    internal fun stopServer() {
-        server.stop()
-    }
-
-    private val client = OkHttp()
 
     @Test
     fun `can post and retrieve Individual as JSON`() {
