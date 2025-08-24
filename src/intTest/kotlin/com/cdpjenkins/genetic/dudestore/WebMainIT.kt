@@ -1,7 +1,7 @@
 package com.cdpjenkins.genetic.dudestore
 
 import EvolverSettings
-import com.cdpjenkins.genetic.json.deserialise
+import com.cdpjenkins.genetic.dudestore.client.BlockingDudeStoreClient
 import com.cdpjenkins.genetic.json.serialise
 import com.cdpjenkins.genetic.model.Individual
 import com.cdpjenkins.genetic.model.shape.BoundsRectangle
@@ -11,7 +11,6 @@ import com.cdpjenkins.genetic.model.shape.Point
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.equalTo
 import com.natpryce.hamkrest.present
-import org.http4k.asString
 import org.http4k.client.OkHttp
 import org.http4k.core.*
 import org.http4k.format.Jackson.auto
@@ -38,6 +37,10 @@ class WebMainIT {
     val individualSummaryLens = Body.auto<IndividualSummary>().toLens()
     val dudeSummaryListLens = Body.auto<DudeSummaryList>().toLens()
     val evolverSettingsLens = Body.auto<EvolverSettings>().toLens()
+
+    val baseUrl = "http://localhost:9000"
+
+    val dudeStoreClient = BlockingDudeStoreClient(baseUrl, secret)
 
     lateinit var server: Http4kServer
 
@@ -73,47 +76,35 @@ class WebMainIT {
 
     @Test
     fun `can post and retrieve Individual as JSON`() {
-        val postResponse = client(
-            Request(Method.POST, "http://localhost:9000/dudes/steve?secret=$secret")
-                .body(serialise(individualSteve))
-        )
-        assertThat(postResponse.status, equalTo(Status.OK))
-
-        val getResponse = client(Request(Method.GET, "http://localhost:9000/dudes/steve/latest?type=json"))
-        assertThat(getResponse.status, equalTo(Status.OK))
-        assertThat(
-            getResponse.body.payload.asString().deserialise(),
-            equalTo(individualSteve))
+        postDudeAndAssertSuccess("steve", individualSteve)
+        assertThat(getDudeAndAssertSuccessAndDeserialise("steve"), equalTo(individualSteve))
     }
 
     @Test
     fun `multiple named individuals can be posted and retrieved`() {
-        postDude("steve", individualSteve)
-        postDude("brian", individualBrian)
+        postDudeAndAssertSuccess("steve", individualSteve)
+        postDudeAndAssertSuccess("brian", individualBrian)
 
-        assertThat(individualLens(getDude("steve")), equalTo(individualSteve))
-        assertThat(individualLens(getDude("brian")), equalTo(individualBrian))
+        assertThat(getDudeAndAssertSuccessAndDeserialise("steve"), equalTo(individualSteve))
+        assertThat(getDudeAndAssertSuccessAndDeserialise("brian"), equalTo(individualBrian))
     }
 
     @Test
     fun `POST dude blows up without correct secret credentials`() {
-        val postResponse = client(
-            Request(Method.POST, "http://localhost:9000/dudes/steve?secret=theWrongSecert")
-                .body(serialise(individualSteve))
-        )
-        assertThat(postResponse.status, equalTo(Status.UNAUTHORIZED))
+        val status = postDudeUsingSecret("theWrongSecret")
+        assertThat(status, equalTo(Status.UNAUTHORIZED))
     }
 
     @Test
     fun `POST recreate blows up without correct secret credentials`() {
         val postResponse = client(
-            Request(Method.POST, "http://localhost:9000/recreate?secret=theWrongSecert"))
+            Request(Method.POST, "${baseUrl}/recreate?secret=theWrongSecret"))
         assertThat(postResponse.status, equalTo(Status.UNAUTHORIZED))
     }
 
     @Test
     fun `summary endpoint returns a summary of the latest individual`() {
-        postDude(
+        postDudeAndAssertSuccess(
             "steveCopy", individualWithFields(
                 generation = 123,
                 fitness = 123456789,
@@ -124,7 +115,7 @@ class WebMainIT {
         val getResponse = client(
             Request(
                 Method.GET,
-                "http://localhost:9000/dudes/${"steveCopy"}/latest/summary"
+                "${baseUrl}/dudes/${"steveCopy"}/latest/summary"
             )
         )
         assertThat(getResponse.status, equalTo(Status.OK))
@@ -145,7 +136,7 @@ class WebMainIT {
         val getResponse = client(
             Request(
                 Method.GET,
-                "http://localhost:9000/dudes/doesNotExist/latest/summary"
+                "${baseUrl}/dudes/doesNotExist/latest/summary"
             )
         )
         assertThat(getResponse.status, equalTo(Status.NOT_FOUND))
@@ -153,15 +144,15 @@ class WebMainIT {
 
     @Test
     fun `list dudes enpoint returns a list of dude summaries`() {
-        postDude("steve", individualSteve.copy(generation = 1))
-        postDude("steve", individualSteve.copy(generation = 2))
+        postDudeAndAssertSuccess("steve", individualSteve.copy(generation = 1))
+        postDudeAndAssertSuccess("steve", individualSteve.copy(generation = 2))
 
-        postDude("brian", individualBrian.copy(generation = 1))
+        postDudeAndAssertSuccess("brian", individualBrian.copy(generation = 1))
 
         val getResponse = client(
             Request(
                 Method.GET,
-                "http://localhost:9000/dudes"
+                "${baseUrl}/dudes"
             )
         )
 
@@ -180,9 +171,9 @@ class WebMainIT {
 
     @Test
     fun `can retrieve Individual as PNG image`() {
-        postDude("steve", individualSteve)
+        postDudeAndAssertSuccess("steve", individualSteve)
 
-        val getResponse = client(Request(Method.GET, "http://localhost:9000/dudes/steve/latest?type=png"))
+        val getResponse = client(Request(Method.GET, "${baseUrl}/dudes/steve/latest?type=png"))
 
         assertThat(getResponse.status, equalTo(Status.OK))
         assertThat(getResponse.header("Content-Type"), equalTo("image/png"))
@@ -192,7 +183,7 @@ class WebMainIT {
 
     @Test
     fun `returns 404 when requesting PNG for non-existent dude`() {
-        val getResponse = client(Request(Method.GET, "http://localhost:9000/dudes/nonexistent/latest?type=png"))
+        val getResponse = client(Request(Method.GET, "${baseUrl}/dudes/nonexistent/latest?type=png"))
         assertThat(getResponse.status, equalTo(Status.NOT_FOUND))
     }
 
@@ -211,12 +202,12 @@ class WebMainIT {
         )
 
         val postResponse = client(
-            Request(Method.POST, "http://localhost:9000/dudes/steve/settings?secret=$secret")
+            Request(Method.POST, "${baseUrl}/dudes/steve/settings?secret=$secret")
                 .body(serialise(evolverSettings))
         )
         assertThat(postResponse.status, equalTo(Status.OK))
 
-        val getResponse = client(Request(Method.GET, "http://localhost:9000/dudes/steve/settings?type=json"))
+        val getResponse = client(Request(Method.GET, "${baseUrl}/dudes/steve/settings?type=json"))
         assertThat(getResponse.status, equalTo(Status.OK))
         val returnedSettings = evolverSettingsLens(getResponse)
 
@@ -244,24 +235,25 @@ class WebMainIT {
         }
     }
 
-    private fun postDude(name: String, dude: Individual) {
-        val postResponse = client(
-            Request(Method.POST, "http://localhost:9000/dudes/$name?secret=$secret")
-                .body(serialise(dude))
-        )
-        assertThat(postResponse.status, equalTo(Status.OK))
+    private fun postDudeAndAssertSuccess(name: String, dude: Individual) {
+        val status = dudeStoreClient.postDude(dude, name)
+        assertThat(status, equalTo(Status.OK))
     }
+
+    private fun postDudeUsingSecret(secret: String): Status =
+        BlockingDudeStoreClient(baseUrl, secret)
+            .postDude(individualSteve, "steve")
 
     private fun postRecreate() {
         val postResponse = client(
-            Request(Method.POST, "http://localhost:9000/recreate?secret=$secret"))
+            Request(Method.POST, "${baseUrl}/recreate?secret=$secret"))
         assertThat(postResponse.status, equalTo(Status.OK))
     }
 
-    private fun getDude(name: String): Response {
-        val getResponse = client(Request(Method.GET, "http://localhost:9000/dudes/$name/latest?type=json"))
+    private fun getDudeAndAssertSuccessAndDeserialise(name: String): Individual {
+        val getResponse = client(Request(Method.GET, "${baseUrl}/dudes/$name/latest?type=json"))
         assertThat(getResponse.status, equalTo(Status.OK))
-        return getResponse
+        return individualLens(getResponse)
     }
 
     val individualSteve = Individual(
