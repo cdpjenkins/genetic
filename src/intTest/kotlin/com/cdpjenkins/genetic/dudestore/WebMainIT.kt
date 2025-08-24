@@ -233,6 +233,7 @@ class WebMainIT {
         assertThat(bufferedImage.height, equalTo(individualSteve.bounds.height))
     }
 
+    @Suppress("SameParameterValue")
     private fun individualWithFields(
         generation: Int,
         fitness: Int,
@@ -249,6 +250,7 @@ class WebMainIT {
         assertThat(status, equalTo(Status.OK))
     }
 
+    @Suppress("SameParameterValue")
     private fun postDudeUsingSecret(secret: String): Status =
         BlockingDudeStoreClient(baseUrl, secret)
             .postDude(individualSteve, "steve")
