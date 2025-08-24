@@ -14,7 +14,7 @@ import java.awt.GraphicsEnvironment
 import java.io.File
 import javax.imageio.ImageIO
 
-class GeneticApplication(
+class GeneticEvolverApplication(
     val name: String,
     val evolver: Evolver
 ) {
@@ -26,7 +26,7 @@ class GeneticApplication(
     companion object {
         private val logger = KotlinLogging.logger {}
 
-        fun create(name: String, secret: String, masterImageFileName: String): GeneticApplication {
+        fun create(name: String, secret: String, masterImageFileName: String): GeneticEvolverApplication {
 
             val settings = readSettingsOrDefault(name)
 
@@ -62,9 +62,9 @@ class GeneticApplication(
             evolver.addListener { dudeStoreClient.postDude(it, name) }
             evolver.addListener { s3Client.saveToS3(it); }
 
-            val geneticApplication = GeneticApplication(name, evolver)
+            val geneticEvolverApplication = GeneticEvolverApplication(name, evolver)
 
-            return geneticApplication
+            return geneticEvolverApplication
         }
 
         private fun readSettingsOrDefault(name: String): EvolverSettings {

@@ -17,7 +17,7 @@ class GeneticEvolverApplicationCommand : CliktCommand() {
     override fun run() {
         logger.info { "Starting application with name $name and master image $masterImageFileName" }
 
-        val application = GeneticApplication.create(
+        val application = GeneticEvolverApplication.create(
             name, secret, masterImageFileName
         )
         application.start()
