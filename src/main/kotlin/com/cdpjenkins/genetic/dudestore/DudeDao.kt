@@ -141,6 +141,7 @@ data class Dude(
     var id: Int,
     var individual: String?
 ) {
+    @Suppress("unused")
     constructor() : this(0, null)
 }
 
@@ -148,5 +149,6 @@ data class EvolverSettingsRow(
     var name: String,
     var settings: String?
 ) {
+    @Suppress("unused")
     constructor() : this("", null)
 }
