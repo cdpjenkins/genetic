@@ -294,5 +294,6 @@ val EVOLVER_SETTINGS = EvolverSettings(
     1,
     1,
     0.5,
-    0.9
+    0.9,
+    version = 1
 )
