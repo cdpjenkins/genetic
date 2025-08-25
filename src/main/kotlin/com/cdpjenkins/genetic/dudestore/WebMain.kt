@@ -51,6 +51,7 @@ class DudeStoreApplication(val dao: DudeDao, val port: Int, val secret: String) 
                 "/dudes/{name}/latest" bind Method.GET to ::getDudeLatest,
                 "/dudes/{name}/latest/summary" bind Method.GET to ::getDudeLatestSummary,
                 "/dudes/{name}/settings" bind Method.POST to SecretAuthFilter(secret).then(::postEvolverSettingsHandler),
+                "/dudes/{name}/settings" bind Method.PUT to SecretAuthFilter(secret).then(::putEvolverSettingsHandler),
                 "/dudes/{name}/settings" bind Method.GET to ::getEvolverSettingsHandler,
 
                 // legacy endpoints that we should stop using
@@ -129,8 +130,6 @@ class DudeStoreApplication(val dao: DudeDao, val port: Int, val secret: String) 
     }
 
     private fun postEvolverSettingsHandler(request: Request): Response {
-
-
         val name = nameLens(request)
         val evolverSettings: EvolverSettings = evolveSettingsLens(request)
 
@@ -139,6 +138,18 @@ class DudeStoreApplication(val dao: DudeDao, val port: Int, val secret: String) 
         // TODO if the name doesn't match, return HTTP 400
 
         dao.insertEvolverSettings(evolverSettings)
+        return Response(OK)
+    }
+
+    private fun putEvolverSettingsHandler(request: Request): Response {
+        val name = nameLens(request)
+        val evolverSettings: EvolverSettings = evolveSettingsLens(request)
+
+        logger.info { "PUT evolver settings for $name: $evolverSettings" }
+
+        // TODO if the name doesn't match, return HTTP 400
+
+        dao.updateEvolverSettings(evolverSettings)
         return Response(OK)
     }
 

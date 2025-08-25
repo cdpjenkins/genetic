@@ -47,11 +47,28 @@ class BlockingDudeStoreClient(val baseUrl: String, val secret: String) {
         )
 
         if (postResponse.status != Status.OK) {
-            logger.error { "Failed to post evolver settings; status: ${postResponse.status}, body: ${postResponse.bodyString()}" }
+            logger.error { "Failed to POST evolver settings; status: ${postResponse.status}, body: ${postResponse.bodyString()}" }
         }
 
         return postResponse.status
     }
+
+    fun putSettings(
+        name: String,
+        settings: EvolverSettings
+    ): Status {
+        val putResponse = httpClient(
+            Request(Method.PUT, "${baseUrl}/dudes/$name/settings?secret=$secret")
+                .body(serialise(settings))
+        )
+
+        if (putResponse.status != Status.OK) {
+            logger.error { "Failed to PUT evolver settings; status: ${putResponse.status}, body: ${putResponse.bodyString()}" }
+        }
+
+        return putResponse.status
+    }
+
 
     fun getSettings(name: String): EvolverSettings? {
         val getResponse = httpClient(Request(Method.GET, "${baseUrl}/dudes/${name}/settings"))

@@ -131,6 +131,23 @@ class DudeDao(val jdbi: Jdbi) {
         }
     }
 
+    fun updateEvolverSettings(evolverSettings: EvolverSettings) {
+        val name = evolverSettings.name
+
+        jdbi.withHandle<Int, Exception> {
+            it.createUpdate(
+                """
+                    UPDATE EvolverSettings
+                    SET settings = cast (:settings as JSONB)
+                    WHERE name = :name
+                """.trimIndent()
+            )
+                .bind("name", name)
+                .bind("settings", serialise(evolverSettings))
+                .execute()
+        }
+    }
+
     private fun Throwable?.isPostgresUniqueConstraintViolation() =
         this is SQLException &&
         this.sqlState == POSTGRES_UNIQUE_VIOLATION

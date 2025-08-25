@@ -212,6 +212,18 @@ class WebMainIT {
         assertThat(postStatus2, equalTo(Status.CONFLICT))
     }
 
+    @Test
+    fun `can PUT to modify settings`() {
+        val postStatus = dudeStoreClient.postSettings("steve", EVOLVER_SETTINGS)
+        assertThat(postStatus, equalTo(Status.OK))
+
+        val putStatus = dudeStoreClient.putSettings("steve", EVOLVER_SETTINGS2)
+        assertThat(postStatus, equalTo(Status.OK))
+
+        val returnedSettings = dudeStoreClient.getSettings("steve")
+        assertThat(returnedSettings, equalTo(EVOLVER_SETTINGS2))
+    }
+
     private fun containsValidPngWithSameDimensionsAs(getResponse: Response, individualSteve: Individual) {
         val imageBytes = getResponse.body.payload.array()
         assertThat(imageBytes.size > 0, equalTo(true))
@@ -296,4 +308,17 @@ val EVOLVER_SETTINGS = EvolverSettings(
     0.5,
     0.9,
     version = 1
+)
+
+val EVOLVER_SETTINGS2 = EvolverSettings(
+    "steve",
+    0,
+    15,
+    20,
+    128,
+    1,
+    1,
+    0.5,
+    0.9,
+    version = 2
 )
