@@ -75,7 +75,7 @@ class GeneticEvolverApplication(
             } else {
                 val settings = blockingDudeStoreClient.getSettings(name) ?: EvolverSettings.default(name)
 //                val settings = EvolverSettings.default(name)
-                logger.info { "Using default evolver settings: ${settings}" }
+                logger.info { "Using evolver settings: ${settings}" }
                 settings
             }
         }
