@@ -204,6 +204,14 @@ class WebMainIT {
         assertThat(returnedSettings, equalTo(EVOLVER_SETTINGS))
     }
 
+    @Test
+    fun `POST settings should fail with HTTP 409 if the settings already exist`() {
+        val postStatus = dudeStoreClient.postSettings("steve", EVOLVER_SETTINGS)
+        assertThat(postStatus, equalTo(Status.OK))
+        val postStatus2 = dudeStoreClient.postSettings("steve", EVOLVER_SETTINGS)
+        assertThat(postStatus2, equalTo(Status.CONFLICT))
+    }
+
     private fun containsValidPngWithSameDimensionsAs(getResponse: Response, individualSteve: Individual) {
         val imageBytes = getResponse.body.payload.array()
         assertThat(imageBytes.size > 0, equalTo(true))

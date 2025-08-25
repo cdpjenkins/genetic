@@ -9,6 +9,7 @@ import org.http4k.config.EnvironmentKey
 import java.io.ByteArrayOutputStream
 import javax.imageio.ImageIO
 import org.http4k.core.*
+import org.http4k.core.Status.Companion.CONFLICT
 import org.http4k.core.Status.Companion.NOT_FOUND
 import org.http4k.core.Status.Companion.OK
 import org.http4k.format.Jackson.auto
@@ -38,27 +39,29 @@ class DudeStoreApplication(val dao: DudeDao, val port: Int, val secret: String) 
             .start()
 
     private fun makeApi(secret: String?): RoutingHttpHandler =
-        routes(
-            // mega dangerous stuff that maybe shouldn't be there
-            "setup" bind Method.POST to SecretAuthFilter(secret).then(::setupHandler),
-            "recreate" bind Method.POST to SecretAuthFilter(secret).then(::recreateHandler),
+        ExceptionHandlingFilter.then(
+            routes(
+                // mega dangerous stuff that maybe shouldn't be there
+                "setup" bind Method.POST to SecretAuthFilter(secret).then(::setupHandler),
+                "recreate" bind Method.POST to SecretAuthFilter(secret).then(::recreateHandler),
 
-            // endpoints that we want to use
-            "/dudes" bind Method.GET to ::getDudesList,
-            "/dudes/{name}" bind Method.POST to SecretAuthFilter(secret).then(::postDudeHandler),
-            "/dudes/{name}/latest" bind Method.GET to ::getDudeLatest,
-            "/dudes/{name}/latest/summary" bind Method.GET to ::getDudeLatestSummary,
-            "/dudes/{name}/settings" bind Method.POST to SecretAuthFilter(secret).then(::postEvolverSettingsHandler),
-            "/dudes/{name}/settings" bind Method.GET to ::getEvolverSettingsHandler,
+                // endpoints that we want to use
+                "/dudes" bind Method.GET to ::getDudesList,
+                "/dudes/{name}" bind Method.POST to SecretAuthFilter(secret).then(::postDudeHandler),
+                "/dudes/{name}/latest" bind Method.GET to ::getDudeLatest,
+                "/dudes/{name}/latest/summary" bind Method.GET to ::getDudeLatestSummary,
+                "/dudes/{name}/settings" bind Method.POST to SecretAuthFilter(secret).then(::postEvolverSettingsHandler),
+                "/dudes/{name}/settings" bind Method.GET to ::getEvolverSettingsHandler,
 
-            // legacy endpoints that we should stop using
-            "/dude/{name}" bind Method.POST to SecretAuthFilter(secret).then(::postDudeHandler),
-            "/dude/{name}/latest" bind Method.GET to ::getDudeLatest,
-            "/dude/{name}/latest/summary" bind Method.GET to ::getDudeLatestSummary,
+                // legacy endpoints that we should stop using
+                "/dude/{name}" bind Method.POST to SecretAuthFilter(secret).then(::postDudeHandler),
+                "/dude/{name}/latest" bind Method.GET to ::getDudeLatest,
+                "/dude/{name}/latest/summary" bind Method.GET to ::getDudeLatestSummary,
+            )
         )
 
     @Suppress("UNUSED_PARAMETER")
-    private fun setupHandler(request: Request): Response {
+    private fun setupHandler(_request: Request): Response {
         dao.createTables()
         return Response(OK)
     }
@@ -169,4 +172,14 @@ fun main() {
     DudeStoreApplication(dao, port, secret)
         .startServer()
         .also { it.block() }
+}
+
+object ExceptionHandlingFilter: Filter {
+    override fun invoke(next: HttpHandler): HttpHandler = { request: Request ->
+        try {
+            next(request)
+        } catch (_: SettingsAlreadyExistsException) {
+            Response(CONFLICT)
+        }
+    }
 }

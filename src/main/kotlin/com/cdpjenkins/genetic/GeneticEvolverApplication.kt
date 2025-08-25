@@ -28,14 +28,14 @@ class GeneticEvolverApplication(
 
         fun create(name: String, secret: String, masterImageFileName: String): GeneticEvolverApplication {
 
-            val settings = readSettingsOrDefault(name)
-
-            serialiseToFile(File("written-evolver-settings.json"), settings)
-
+            val blockingDudeStoreClient = BlockingDudeStoreClient("https://genetic-dude.herokuapp.com", secret)
             val dudeStoreClient = NonBlockingDudeStoreClient(
-                BlockingDudeStoreClient("https://genetic-dude.herokuapp.com", secret)
+                blockingDudeStoreClient
             )
             val s3Client = S3Client(name)
+
+            val settings = readSettingsOrDefault(name, blockingDudeStoreClient)
+            serialiseToFile(File("written-evolver-settings-${name}.json"), settings)
 
             logger.info { "${"Creating evolver for name {}"} $name" }
             val maybeInitialIndividual = dudeStoreClient.getLatestDude(name)
@@ -67,13 +67,14 @@ class GeneticEvolverApplication(
             return geneticEvolverApplication
         }
 
-        private fun readSettingsOrDefault(name: String): EvolverSettings {
-            return if (File("evolver-settings.json").exists()) {
-                val settings = deserialiseFromFile<EvolverSettings>(File("evolver-settings.json"))!!
+        private fun readSettingsOrDefault(name: String, blockingDudeStoreClient: BlockingDudeStoreClient): EvolverSettings {
+            return if (File("evolver-settings-${name}.json").exists()) {
+                val settings = deserialiseFromFile<EvolverSettings>(File("evolver-settings-${name}.json"))!!
                 logger.info { "Loaded evolver settings: $settings" }
                 settings
             } else {
-                val settings = EvolverSettings.default(name)
+                val settings = blockingDudeStoreClient.getSettings(name) ?: EvolverSettings.default(name)
+//                val settings = EvolverSettings.default(name)
                 logger.info { "Using default evolver settings: ${settings}" }
                 settings
             }

@@ -6,6 +6,8 @@ import com.cdpjenkins.genetic.json.serialise
 import com.cdpjenkins.genetic.model.Individual
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jdbi.v3.core.Jdbi
+import org.jdbi.v3.core.statement.UnableToExecuteStatementException
+import java.sql.SQLException
 
 class DudeDao(val jdbi: Jdbi) {
     val logger = KotlinLogging.logger {}
@@ -39,6 +41,7 @@ class DudeDao(val jdbi: Jdbi) {
             it.execute(
                 """
                 DROP TABLE IF EXISTS Dudes;
+                DROP TABLE IF EXISTS EvolverSettings;
                 """.trimIndent()
             )
         }
@@ -106,18 +109,31 @@ class DudeDao(val jdbi: Jdbi) {
     }
 
     fun insertEvolverSettings(evolverSettings: EvolverSettings) {
-        jdbi.withHandle<Int, Exception> {
-            it.createUpdate(
-                """
+        val name = evolverSettings.name
+
+        try {
+            jdbi.withHandle<Int, Exception> {
+                it.createUpdate(
+                    """
                     INSERT INTO EvolverSettings (name, settings)
                     VALUES(:name, cast (:settings as JSONB))
                 """.trimIndent()
-            )
-                .bind("name", evolverSettings.name)
-                .bind("settings", serialise(evolverSettings))
-                .execute()
+                )
+                    .bind("name", name)
+                    .bind("settings", serialise(evolverSettings))
+                    .execute()
+            }
+        } catch (e: UnableToExecuteStatementException) {
+            if (e.cause.isPostgresUniqueConstraintViolation()) {
+                throw SettingsAlreadyExistsException("Settings with name '$name' already exists", e)
+            }
+            throw e
         }
     }
+
+    private fun Throwable?.isPostgresUniqueConstraintViolation() =
+        this is SQLException &&
+        this.sqlState == POSTGRES_UNIQUE_VIOLATION
 
     fun getEvolverSettings(name: String): EvolverSettings? {
         return jdbi.withHandle<EvolverSettings, Exception> {
@@ -152,3 +168,7 @@ data class EvolverSettingsRow(
     @Suppress("unused")
     constructor() : this("", null)
 }
+
+class SettingsAlreadyExistsException(message: String, cause: Exception) : Exception(message, cause)
+
+private const val POSTGRES_UNIQUE_VIOLATION = "23505"
