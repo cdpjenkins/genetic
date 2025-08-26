@@ -115,7 +115,7 @@ data class Individual(
 
     fun mutate(evolverSettings: EvolverSettings): Individual {
 
-        val headRoom = evolverSettings.maxGenomeSize - genome.size
+        val headRoom = (evolverSettings.maxGenomeSize - genome.size).toDouble()
         val addShapeProbability = (headRoom / evolverSettings.maxGenomeSize) *
                 evolverSettings.newShapeProbabilityFactor
         val newGenome =
