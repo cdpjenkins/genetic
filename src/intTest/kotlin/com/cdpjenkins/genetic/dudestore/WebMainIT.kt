@@ -7,9 +7,9 @@ import com.cdpjenkins.genetic.model.shape.BoundsRectangle
 import com.cdpjenkins.genetic.model.shape.Circle
 import com.cdpjenkins.genetic.model.shape.Colour
 import com.cdpjenkins.genetic.model.shape.Point
-import com.natpryce.hamkrest.assertion.assertThat
-import com.natpryce.hamkrest.equalTo
-import com.natpryce.hamkrest.present
+import io.kotest.matchers.ints.shouldBeGreaterThan
+import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.shouldBe
 import org.http4k.client.OkHttp
 import org.http4k.core.*
 import org.http4k.format.Jackson.auto
@@ -84,7 +84,7 @@ class WebMainIT {
     @Test
     fun `can post and retrieve Individual as JSON`() {
         postDudeAndAssertSuccess("steve", individualSteve)
-        assertThat(getDudeAndAssertSuccessAndDeserialise("steve"), equalTo(individualSteve))
+        getDudeAndAssertSuccessAndDeserialise("steve") shouldBe individualSteve
     }
 
     @Test
@@ -92,21 +92,21 @@ class WebMainIT {
         postDudeAndAssertSuccess("steve", individualSteve)
         postDudeAndAssertSuccess("brian", individualBrian)
 
-        assertThat(getDudeAndAssertSuccessAndDeserialise("steve"), equalTo(individualSteve))
-        assertThat(getDudeAndAssertSuccessAndDeserialise("brian"), equalTo(individualBrian))
+        getDudeAndAssertSuccessAndDeserialise("steve") shouldBe individualSteve
+        getDudeAndAssertSuccessAndDeserialise("brian") shouldBe individualBrian
     }
 
     @Test
     fun `POST dude blows up without correct secret credentials`() {
         val status = postDudeUsingSecret("theWrongSecret")
-        assertThat(status, equalTo(Status.UNAUTHORIZED))
+        status shouldBe Status.UNAUTHORIZED
     }
 
     @Test
     fun `POST recreate blows up without correct secret credentials`() {
         val postResponse = client(
             Request(Method.POST, "${baseUrl}/recreate?secret=theWrongSecret"))
-        assertThat(postResponse.status, equalTo(Status.UNAUTHORIZED))
+        postResponse.status shouldBe Status.UNAUTHORIZED
     }
 
     @Test
@@ -125,17 +125,14 @@ class WebMainIT {
                 "${baseUrl}/dudes/${"steveCopy"}/latest/summary"
             )
         )
-        assertThat(getResponse.status, equalTo(Status.OK))
-        assertThat(
-            individualSummaryLens(getResponse), equalTo(
+        getResponse.status shouldBe Status.OK
+        individualSummaryLens(getResponse) shouldBe
                 IndividualSummary(
                     generation = 123,
                     fitness = 123456789,
                     timeInMillis = 1234,
                     genomeSize = 1
                 )
-            )
-        )
     }
 
     @Test
@@ -146,7 +143,7 @@ class WebMainIT {
                 "${baseUrl}/dudes/doesNotExist/latest/summary"
             )
         )
-        assertThat(getResponse.status, equalTo(Status.NOT_FOUND))
+        getResponse.status shouldBe Status.NOT_FOUND
     }
 
     @Test
@@ -163,17 +160,15 @@ class WebMainIT {
             )
         )
 
-        assertThat(getResponse.status, equalTo(Status.OK))
-        assertThat(
-            dudeSummaryListLens(getResponse), equalTo(
+        getResponse.status shouldBe Status.OK
+
+        dudeSummaryListLens(getResponse) shouldBe
                 DudeSummaryList(
                     listOf(
                         DudeSummary("brian", 1),
                         DudeSummary("steve", 2)
                     )
                 )
-            )
-        )
     }
 
     @Test
@@ -182,56 +177,54 @@ class WebMainIT {
 
         val getResponse = client(Request(Method.GET, "${baseUrl}/dudes/steve/latest?type=png"))
 
-        assertThat(getResponse.status, equalTo(Status.OK))
-        assertThat(getResponse.header("Content-Type"), equalTo("image/png"))
+        getResponse.status shouldBe (Status.OK)
+        getResponse.header("Content-Type") shouldBe "image/png"
 
-        containsValidPngWithSameDimensionsAs(getResponse, individualSteve)
+        getResponse containsValidPngWithSameDimensionsAs individualSteve
     }
 
     @Test
     fun `returns 404 when requesting PNG for non-existent dude`() {
         val getResponse = client(Request(Method.GET, "${baseUrl}/dudes/nonexistent/latest?type=png"))
-        assertThat(getResponse.status, equalTo(Status.NOT_FOUND))
+        getResponse.status shouldBe Status.NOT_FOUND
     }
 
     @Test
     fun `can POST and GET evolver settings`() {
         val postStatus = dudeStoreClient.postSettings("steve", EVOLVER_SETTINGS)
-        assertThat(postStatus, equalTo(Status.OK))
+        postStatus shouldBe Status.OK
 
-        val returnedSettings = dudeStoreClient.getSettings("steve")
-
-        assertThat(returnedSettings, equalTo(EVOLVER_SETTINGS))
+        dudeStoreClient.getSettings("steve") shouldBe EVOLVER_SETTINGS
     }
 
     @Test
     fun `POST settings should fail with HTTP 409 if the settings already exist`() {
         val postStatus = dudeStoreClient.postSettings("steve", EVOLVER_SETTINGS)
-        assertThat(postStatus, equalTo(Status.OK))
+        postStatus shouldBe Status.OK
         val postStatus2 = dudeStoreClient.postSettings("steve", EVOLVER_SETTINGS)
-        assertThat(postStatus2, equalTo(Status.CONFLICT))
+        postStatus2 shouldBe Status.CONFLICT
     }
 
     @Test
     fun `can PUT to modify settings`() {
         val postStatus = dudeStoreClient.postSettings("steve", EVOLVER_SETTINGS)
-        assertThat(postStatus, equalTo(Status.OK))
+        postStatus shouldBe Status.OK
 
         val putStatus = dudeStoreClient.putSettings("steve", EVOLVER_SETTINGS2)
-        assertThat(postStatus, equalTo(Status.OK))
+        postStatus shouldBe Status.OK
 
         val returnedSettings = dudeStoreClient.getSettings("steve")
-        assertThat(returnedSettings, equalTo(EVOLVER_SETTINGS2))
+        returnedSettings shouldBe EVOLVER_SETTINGS2
     }
 
-    private fun containsValidPngWithSameDimensionsAs(getResponse: Response, individualSteve: Individual) {
-        val imageBytes = getResponse.body.payload.array()
-        assertThat(imageBytes.size > 0, equalTo(true))
+    private infix fun Response.containsValidPngWithSameDimensionsAs(individualSteve: Individual) {
+        val imageBytes = body.payload.array()
+        imageBytes.size shouldBeGreaterThan 0
 
         val bufferedImage = ImageIO.read(ByteArrayInputStream(imageBytes))
-        assertThat(bufferedImage, present())
-        assertThat(bufferedImage.width, equalTo(individualSteve.bounds.width))
-        assertThat(bufferedImage.height, equalTo(individualSteve.bounds.height))
+        bufferedImage.shouldNotBeNull()
+        bufferedImage.width shouldBe individualSteve.bounds.width
+        bufferedImage.height  shouldBe individualSteve.bounds.height
     }
 
     @Suppress("SameParameterValue")
@@ -248,7 +241,7 @@ class WebMainIT {
 
     private fun postDudeAndAssertSuccess(name: String, dude: Individual) {
         val status = dudeStoreClient.postDude(dude, name)
-        assertThat(status, equalTo(Status.OK))
+        status shouldBe Status.OK
     }
 
     @Suppress("SameParameterValue")
@@ -259,12 +252,12 @@ class WebMainIT {
     private fun postRecreate() {
         val postResponse = client(
             Request(Method.POST, "${baseUrl}/recreate?secret=$secret"))
-        assertThat(postResponse.status, equalTo(Status.OK))
+        postResponse.status shouldBe Status.OK
     }
 
     private fun getDudeAndAssertSuccessAndDeserialise(name: String): Individual {
         val getResponse = client(Request(Method.GET, "${baseUrl}/dudes/$name/latest?type=json"))
-        assertThat(getResponse.status, equalTo(Status.OK))
+        getResponse.status shouldBe Status.OK
         return individualLens(getResponse)
     }
 

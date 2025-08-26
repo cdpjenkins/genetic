@@ -2,8 +2,7 @@ package com.cdpjenkins.genetic.json
 
 import com.cdpjenkins.genetic.model.Individual
 import com.cdpjenkins.genetic.model.shape.*
-import com.natpryce.hamkrest.assertion.assertThat
-import com.natpryce.hamkrest.equalTo
+import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
 import java.io.File
 
@@ -33,17 +32,16 @@ internal class JSONTest {
     @Test
     internal fun `can serialise and deserialise Individuals`() {
         val jsonString = serialise(individual)
-        val deserialisedIndividual: Individual = jsonString.deserialise<Individual>()
 
-        assertThat(deserialisedIndividual, equalTo(individual))
+        jsonString.deserialise<Individual>() shouldBe individual
+
     }
 
     @Test
     internal fun `can serialise to and deserialise from a file`() {
         val jsonFile = File.createTempFile("IndividualTest", ".json")
         serialiseToFile(jsonFile, individual)
-        val deserlialisedIndividual: Individual? = deserialiseFromFile(jsonFile)
 
-        assertThat(deserlialisedIndividual, equalTo(individual))
+        deserialiseFromFile<Individual>(jsonFile) shouldBe individual
     }
 }
