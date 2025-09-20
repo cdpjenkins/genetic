@@ -23,12 +23,13 @@
   - individual-model
  
 ## Doing
-- Config - dude config parameters in DB
-- Config - API to change said parameters (note the need to inform the evolver about the change)
 
 ## Done
 - Logging - use kotlin-logging instead of using SLF4J directly
 - HTTP client - Get integration tests to use the dudestore-client
+- Config - dude config parameters in DB
+- Config - API to change said parameters (note the need to inform the evolver about the change)
+- Assertions - use kotest assertions, not hamkrest
 
 ## Rejected
 - HTTP client - Stop using threads in dudestore-client... there ought to be an option involving coroutines, surely...
