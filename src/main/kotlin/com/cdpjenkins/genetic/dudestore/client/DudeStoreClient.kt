@@ -69,12 +69,35 @@ class BlockingDudeStoreClient(val baseUrl: String, val secret: String) {
         return putResponse.status
     }
 
-
     fun getSettings(name: String): EvolverSettings? {
         val getResponse = httpClient(Request(Method.GET, "${baseUrl}/dudes/${name}/settings"))
 
         return if (getResponse.status == Status.OK) {
             settingsLens(getResponse)
+        } else {
+            null
+        }
+    }
+
+    fun postMasterImage(name: String, masterImage: ByteArray): Status {
+        val postResponse = httpClient(
+            Request(Method.POST, "${baseUrl}/dudes/$name/master-image?secret=$secret")
+                .header("Content-Type", "image/jpeg")
+                .body(masterImage.inputStream())
+        )
+
+        if (postResponse.status != Status.OK) {
+            logger.error { "Failed to POST master-image; status: ${postResponse.status}, body: ${postResponse.bodyString()}" }
+        }
+
+        return postResponse.status
+    }
+
+    fun getMasterImage(name: String): ByteArray? {
+        val getResponse = httpClient(Request(Method.GET, "${baseUrl}/dudes/${name}/master-image?secret=$secret"))
+
+        return if (getResponse.status == Status.OK) {
+            getResponse.body.stream.readAllBytes()
         } else {
             null
         }

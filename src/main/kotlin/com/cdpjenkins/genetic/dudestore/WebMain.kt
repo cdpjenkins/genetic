@@ -53,6 +53,8 @@ class DudeStoreApplication(val dao: DudeDao, val port: Int, val secret: String) 
                 "/dudes/{name}/settings" bind Method.POST to SecretAuthFilter(secret).then(::postEvolverSettingsHandler),
                 "/dudes/{name}/settings" bind Method.PUT to SecretAuthFilter(secret).then(::putEvolverSettingsHandler),
                 "/dudes/{name}/settings" bind Method.GET to ::getEvolverSettingsHandler,
+                "/dudes/{name}/master-image" bind Method.POST to SecretAuthFilter(secret).then(::postMasterImageHandler),
+                "/dudes/{name}/master-image" bind Method.GET to SecretAuthFilter(secret).then(::getMasterImageHandler),
 
                 // legacy endpoints that we should stop using
                 "/dude/{name}" bind Method.POST to SecretAuthFilter(secret).then(::postDudeHandler),
@@ -129,17 +131,34 @@ class DudeStoreApplication(val dao: DudeDao, val port: Int, val secret: String) 
         return Response(OK).with(dudeSummariesLens of dudeSummaries)
     }
 
-    private fun postEvolverSettingsHandler(request: Request): Response {
+    private fun postMasterImageHandler(request: Request): Response {
+
+        // Note: this is going to allow someone to DDOS us horribly by sending zillions of bytes, so we'd better figure
+        // out a way to avoid that at some point...
+        //
+        // Not just this endpoint, any of the POST/PUT endpoints :-/
+
         val name = nameLens(request)
-        val evolverSettings: EvolverSettings = evolveSettingsLens(request)
+        logger.info { "POST master-image for $name with length: ${request.body.length} bytes" }
 
-        logger.info { "POST evolver settings for $name: $evolverSettings" }
+        val masterImageBytes = request.body.stream.readBytes()
 
-        // TODO if the name doesn't match, return HTTP 400
-
-        dao.insertEvolverSettings(evolverSettings)
+        dao.insertMasterImage(name, masterImageBytes)
         return Response(OK)
     }
+
+    private fun getMasterImageHandler(request: Request): Response {
+        val masterImageBytes = dao.getMasterImage(nameLens(request))
+
+        return if (masterImageBytes != null) {
+            Response(OK)
+                .header("Content-Type", "image/jpeg")
+                .body(masterImageBytes.inputStream())
+        } else {
+            Response(NOT_FOUND)
+        }
+    }
+
 
     private fun putEvolverSettingsHandler(request: Request): Response {
         val name = nameLens(request)
@@ -160,6 +179,18 @@ class DudeStoreApplication(val dao: DudeDao, val port: Int, val secret: String) 
         return evolverSettings?.let {
             Response(OK).with(evolveSettingsLens of it)
         } ?: Response(NOT_FOUND)
+    }
+
+    private fun postEvolverSettingsHandler(request: Request): Response {
+        val name = nameLens(request)
+        val evolverSettings: EvolverSettings = evolveSettingsLens(request)
+
+        logger.info { "POST evolver settings for $name: $evolverSettings" }
+
+        // TODO if the name doesn't match, return HTTP 400
+
+        dao.insertEvolverSettings(evolverSettings)
+        return Response(OK)
     }
 }
 

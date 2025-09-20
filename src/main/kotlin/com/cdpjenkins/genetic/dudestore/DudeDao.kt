@@ -34,6 +34,16 @@ class DudeDao(val jdbi: Jdbi) {
                 );
                 """.trimIndent())
         }
+
+        jdbi.withHandle<Int, Exception> {
+            it.execute(
+                """
+                CREATE TABLE IF NOT EXISTS MasterImages(
+                    name VARCHAR PRIMARY KEY,
+                    fileData BYTEA NOT NULL
+                );
+                """.trimIndent())
+        }
     }
 
     fun recreate() {
@@ -168,6 +178,43 @@ class DudeDao(val jdbi: Jdbi) {
                 ?.deserialise()
         }
     }
+
+    fun insertMasterImage(name: String, masterImageBytes: ByteArray) {
+        try {
+            jdbi.withHandle<Int, Exception> {
+                it.createUpdate(
+                    """
+                    INSERT INTO MasterImages (name, fileData)
+                    VALUES(:name, :fileData)
+                """.trimIndent()
+                )
+                    .bind("name", name)
+                    .bind("fileData", masterImageBytes)
+                    .execute()
+            }
+        } catch (e: UnableToExecuteStatementException) {
+            if (e.cause.isPostgresUniqueConstraintViolation()) {
+                throw SettingsAlreadyExistsException("MasterImage with name '$name' already exists", e)
+            }
+            throw e
+        }
+    }
+
+    fun getMasterImage(name: String): ByteArray? {
+        return jdbi.withHandle<ByteArray, Exception> {
+            it.createQuery(
+                """
+                    SELECT fileData FROM MasterImages
+                    WHERE name=:name
+                """.trimIndent()
+            )
+                .bind("name", name)
+                .mapToBean(FileDataRow::class.java)
+                .findOne()
+                .orElse(null)
+                ?.fileData
+        }
+    }
 }
 
 data class Dude(
@@ -181,6 +228,14 @@ data class Dude(
 data class EvolverSettingsRow(
     var name: String,
     var settings: String?
+) {
+    @Suppress("unused")
+    constructor() : this("", null)
+}
+
+class FileDataRow(
+    var name: String,
+    var fileData: ByteArray?
 ) {
     @Suppress("unused")
     constructor() : this("", null)

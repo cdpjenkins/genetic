@@ -217,6 +217,14 @@ class WebMainIT {
         returnedSettings shouldBe EVOLVER_SETTINGS2
     }
 
+    @Test
+    fun `can POST and GET master image`() {
+        val byteArray = "not actual JPEG image".toByteArray()
+
+        dudeStoreClient.postMasterImage("steve", byteArray) shouldBe Status.OK
+        dudeStoreClient.getMasterImage("steve") shouldBe byteArray
+    }
+
     private infix fun Response.containsValidPngWithSameDimensionsAs(individualSteve: Individual) {
         val imageBytes = body.payload.array()
         imageBytes.size shouldBeGreaterThan 0
