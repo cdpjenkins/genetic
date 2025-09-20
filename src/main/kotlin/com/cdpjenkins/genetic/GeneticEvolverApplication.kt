@@ -11,6 +11,7 @@ import com.cdpjenkins.genetic.persistence.S3Client
 import com.cdpjenkins.genetic.ui.GUI
 import io.github.oshai.kotlinlogging.KotlinLogging
 import java.awt.GraphicsEnvironment
+import java.awt.image.BufferedImage
 import java.io.File
 import javax.imageio.ImageIO
 
@@ -48,7 +49,8 @@ class GeneticEvolverApplication(
                 }
             }
 
-            val masterImage = ImageIO.read(File(masterImageFileName).toURI().toURL())
+            val masterImageBytesFromDudeStore = blockingDudeStoreClient.getMasterImage(name)
+            val masterImage = readMasterImage(masterImageBytesFromDudeStore, masterImageFileName)
             val evolver = makeEvolver(
                 masterImage, maybeInitialIndividual, settings)
 
@@ -65,6 +67,17 @@ class GeneticEvolverApplication(
             val geneticEvolverApplication = GeneticEvolverApplication(name, evolver)
 
             return geneticEvolverApplication
+        }
+
+        private fun readMasterImage(
+            masterImageBytesFromDudeStore: ByteArray?,
+            masterImageFileName: String
+        ): BufferedImage = if (masterImageBytesFromDudeStore != null) {
+            logger.info { "Found master image in DudeStore" }
+            ImageIO.read(masterImageBytesFromDudeStore.inputStream())
+        } else {
+            logger.info { "No master image found in DudeStore, loading from file" }
+            ImageIO.read(File(masterImageFileName).toURI().toURL())
         }
 
         private fun readSettingsOrDefault(name: String, blockingDudeStoreClient: BlockingDudeStoreClient): EvolverSettings {
