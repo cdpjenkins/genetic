@@ -7,6 +7,7 @@
 - dudestore - ability to store master image so we don't have to put it on the filesystem (but do protect with secret)
 - dudestore - OpenAPI spec to allow us to call APIs without having to write a client?
   - Might be handy if we ever call this stuff from JavaScript...
+- dudestore - move the S3 stuff into DudeStore so we don't have to have AWS credentials in the client
 
 - JSON - use kotlinx serialisation, not Jackson
 
