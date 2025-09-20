@@ -11,7 +11,7 @@ private val logger = KotlinLogging.logger {}
 
 class GeneticEvolverApplicationCommand : CliktCommand() {
     val name by argument()
-    val masterImageFileName by argument()
+    val masterImageFileName by option("--master-image")
     val secret by option(envvar = "SECRET").required()
 
     override fun run() {

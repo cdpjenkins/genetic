@@ -27,7 +27,7 @@ class GeneticEvolverApplication(
     companion object {
         private val logger = KotlinLogging.logger {}
 
-        fun create(name: String, secret: String, masterImageFileName: String): GeneticEvolverApplication {
+        fun create(name: String, secret: String, masterImageFileName: String?): GeneticEvolverApplication {
 
             val blockingDudeStoreClient = BlockingDudeStoreClient("https://genetic-dude.herokuapp.com", secret)
             val dudeStoreClient = NonBlockingDudeStoreClient(
@@ -37,6 +37,8 @@ class GeneticEvolverApplication(
 
             val settings = readSettingsOrDefault(name, blockingDudeStoreClient)
             serialiseToFile(File("written-evolver-settings-${name}.json"), settings)
+
+            val masterImage = readMasterImage(name, masterImageFileName, blockingDudeStoreClient)
 
             logger.info { "${"Creating evolver for name {}"} $name" }
             val maybeInitialIndividual = dudeStoreClient.getLatestDude(name)
@@ -49,8 +51,6 @@ class GeneticEvolverApplication(
                 }
             }
 
-            val masterImageBytesFromDudeStore = blockingDudeStoreClient.getMasterImage(name)
-            val masterImage = readMasterImage(masterImageBytesFromDudeStore, masterImageFileName)
             val evolver = makeEvolver(
                 masterImage, maybeInitialIndividual, settings)
 
@@ -70,14 +70,22 @@ class GeneticEvolverApplication(
         }
 
         private fun readMasterImage(
-            masterImageBytesFromDudeStore: ByteArray?,
-            masterImageFileName: String
-        ): BufferedImage = if (masterImageBytesFromDudeStore != null) {
-            logger.info { "Found master image in DudeStore" }
-            ImageIO.read(masterImageBytesFromDudeStore.inputStream())
-        } else {
-            logger.info { "No master image found in DudeStore, loading from file" }
-            ImageIO.read(File(masterImageFileName).toURI().toURL())
+            name: String,
+            masterImageFileNameParameter: String?,
+            blockingDudeStoreClient: BlockingDudeStoreClient
+        ): BufferedImage {
+            return if (masterImageFileNameParameter != null) {
+                logger.info { "Loading master image from file" }
+                ImageIO.read(File(masterImageFileNameParameter).toURI().toURL())
+            } else {
+                val masterImageBytesFromDudeStore = blockingDudeStoreClient.getMasterImage(name)
+                if (masterImageBytesFromDudeStore != null) {
+                    logger.info { "Loading master image from DudeStore" }
+                    ImageIO.read(masterImageBytesFromDudeStore.inputStream())
+                } else {
+                    throw RuntimeException("No file specified and no master image found in DudeStore")
+                }
+            }
         }
 
         private fun readSettingsOrDefault(name: String, blockingDudeStoreClient: BlockingDudeStoreClient): EvolverSettings {
