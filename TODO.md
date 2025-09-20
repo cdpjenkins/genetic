@@ -9,8 +9,6 @@
   - Might be handy if we ever call this stuff from JavaScript...
 - dudestore - move the S3 stuff into DudeStore so we don't have to have AWS credentials in the client
 
-- JSON - use kotlinx serialisation, not Jackson
-
 - GUI - React app to interact with the above
 - GUI - Proper auth
 
@@ -37,3 +35,5 @@
   - Apparently HTTP4K does not support coroutines and there aren't any plans to change that any time soon
   - Frankly, farming off a request to a separate thread (as we currently do) isn't the *worst* thing in the world
   - Maybe Loom will help (farm the request off to a virtual thread instead) but that's for the future when I learn Loom
+- JSON - use kotlinx serialisation, not Jackson
+  - More hassle than I expected, given class hierarchy of Shapes
