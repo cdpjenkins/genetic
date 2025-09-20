@@ -26,7 +26,10 @@ kotlin {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib"
-    implementation "com.fasterxml.jackson.module:jackson-module-kotlin:2.19.+"
+//    implementation "com.fasterxml.jackson.module:jackson-module-kotlin:2.19.+"
+    implementation platform("com.fasterxml.jackson:jackson-bom:2.15.2")
+    implementation "com.fasterxml.jackson.module:jackson-module-kotlin" // version managed by BOM
+
     implementation 'org.apache.xmlgraphics:batik-all:1.19'
 
     implementation platform("org.http4k:http4k-bom:6.15.1.0")
