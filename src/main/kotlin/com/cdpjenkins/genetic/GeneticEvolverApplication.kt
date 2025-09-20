@@ -68,16 +68,32 @@ class GeneticEvolverApplication(
         }
 
         private fun readSettingsOrDefault(name: String, blockingDudeStoreClient: BlockingDudeStoreClient): EvolverSettings {
+            return tryReadingSettingsFromFile(name)
+                ?: tryReadingSettingsFromDudeStore(name, blockingDudeStoreClient)
+                ?: defaultSettings(name)
+        }
+
+        private fun tryReadingSettingsFromFile(name: String): EvolverSettings? {
             return if (File("evolver-settings-${name}.json").exists()) {
                 val settings = deserialiseFromFile<EvolverSettings>(File("evolver-settings-${name}.json"))!!
-                logger.info { "Loaded evolver settings: $settings" }
+                logger.info { "Evolver settings from file: $settings" }
                 settings
             } else {
-                val settings = blockingDudeStoreClient.getSettings(name) ?: EvolverSettings.default(name)
-//                val settings = EvolverSettings.default(name)
-                logger.info { "Using evolver settings: ${settings}" }
-                settings
+                null
             }
         }
+
+        private fun tryReadingSettingsFromDudeStore(name: String, blockingDudeStoreClient: BlockingDudeStoreClient): EvolverSettings? {
+            val settings = blockingDudeStoreClient.getSettings(name)
+            logger.info { "Evolver settings from DudeStore: ${settings}" }
+            return settings
+        }
+
+        private fun defaultSettings(name: String): EvolverSettings {
+            val settings = EvolverSettings.default(name)
+            logger.info { "Using default evolver settings: ${settings}" }
+            return settings
+        }
+
     }
 }
