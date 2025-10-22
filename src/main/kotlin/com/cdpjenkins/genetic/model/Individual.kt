@@ -37,8 +37,9 @@ data class Individual(
     }
 
     fun drawToBuffer() {
-        val g = bufferedImage.createGraphics()
-        draw(g)
+        bufferedImage.createGraphics().useGraphics { g ->
+            draw(g)
+        }
     }
 
     fun drawAndCalculateFitness(masterPixels: IntArray) {
@@ -148,5 +149,13 @@ data class Individual(
         val description =
             "Genome size: $size Time: $time Generation: $generation Fitness: $fitness"
         return description
+    }
+}
+
+private inline fun <R> Graphics2D.useGraphics(block: (Graphics2D) -> R): R {
+    try {
+        return block(this)
+    } finally {
+        dispose()
     }
 }
