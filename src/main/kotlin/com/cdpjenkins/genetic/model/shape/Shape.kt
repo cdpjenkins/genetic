@@ -12,6 +12,7 @@ import java.awt.Graphics2D
     property = "type")
 @JsonSubTypes(
     JsonSubTypes.Type(value = QuadCurveShape::class, name = "QuadCurveShape"),
+    JsonSubTypes.Type(value = StrokedCubicCurveShape::class, name = "CubicCurveShape"),
     JsonSubTypes.Type(value = Circle::class, name = "Circle"),
     JsonSubTypes.Type(value = RectangleShape::class, name = "RectangleShape"),
     JsonSubTypes.Type(value = PolygonShape::class, name = "PolygonShape"),
