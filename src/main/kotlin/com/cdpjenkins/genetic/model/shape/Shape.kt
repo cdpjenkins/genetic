@@ -16,7 +16,7 @@ import java.awt.geom.GeneralPath
     property = "type")
 @JsonSubTypes(
     JsonSubTypes.Type(value = QuadCurveShape::class, name = "QuadCurveShape"),
-    JsonSubTypes.Type(value = CubicCurveShape::class, name = "CubicCurveShape"),
+    JsonSubTypes.Type(value = StrokedCubicCurveShape::class, name = "StrokedCubicCurveShape"),
     JsonSubTypes.Type(value = Circle::class, name = "Circle"),
     JsonSubTypes.Type(value = RectangleShape::class, name = "RectangleShape"),
     JsonSubTypes.Type(value = PolygonShape::class, name = "PolygonShape"),
@@ -71,7 +71,7 @@ data class QuadCurveShape(
     }
 }
 
-class CubicCurveShape(
+class StrokedCubicCurveShape(
     val path: List<Point>,
     val colour: Colour,
     val bounds: BoundsRectangle
@@ -98,7 +98,7 @@ class CubicCurveShape(
         val newPath = path.map { it.mutate(bounds, evolverSettings) }
         val newColour = colour.mutate(evolverSettings)
 
-        return CubicCurveShape(newPath, newColour, bounds)
+        return StrokedCubicCurveShape(newPath, newColour, bounds)
     }
 }
 

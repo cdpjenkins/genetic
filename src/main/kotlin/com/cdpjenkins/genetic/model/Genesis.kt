@@ -68,7 +68,7 @@ fun spawnRandomQuadCurveShape(bounds: BoundsRectangle, evolverSettings: EvolverS
 
 fun spawnRandomStrokedCubicCurveShape(
     bounds: BoundsRectangle,
-    evolverSettings: EvolverSettings): CubicCurveShape {
+    evolverSettings: EvolverSettings): StrokedCubicCurveShape {
 
     val centre = spawnRandomPoint(bounds)
 
@@ -80,7 +80,7 @@ fun spawnRandomStrokedCubicCurveShape(
 
     val colour = spawnRandomColour(evolverSettings)
 
-    return CubicCurveShape(vertices, colour, bounds)
+    return StrokedCubicCurveShape(vertices, colour, bounds)
 }
 
 fun spawnRandomTriangle(bounds: BoundsRectangle, evolverSettings: EvolverSettings): PolygonShape {
