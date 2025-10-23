@@ -1,15 +1,17 @@
 package com.cdpjenkins.genetic.util
 
+import Weight
+
 class WeightedSelector(val randomSource: RandomSource) {
-    fun select(options: List<Pair<String, Double>>): String {
+    fun select(options: List<Weight>): String {
         require(options.isNotEmpty()) { "options list must not be empty" }
 
-        val partialSums = partialSumsOf(options.map { it.second })
+        val partialSums = partialSumsOf(options.map { it.weight })
         val randomVal = randomSource.getRandom(partialSums.last())
 
         val (index, _) = partialSums.withIndex().find { (_, x) -> randomVal <= x } ?: throw IllegalArgumentException("urgh")
 
-        return options[index].first
+        return options[index].name
     }
 }
 

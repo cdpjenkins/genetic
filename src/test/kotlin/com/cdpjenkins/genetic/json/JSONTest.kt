@@ -1,6 +1,7 @@
 package com.cdpjenkins.genetic.json
 
 import EvolverSettings
+import Weight
 import com.cdpjenkins.genetic.model.Individual
 import com.cdpjenkins.genetic.model.shape.*
 import io.kotest.matchers.shouldBe
@@ -60,12 +61,12 @@ internal class JSONTest {
                 "newShapeProbabilityFactor": 0.05,
                 "avgShapesToMutate": 10.0,
                 "version": 3,
-                weights: [
-                    { name: "QuadCurveShape", value: 1.0 }, 
-                    { name: "CubicCurveShape", value: 0.0 }, 
-                    { name: "Circle", value: 1.0 }, 
-                    { name: "RectangleShape", value: 0.0 }, 
-                    { name: "PolygonShape", value: 0.0 }, 
+                "weights": [
+                    { "name": "QuadCurveShape", "weight": 1.0 }, 
+                    { "name": "CubicCurveShape", "weight": 0.0 }, 
+                    { "name": "Circle", "weight": 1.0 }, 
+                    { "name": "RectangleShape", "weight": 0.0 }, 
+                    { "name": "PolygonShape", "weight": 0.0 }
                 ],
                 "unexpectedField": {
                     "something": 0,
@@ -86,7 +87,14 @@ internal class JSONTest {
             pointMutateRange = 3,
             newShapeProbabilityFactor = 0.05,
             avgShapesToMutate = 10.0,
-            version = 3
+            version = 3,
+            weights = listOf(
+                Weight("QuadCurveShape", 1.0),
+                Weight("CubicCurveShape", 0.0),
+                Weight("Circle", 1.0),
+                Weight("RectangleShape", 0.0),
+                Weight("PolygonShape", 0.0)
+            )
         )
     }
 }

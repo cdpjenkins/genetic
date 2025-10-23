@@ -1,5 +1,6 @@
 package com.cdpjenkins.genetic.util
 
+import Weight
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -12,7 +13,7 @@ class WeightedSelectorTest {
         )
 
         weightedSelector.select(
-            listOf("OnlyOption" to 1.0)
+            listOf(Weight("OnlyOption", 1.0))
         ) shouldBe "OnlyOption"
     }
 
@@ -23,7 +24,10 @@ class WeightedSelectorTest {
         )
 
         weightedSelector.select(
-            listOf("TheOnlyOne" to 1.0, "SomethingElse" to 0.0)
+            listOf(
+                Weight("TheOnlyOne", 1.0),
+                Weight("SomethingElse", 0.0)
+            )
         ) shouldBe "TheOnlyOne"
     }
 
@@ -35,8 +39,8 @@ class WeightedSelectorTest {
 
         weightedSelector.select(
             listOf(
-                "TheFirstOne" to 1.0,
-                "TheSecondOne" to 1.0
+                Weight("TheFirstOne", 1.0),
+                    Weight("TheSecondOne", 1.0)
             )
         ) shouldBe "TheFirstOne"
     }
@@ -49,8 +53,8 @@ class WeightedSelectorTest {
 
         weightedSelector.select(
             options = listOf(
-                "TheFirstOne" to 1.0,
-                "TheSecondOne" to 1.0
+                Weight("TheFirstOne", 1.0),
+                Weight("TheSecondOne", 1.0)
             )
         ) shouldBe "TheSecondOne"
     }
