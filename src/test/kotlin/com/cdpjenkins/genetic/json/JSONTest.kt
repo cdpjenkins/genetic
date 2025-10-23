@@ -1,5 +1,6 @@
 package com.cdpjenkins.genetic.json
 
+import EvolverSettings
 import com.cdpjenkins.genetic.model.Individual
 import com.cdpjenkins.genetic.model.shape.*
 import io.kotest.matchers.shouldBe
@@ -43,5 +44,42 @@ internal class JSONTest {
         serialiseToFile(jsonFile, individual)
 
         deserialiseFromFile<Individual>(jsonFile) shouldBe individual
+    }
+
+    @Test
+    fun `can deserialise EvolverSettings, even when it contains an unexpected field`() {
+        val jsonString = """
+            {
+                "name": "cklr3",
+                "initialGenomeSize": 0,
+                "maxGenomeSize": 2000,
+                "minAlpha": 32,
+                "maxAlpha": 64,
+                "colourMutateAmount": 8,
+                "pointMutateRange": 3,
+                "newShapeProbabilityFactor": 0.05,
+                "avgShapesToMutate": 10.0,
+                "version": 3,
+                "unexpectedField": {
+                    "something": 0,
+                    "somethingElse": "hi"
+                }
+            }
+        """.trimIndent()
+
+        val settings = jsonString.deserialise<EvolverSettings>()
+
+        settings shouldBe EvolverSettings(
+            name = "cklr3",
+            initialGenomeSize = 0,
+            maxGenomeSize = 2000,
+            minAlpha = 32,
+            maxAlpha = 64,
+            colourMutateAmount = 8,
+            pointMutateRange = 3,
+            newShapeProbabilityFactor = 0.05,
+            avgShapesToMutate = 10.0,
+            version = 3
+        )
     }
 }
