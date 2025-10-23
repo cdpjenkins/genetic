@@ -60,6 +60,13 @@ internal class JSONTest {
                 "newShapeProbabilityFactor": 0.05,
                 "avgShapesToMutate": 10.0,
                 "version": 3,
+                weights: [
+                    { name: "QuadCurveShape", value: 1.0 }, 
+                    { name: "CubicCurveShape", value: 0.0 }, 
+                    { name: "Circle", value: 1.0 }, 
+                    { name: "RectangleShape", value: 0.0 }, 
+                    { name: "PolygonShape", value: 0.0 }, 
+                ],
                 "unexpectedField": {
                     "something": 0,
                     "somethingElse": "hi"

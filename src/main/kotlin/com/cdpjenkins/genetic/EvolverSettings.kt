@@ -1,5 +1,7 @@
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
+data class Weight(val name: String, val weight: Double)
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class EvolverSettings(
     val name: String,
@@ -11,7 +13,8 @@ data class EvolverSettings(
     val pointMutateRange: Int,
     val newShapeProbabilityFactor: Double,
     val avgShapesToMutate: Double,
-    val version: Int? = null
+    val version: Int? = null,
+    val weights: List<Weight>? = null
 ) {
     companion object {
         fun default(name: String) = EvolverSettings(
