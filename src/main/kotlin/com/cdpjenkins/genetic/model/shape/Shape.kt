@@ -1,10 +1,14 @@
 package com.cdpjenkins.genetic.model.shape
 
 import EvolverSettings
+import com.cdpjenkins.genetic.model.mutateValueGaussian
 import com.cdpjenkins.genetic.model.withProbability
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
+import java.awt.BasicStroke
 import java.awt.Graphics2D
+import java.awt.geom.CubicCurve2D
+import java.awt.geom.GeneralPath
 
 @JsonTypeInfo(
     use = JsonTypeInfo.Id.NAME,
@@ -17,9 +21,152 @@ import java.awt.Graphics2D
     JsonSubTypes.Type(value = RectangleShape::class, name = "RectangleShape"),
     JsonSubTypes.Type(value = PolygonShape::class, name = "PolygonShape"),
 )
-interface Shape {
+sealed interface Shape {
     fun draw(g: Graphics2D)
     fun mutate(evolverSettings: EvolverSettings): Shape
     fun maybeMutate(mutateProbability: Double, evolverSettings: EvolverSettings): Shape =
         if (withProbability(mutateProbability)) mutate(evolverSettings) else this
+}
+
+abstract class GeneralPathShape(
+    val path: List<Point>,
+    val colour: Colour
+) : Shape {
+    protected val generalPath: GeneralPath by lazy(this::makeGeneralPath)
+
+    abstract fun makeGeneralPath(): GeneralPath
+
+    override fun draw(g: Graphics2D) {
+        g.color = colour.toAwtColor()
+        g.fill(generalPath)
+    }
+}
+
+data class QuadCurveShape(
+    val quadCurvePath: List<Point>,
+    val quadCurveColour: Colour,
+    val bounds: BoundsRectangle
+): GeneralPathShape(
+    quadCurvePath,
+    quadCurveColour
+) {
+    override fun makeGeneralPath(): GeneralPath {
+        val generalPath = GeneralPath(GeneralPath.WIND_EVEN_ODD, quadCurvePath.size)
+        generalPath.moveTo(quadCurvePath[quadCurvePath.size - 1].x.toDouble(), quadCurvePath[quadCurvePath.size - 1].y.toDouble())
+
+        for (chunk in quadCurvePath.chunked(2)) {
+            val p1 = chunk[0]
+            val p2 = chunk[1]
+            generalPath.quadTo(p1.x.toDouble(), p1.y.toDouble(), p2.x.toDouble(), p2.y.toDouble())
+        }
+
+        return generalPath
+    }
+
+    override fun mutate(evolverSettings: EvolverSettings): Shape {
+        val newPath = quadCurvePath.map { it.mutate(bounds, evolverSettings) }
+        val newColour = quadCurveColour.mutate(evolverSettings)
+
+        return QuadCurveShape(newPath, newColour, bounds)
+    }
+}
+
+class StrokedCubicCurveShape(
+    val path: List<Point>,
+    val colour: Colour,
+    val bounds: BoundsRectangle
+): Shape {
+    override fun draw(g: Graphics2D) {
+        val p1 = path[0]
+        val p2 = path[1]
+        val p3 = path[2]
+        val p4 = path[3]
+
+        val curve = CubicCurve2D.Float(
+            p1.x.toFloat(), p1.y.toFloat(),
+            p2.x.toFloat(), p2.y.toFloat(),
+            p3.x.toFloat(), p3.y.toFloat(),
+            p4.x.toFloat(), p4.y.toFloat())
+        val TODO_width_shouldBeVariable = 4f
+        val basicStroke = BasicStroke(TODO_width_shouldBeVariable, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND)
+        g.setStroke(basicStroke)
+        g.setColor(colour.toAwtColor())
+        g.draw(curve)
+    }
+
+    override fun mutate(evolverSettings: EvolverSettings): Shape {
+        val newPath = path.map { it.mutate(bounds, evolverSettings) }
+        val newColour = colour.mutate(evolverSettings)
+
+        return StrokedCubicCurveShape(newPath, newColour, bounds)
+    }
+}
+
+data class Circle(
+    val centre: Point,
+    val radius: Radius,
+    val colour: Colour,
+    val bounds: BoundsRectangle
+) : Shape {
+    override fun draw(g: Graphics2D) {
+        g.color = colour.toAwtColor()
+        g.fillOval(centre.x - radius, centre.y - radius, radius*2, radius*2)
+    }
+
+    override fun mutate(evolverSettings: EvolverSettings): Circle {
+        return Circle(
+            centre.mutate(bounds, evolverSettings),
+            radius.mutate(),
+            colour.mutate(evolverSettings),
+            bounds
+        )
+    }
+}
+
+typealias Radius = Int
+fun Radius.mutate() = mutateValueGaussian(this, 2, 1, 20)
+
+
+
+data class RectangleShape(
+    val topLeft: Point,
+    val bottomRight: Point,
+    val colour: Colour,
+    val bounds: BoundsRectangle
+): Shape {
+    override fun draw(g: Graphics2D) {
+        g.color = colour.toAwtColor()
+        g.fillRect(topLeft.x, topLeft.y, bottomRight.x-topLeft.x, bottomRight.y-topLeft.y)
+    }
+
+    override fun mutate(evolverSettings: EvolverSettings): Shape {
+        val newTopLeft = topLeft.mutate(bounds, evolverSettings)
+        val newBottomRight = bottomRight.mutate(bounds, evolverSettings)
+        val newColour = colour.mutate(evolverSettings)
+        return RectangleShape(newTopLeft, newBottomRight, newColour, bounds)
+    }
+}
+
+class PolygonShape(
+    path: List<Point>,
+    colour: Colour,
+    val bounds: BoundsRectangle
+) : GeneralPathShape(path, colour) {
+    override fun makeGeneralPath(): GeneralPath {
+        val generalPath = GeneralPath(GeneralPath.WIND_EVEN_ODD, path.size)
+        generalPath.moveTo(path[path.size - 1].x.toDouble(), path[path.size - 1].y.toDouble())
+
+        for (point in path) {
+            generalPath.lineTo(point.x.toDouble(), point.y.toDouble())
+        }
+
+        return generalPath
+    }
+
+    override fun mutate(evolverSettings: EvolverSettings): Shape {
+        val newPath = path.map { it.mutate(bounds, evolverSettings) }
+        val newColour = colour.mutate(evolverSettings)
+
+        return PolygonShape(newPath, newColour, bounds)
+    }
 }

@@ -14,6 +14,7 @@ import java.awt.GraphicsEnvironment
 import java.awt.image.BufferedImage
 import java.io.File
 import javax.imageio.ImageIO
+import javax.swing.JFrame
 
 class GeneticEvolverApplication(
     val name: String,
@@ -57,6 +58,7 @@ class GeneticEvolverApplication(
             if (!GraphicsEnvironment.isHeadless()) {
                 val gui = GUI(masterImage)
                 evolver.addListener { gui.updateUiWithNewIndividual(it) }
+                gui.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)
                 gui.isVisible = true
             }
 
