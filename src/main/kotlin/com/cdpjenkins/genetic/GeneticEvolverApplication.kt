@@ -8,6 +8,7 @@ import com.cdpjenkins.genetic.json.serialiseToFile
 import com.cdpjenkins.genetic.model.Evolver
 import com.cdpjenkins.genetic.model.makeEvolver
 import com.cdpjenkins.genetic.persistence.S3Client
+import com.cdpjenkins.genetic.playpen.evolverSettings
 import com.cdpjenkins.genetic.ui.GUI
 import io.github.oshai.kotlinlogging.KotlinLogging
 import java.awt.GraphicsEnvironment
@@ -64,7 +65,11 @@ class GeneticEvolverApplication(
 
             // evolver.addListener { it.saveToDisk(name) }
             evolver.addListener { dudeStoreClient.postDude(it, name) }
-            evolver.addListener { s3Client.saveToS3(it); }
+            evolver.addListener {
+                if (evolverSettings.saveToS3 == true) {
+                    s3Client.saveToS3(it)
+                }
+            }
 
             val geneticEvolverApplication = GeneticEvolverApplication(name, evolver)
 
