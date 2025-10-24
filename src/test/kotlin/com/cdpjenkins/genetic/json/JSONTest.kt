@@ -63,7 +63,7 @@ internal class JSONTest {
                 "version": 3,
                 "weights": [
                     { "name": "QuadCurveShape", "weight": 1.0 }, 
-                    { "name": "CubicCurveShape", "weight": 0.0 }, 
+                    { "name": "StrokedCubicCurveShape", "weight": 0.0 }, 
                     { "name": "Circle", "weight": 1.0 }, 
                     { "name": "RectangleShape", "weight": 0.0 }, 
                     { "name": "PolygonShape", "weight": 0.0 }
@@ -90,7 +90,7 @@ internal class JSONTest {
             version = 3,
             weights = listOf(
                 Weight("QuadCurveShape", 1.0),
-                Weight("CubicCurveShape", 0.0),
+                Weight("StrokedCubicCurveShape", 0.0),
                 Weight("Circle", 1.0),
                 Weight("RectangleShape", 0.0),
                 Weight("PolygonShape", 0.0)

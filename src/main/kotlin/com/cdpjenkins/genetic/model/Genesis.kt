@@ -1,7 +1,10 @@
 package com.cdpjenkins.genetic.model
 
 import EvolverSettings
+import Weight
 import com.cdpjenkins.genetic.model.shape.*
+import com.cdpjenkins.genetic.util.TrueRandomSource
+import com.cdpjenkins.genetic.util.WeightedSelector
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlin.random.Random
 
@@ -21,13 +24,16 @@ fun makeIndividual(
 fun spawnRandomShape(bounds: BoundsRectangle, evolverSettings: EvolverSettings): Shape {
     logger.info { "Try spawning a random shape" }
 
-    val rand = randint(0, 5)
-    return when (2) {
-        0 -> spawnRandomCircle(bounds, evolverSettings)
-        1 -> spawnRandomRect(bounds, evolverSettings)
-        2 -> spawnRandomQuadCurveShape(bounds, evolverSettings)
-        3 -> spawnRandomTriangle(bounds, evolverSettings)
-        4 -> spawnRandomStrokedCubicCurveShape(bounds, evolverSettings)
+    val weightedSelector = WeightedSelector(TrueRandomSource())
+
+    val shapeToSpawn = weightedSelector.select(evolverSettings.weights ?: listOf(Weight("QuadCurveShape", 1.0)))
+
+    return when (shapeToSpawn) {
+        "Circle" -> spawnRandomCircle(bounds, evolverSettings)
+        "RectangleShape" -> spawnRandomRect(bounds, evolverSettings)
+        "QuadCurveShape" -> spawnRandomQuadCurveShape(bounds, evolverSettings)
+        "PolygonShape" -> spawnRandomTriangle(bounds, evolverSettings)
+        "StrokedCubicCurveShape" -> spawnRandomStrokedCubicCurveShape(bounds, evolverSettings)
         else -> throw AssertionError()
     }
 }

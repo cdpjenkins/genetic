@@ -19,6 +19,10 @@ fun interface RandomSource {
     fun getRandom(max: Double): Double
 }
 
+class TrueRandomSource : RandomSource {
+    override fun getRandom(max: Double): Double = Math.random() * max
+}
+
 internal fun partialSumsOf(nums: List<Double>): List<Double> =
     nums.fold(
         emptyList<Double>(),
