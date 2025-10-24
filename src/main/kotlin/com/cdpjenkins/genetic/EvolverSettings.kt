@@ -14,6 +14,7 @@ data class EvolverSettings(
     val newShapeProbabilityFactor: Double,
     val avgShapesToMutate: Double,
     val version: Int? = null,
+    val saveToS3: Boolean? = null,
     val weights: List<Weight>? = null
 ) {
     companion object {
@@ -27,7 +28,8 @@ data class EvolverSettings(
             3,
             0.005,
             10.0,
-            1
+            1,
+            false
         )
     }
 }

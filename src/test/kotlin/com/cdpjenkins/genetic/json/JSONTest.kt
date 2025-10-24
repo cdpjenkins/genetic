@@ -61,11 +61,12 @@ internal class JSONTest {
                 "newShapeProbabilityFactor": 0.05,
                 "avgShapesToMutate": 10.0,
                 "version": 3,
+                "saveToS3": false,
                 "weights": [
-                    { "name": "QuadCurveShape", "weight": 1.0 }, 
-                    { "name": "StrokedCubicCurveShape", "weight": 0.0 }, 
-                    { "name": "Circle", "weight": 1.0 }, 
-                    { "name": "RectangleShape", "weight": 0.0 }, 
+                    { "name": "QuadCurveShape", "weight": 1.0 },
+                    { "name": "StrokedCubicCurveShape", "weight": 0.0 },
+                    { "name": "Circle", "weight": 1.0 },
+                    { "name": "RectangleShape", "weight": 0.0 },
                     { "name": "PolygonShape", "weight": 0.0 }
                 ],
                 "unexpectedField": {
@@ -88,6 +89,7 @@ internal class JSONTest {
             newShapeProbabilityFactor = 0.05,
             avgShapesToMutate = 10.0,
             version = 3,
+            saveToS3 = false,
             weights = listOf(
                 Weight("QuadCurveShape", 1.0),
                 Weight("StrokedCubicCurveShape", 0.0),
