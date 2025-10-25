@@ -73,8 +73,12 @@ data class QuadCurveShape(
 
 // TODO could this be an inline class?
 typealias StrokeWidth = Float
-fun StrokeWidth.mutate() = mutateValueGaussian(this.toInt(), 2, StrokedCubicCurveShape.MIN_STROKE_WIDTH.toInt(),
-    StrokedCubicCurveShape.MAX_STROKE_WIDTH.toInt()).toFloat()
+fun StrokeWidth.mutate() = mutateValueGaussian(
+    this.toInt(),
+    2,
+    StrokedCubicCurveShape.MIN_STROKE_WIDTH.toInt(),
+    StrokedCubicCurveShape.MAX_STROKE_WIDTH.toInt()
+).toFloat()
 
 data class StrokedCubicCurveShape(
     val path: List<Point>,
@@ -110,7 +114,7 @@ data class StrokedCubicCurveShape(
     companion object {
         private const val DEFAULT_STROKE_WIDTH = 4f
         const val MIN_STROKE_WIDTH = 4f
-        const val MAX_STROKE_WIDTH = 32f
+        const val MAX_STROKE_WIDTH = 20f
     }
 }
 
