@@ -73,12 +73,12 @@ data class QuadCurveShape(
 
 @JvmInline
 value class StrokeWidth(val value: Float) {
-    fun mutate() = StrokeWidth(
+    fun mutate(evolverSettings: EvolverSettings) = StrokeWidth(
         mutateValueGaussian(
             this.value.toInt(),
             2,
-            StrokedCubicCurveShape.MIN_STROKE_WIDTH.toInt(),
-            StrokedCubicCurveShape.MAX_STROKE_WIDTH.toInt()
+            (evolverSettings.minStrokeWidth ?: StrokedCubicCurveShape.DEFAULT_MIN_STROKE_WIDTH).toInt(),
+            (evolverSettings.maxStrokeWidth ?: StrokedCubicCurveShape.DEFAULT_MAX_STROKE_WIDTH).toInt()
         ).toFloat()
     )
 }
@@ -110,15 +110,15 @@ data class StrokedCubicCurveShape(
     override fun mutate(evolverSettings: EvolverSettings): Shape {
         val newPath = path.map { it.mutate(bounds, evolverSettings) }
         val newColour = colour.mutate(evolverSettings)
-        val newStrokeWidth = (strokeWidth ?: StrokeWidth(DEFAULT_STROKE_WIDTH)).mutate()
+        val newStrokeWidth = (strokeWidth ?: StrokeWidth(DEFAULT_STROKE_WIDTH)).mutate(evolverSettings)
 
         return StrokedCubicCurveShape(newPath, newColour, bounds, newStrokeWidth)
     }
 
     companion object {
         const val DEFAULT_STROKE_WIDTH = 4f
-        const val MIN_STROKE_WIDTH = 4f
-        const val MAX_STROKE_WIDTH = 20f
+        const val DEFAULT_MIN_STROKE_WIDTH = 4f
+        const val DEFAULT_MAX_STROKE_WIDTH = 32f
     }
 }
 

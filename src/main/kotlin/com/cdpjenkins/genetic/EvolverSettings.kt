@@ -15,6 +15,8 @@ data class EvolverSettings(
     val avgShapesToMutate: Double,
     val version: Int? = null,
     val saveToS3: Boolean? = true,
+    val minStrokeWidth: Float? = null,
+    val maxStrokeWidth: Float? = null,
     val weights: List<Weight>? = null
 ) {
     companion object {
@@ -29,7 +31,9 @@ data class EvolverSettings(
             0.005,
             10.0,
             1,
-            false
+            false,
+            4f,
+            32f
         )
     }
 }
