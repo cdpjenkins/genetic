@@ -30,6 +30,7 @@ class DudeStoreApplication(val dao: DudeDao, val port: Int, val secret: String) 
     val individualSummaryLens = Body.auto<IndividualSummary>().toLens()
     val dudeSummariesLens = Body.auto<DudeSummaryList>().toLens()
     val nameLens = Path.string().of("name")
+    val generationLens = Path.int().of("generation")
     val evolveSettingsLens = Body.auto<EvolverSettings>().toLens()
 
     fun startServer(): Http4kServer =
@@ -55,6 +56,7 @@ class DudeStoreApplication(val dao: DudeDao, val port: Int, val secret: String) 
                 "/dudes/{name}/settings" bind Method.GET to ::getEvolverSettingsHandler,
                 "/dudes/{name}/master-image" bind Method.POST to SecretAuthFilter(secret).then(::postMasterImageHandler),
                 "/dudes/{name}/master-image" bind Method.GET to SecretAuthFilter(secret).then(::getMasterImageHandler),
+                "/dudes/{name}/{generation}" bind Method.GET to ::getDudeByGeneration,
 
                 // legacy endpoints that we should stop using
                 "/dude/{name}" bind Method.POST to SecretAuthFilter(secret).then(::postDudeHandler),
@@ -121,6 +123,38 @@ class DudeStoreApplication(val dao: DudeDao, val port: Int, val secret: String) 
                 .with(individualSummaryLens of IndividualSummary.of(currentDude))
         } else {
             Response(NOT_FOUND)
+        }
+    }
+
+    private fun getDudeByGeneration(request: Request): Response {
+        val name = nameLens(request)
+        val generation = generationLens(request)
+        val currentDude = dao.dudeByGeneration(name, generation)
+
+        return when (typeLens(request)) {
+            "json" -> {
+                if (currentDude != null) {
+                    Response(OK).with(individualLens of currentDude)
+                } else {
+                    Response(NOT_FOUND)
+                }
+            }
+            "png" -> {
+                if (currentDude != null) {
+                    currentDude.drawToBuffer()
+                    val outputStream = ByteArrayOutputStream()
+                    ImageIO.write(currentDude.bufferedImage, "png", outputStream)
+                    Response(OK)
+                        .header("Content-Type", "image/png")
+                        .body(outputStream.toByteArray().inputStream())
+                } else {
+                    Response(NOT_FOUND)
+                }
+            }
+            else -> {
+                Response(OK)
+                    .body(SvgRenderer().renderToString(currentDude))
+            }
         }
     }
 

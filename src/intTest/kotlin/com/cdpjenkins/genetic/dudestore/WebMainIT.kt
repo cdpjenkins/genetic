@@ -225,6 +225,18 @@ class WebMainIT {
         dudeStoreClient.getMasterImage("steve") shouldBe byteArray
     }
 
+    @Test
+    fun `can retrieve Individual by specific generation`() {
+        postDudeAndAssertSuccess("steve", individualSteve.copy(generation = 1))
+        postDudeAndAssertSuccess("steve", individualSteve.copy(generation = 2))
+        postDudeAndAssertSuccess("steve", individualSteve.copy(generation = 3))
+
+        val getResponse = client(Request(Method.GET, "${baseUrl}/dudes/steve/1?type=json"))
+        getResponse.status shouldBe Status.OK
+        val retrievedIndividual = individualLens(getResponse)
+        retrievedIndividual.generation shouldBe 1
+    }
+
     private infix fun Response.containsValidPngWithSameDimensionsAs(individualSteve: Individual) {
         val imageBytes = body.payload.array()
         imageBytes.size shouldBeGreaterThan 0

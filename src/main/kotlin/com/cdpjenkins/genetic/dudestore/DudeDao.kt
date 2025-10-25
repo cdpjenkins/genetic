@@ -99,6 +99,29 @@ class DudeDao(val jdbi: Jdbi) {
         }
     }
 
+    fun dudeByGeneration(name: String, generation: Int): Individual? {
+        try {
+            return jdbi.withHandle<Individual, Exception> {
+                it.createQuery(
+                    """
+                        SELECT individual FROM dudes
+                        WHERE name=:name AND generation=:generation
+                    """.trimIndent()
+                )
+                    .bind("name", name)
+                    .bind("generation", generation)
+                    .mapToBean(Dude::class.java)
+                    .findOne()
+                    .orElse(null)
+                    ?.individual
+                    ?.deserialise()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            throw e
+        }
+    }
+
     fun listDudeSummaries(): DudeSummaryList {
         return try {
             jdbi.withHandle<DudeSummaryList, Exception> {
