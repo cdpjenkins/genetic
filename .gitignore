@@ -2,3 +2,5 @@
 .idea/
 build/
 output/
+written-evolver-settings*.json
+*.png
