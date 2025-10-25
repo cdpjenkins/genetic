@@ -99,4 +99,33 @@ internal class JSONTest {
             )
         )
     }
+
+    @Test
+    fun `can deserialise StrokedCubicCurveShape without strokeWidth field`() {
+        val jsonString = """
+            {
+                "type": "StrokedCubicCurveShape",
+                "path": [
+                    {"x": 0, "y": 0},
+                    {"x": 10, "y": 20},
+                    {"x": 30, "y": 40},
+                    {"x": 50, "y": 60}
+                ],
+                "colour": {"red": 100, "green": 150, "blue": 200, "alpha": 255},
+                "bounds": {"minX": 0, "minY": 0, "maxX": 100, "maxY": 100}
+            }
+        """.trimIndent()
+
+        val shape = jsonString.deserialise<StrokedCubicCurveShape>()
+
+        shape.strokeWidth shouldBe null
+        shape.path shouldBe listOf(
+            Point(0, 0),
+            Point(10, 20),
+            Point(30, 40),
+            Point(50, 60)
+        )
+        shape.colour shouldBe Colour(100, 150, 200, 255)
+        shape.bounds shouldBe BoundsRectangle(0, 0, 100, 100)
+    }
 }
