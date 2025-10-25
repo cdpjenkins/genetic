@@ -71,20 +71,23 @@ data class QuadCurveShape(
     }
 }
 
-// TODO could this be an inline class?
-typealias StrokeWidth = Float
-fun StrokeWidth.mutate() = mutateValueGaussian(
-    this.toInt(),
-    2,
-    StrokedCubicCurveShape.MIN_STROKE_WIDTH.toInt(),
-    StrokedCubicCurveShape.MAX_STROKE_WIDTH.toInt()
-).toFloat()
+@JvmInline
+value class StrokeWidth(val value: Float) {
+    fun mutate() = StrokeWidth(
+        mutateValueGaussian(
+            this.value.toInt(),
+            2,
+            StrokedCubicCurveShape.MIN_STROKE_WIDTH.toInt(),
+            StrokedCubicCurveShape.MAX_STROKE_WIDTH.toInt()
+        ).toFloat()
+    )
+}
 
 data class StrokedCubicCurveShape(
     val path: List<Point>,
     val colour: Colour,
     val bounds: BoundsRectangle,
-    val strokeWidth: Float? = null
+    val strokeWidth: StrokeWidth? = null
 ): Shape {
     override fun draw(g: Graphics2D) {
         val p1 = path[0]
@@ -97,7 +100,8 @@ data class StrokedCubicCurveShape(
             p2.x.toFloat(), p2.y.toFloat(),
             p3.x.toFloat(), p3.y.toFloat(),
             p4.x.toFloat(), p4.y.toFloat())
-        val basicStroke = BasicStroke(strokeWidth ?: DEFAULT_STROKE_WIDTH, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND)
+        val actualStrokeWidth = strokeWidth?.value ?: DEFAULT_STROKE_WIDTH
+        val basicStroke = BasicStroke(actualStrokeWidth, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND)
         g.stroke = basicStroke
         g.color = colour.toAwtColor()
         g.draw(curve)
@@ -106,13 +110,13 @@ data class StrokedCubicCurveShape(
     override fun mutate(evolverSettings: EvolverSettings): Shape {
         val newPath = path.map { it.mutate(bounds, evolverSettings) }
         val newColour = colour.mutate(evolverSettings)
-        val newStrokeWidth = (strokeWidth ?: DEFAULT_STROKE_WIDTH).mutate()
+        val newStrokeWidth = (strokeWidth ?: StrokeWidth(DEFAULT_STROKE_WIDTH)).mutate()
 
         return StrokedCubicCurveShape(newPath, newColour, bounds, newStrokeWidth)
     }
 
     companion object {
-        private const val DEFAULT_STROKE_WIDTH = 4f
+        const val DEFAULT_STROKE_WIDTH = 4f
         const val MIN_STROKE_WIDTH = 4f
         const val MAX_STROKE_WIDTH = 20f
     }

@@ -128,4 +128,25 @@ internal class JSONTest {
         shape.colour shouldBe Colour(100, 150, 200, 255)
         shape.bounds shouldBe BoundsRectangle(0, 0, 100, 100)
     }
+
+    @Test
+    fun `can serialise and deserialise StrokedCubicCurveShape with StrokeWidth`() {
+        val shape = StrokedCubicCurveShape(
+            path = listOf(
+                Point(0, 0),
+                Point(10, 20),
+                Point(30, 40),
+                Point(50, 60)
+            ),
+            colour = Colour(100, 150, 200, 255),
+            bounds = BoundsRectangle(0, 0, 100, 100),
+            strokeWidth = StrokeWidth(8.5f)
+        )
+
+        val jsonString = serialise(shape)
+        val deserialized = jsonString.deserialise<StrokedCubicCurveShape>()
+
+        deserialized shouldBe shape
+        deserialized.strokeWidth?.value shouldBe 8.5f
+    }
 }
