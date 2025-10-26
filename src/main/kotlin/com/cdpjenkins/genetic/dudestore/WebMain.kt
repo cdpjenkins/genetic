@@ -58,10 +58,10 @@ class DudeStoreApplication(val dao: DudeDao, val port: Int, val secret: String) 
                 "/dudes/{name}/master-image" bind Method.GET to SecretAuthFilter(secret).then(::getMasterImageHandler),
                 "/dudes/{name}/{generation}" bind Method.GET to ::getDudeByGeneration,
 
-                // legacy endpoints that we should stop using
-                "/dude/{name}" bind Method.POST to SecretAuthFilter(secret).then(::postDudeHandler),
-                "/dude/{name}/latest" bind Method.GET to ::getDudeLatest,
-                "/dude/{name}/latest/summary" bind Method.GET to ::getDudeLatestSummary,
+//                // legacy endpoints that we should stop using
+//                "/dude/{name}" bind Method.POST to SecretAuthFilter(secret).then(::postDudeHandler),
+//                "/dude/{name}/latest" bind Method.GET to ::getDudeLatest,
+//                "/dude/{name}/latest/summary" bind Method.GET to ::getDudeLatestSummary,
             )
         )
 
