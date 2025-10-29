@@ -30,7 +30,7 @@ class Evolver(
         newIndividual.drawAndCalculateFitness(masterPixels)
         if (newIndividual.fitness < individual.fitness) {
             individual = newIndividual
-            logger.info { individual.describe() }
+            logger.info { individual.describe(name) }
 
 //            individual.drawDiff(masterPixels)
 

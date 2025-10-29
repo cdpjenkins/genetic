@@ -1,6 +1,5 @@
 package com.cdpjenkins.genetic.ui
 
-import com.cdpjenkins.genetic.model.Evolver
 import com.cdpjenkins.genetic.model.Individual
 import java.awt.BorderLayout
 import java.awt.image.BufferedImage
@@ -33,10 +32,10 @@ class GUI(
         pack()
     }
 
-    internal fun updateUiWithNewIndividual(it: Individual) {
+    internal fun updateUiWithNewIndividual(name: String, it: Individual) {
         SwingUtilities.invokeLater {
             individualImageLabel.icon = ImageIcon(it.bufferedImage)
-            fitnessLabel.text = it.describe()
+            fitnessLabel.text = it.describe(name)
             individualImageLabel.invalidate()
             pack()
             repaint()

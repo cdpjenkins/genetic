@@ -54,11 +54,15 @@ class GeneticEvolverApplication(
             }
 
             val evolver = makeEvolver(
-                masterImage, maybeInitialIndividual, settings)
+                name,
+                masterImage,
+                maybeInitialIndividual,
+                settings,
+            )
 
             if (!GraphicsEnvironment.isHeadless()) {
                 val gui = GUI(masterImage)
-                evolver.addListener { gui.updateUiWithNewIndividual(it) }
+                evolver.addListener { gui.updateUiWithNewIndividual(name, it) }
                 gui.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)
                 gui.isVisible = true
             }
