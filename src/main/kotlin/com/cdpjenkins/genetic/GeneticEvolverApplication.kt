@@ -27,7 +27,12 @@ class GeneticEvolverApplication(
 ) {
 
     fun start() {
-        evolver.start()
+        val thread = Thread {
+            while (true) {
+                evolver.mutate()
+            }
+        }
+        thread.start()
     }
 
     companion object {

@@ -35,18 +35,6 @@ class Evolver(
         this.listeners.add(listener)
     }
 
-    @Synchronized
-    fun start() {
-        val runnableMeDo = object : Runnable {
-            override fun run() {
-                while (true) {
-                    mutate()
-                }
-            }
-        }
-        val threadMeDo = Thread(runnableMeDo)
-        threadMeDo.start()
-    }
 }
 
 fun makeEvolver(
