@@ -18,13 +18,6 @@ class Evolver(
     private var listeners: MutableList<EvolverListener> = mutableListOf()
     private val masterPixels: IntArray = grabPixels(masterImage)
 
-    init {
-        ensureDirExists("output")
-        ensureDirExists("output/png")
-        ensureDirExists("output/json")
-        ensureDirExists("output/svg")
-    }
-
     @Synchronized fun mutate() {
         val newIndividual = individual.mutate(settings)
         newIndividual.drawAndCalculateFitness(masterPixels)

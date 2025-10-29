@@ -6,10 +6,14 @@ import com.cdpjenkins.genetic.dudestore.client.NonBlockingDudeStoreClient
 import com.cdpjenkins.genetic.json.deserialiseFromFile
 import com.cdpjenkins.genetic.json.serialiseToFile
 import com.cdpjenkins.genetic.model.Evolver
+import com.cdpjenkins.genetic.model.EvolverListener
+import com.cdpjenkins.genetic.model.Individual
 import com.cdpjenkins.genetic.model.makeEvolver
+import com.cdpjenkins.genetic.persistence.FilePersister
 import com.cdpjenkins.genetic.persistence.S3Client
 import com.cdpjenkins.genetic.playpen.evolverSettings
 import com.cdpjenkins.genetic.ui.GUI
+import com.cdpjenkins.genetic.ui.GUIEvolverListener
 import io.github.oshai.kotlinlogging.KotlinLogging
 import java.awt.GraphicsEnvironment
 import java.awt.image.BufferedImage
@@ -62,17 +66,15 @@ class GeneticEvolverApplication(
 
             if (!GraphicsEnvironment.isHeadless()) {
                 val gui = GUI(masterImage)
-                evolver.addListener { gui.updateUiWithNewIndividual(name, it) }
+                evolver.addListener(GUIEvolverListener(gui))
                 gui.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)
                 gui.isVisible = true
             }
 
-            // evolver.addListener { it.saveToDisk(name) }
-            evolver.addListener { dudeStoreClient.postDude(it, name) }
-            evolver.addListener {
-                if (evolverSettings.saveToS3 == true) {
-                    s3Client.saveToS3(it)
-                }
+//            evolver.addListener(FilePersistenceListener(name, FilePersister()))
+            evolver.addListener(DudeStoreClientListener(name, dudeStoreClient))
+            if (evolverSettings.saveToS3 == true) {
+                evolver.addListener(s3Client)
             }
 
             val geneticEvolverApplication = GeneticEvolverApplication(name, evolver)
@@ -127,5 +129,17 @@ class GeneticEvolverApplication(
             return settings
         }
 
+    }
+}
+
+class DudeStoreClientListener(val name: String, val dudeStoreClient: NonBlockingDudeStoreClient) : EvolverListener {
+    override fun notify(individual: Individual) {
+        dudeStoreClient.postDude(individual, name)
+    }
+}
+
+class FilePersistenceListener(val name: String, val persister: FilePersister) : EvolverListener {
+    override fun notify(individual: Individual) {
+        persister.saveToDisk( individual, name)
     }
 }

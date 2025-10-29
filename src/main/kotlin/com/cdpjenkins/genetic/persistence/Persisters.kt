@@ -3,7 +3,9 @@ package com.cdpjenkins.genetic.persistence
 import com.cdpjenkins.genetic.image.writePng
 import com.cdpjenkins.genetic.json.serialise
 import com.cdpjenkins.genetic.json.serialiseToFile
+import com.cdpjenkins.genetic.model.EvolverListener
 import com.cdpjenkins.genetic.model.Individual
+import com.cdpjenkins.genetic.model.ensureDirExists
 import com.cdpjenkins.genetic.svg.SvgRenderer
 import software.amazon.awssdk.core.sync.RequestBody
 import software.amazon.awssdk.regions.Region
@@ -14,6 +16,14 @@ import java.io.File
 import javax.imageio.ImageIO
 
 class FilePersister() {
+
+    init {
+        ensureDirExists("output")
+        ensureDirExists("output/png")
+        ensureDirExists("output/json")
+        ensureDirExists("output/svg")
+    }
+
     fun saveToDisk(individual: Individual, name: String) {
         if (individual.generation % 10 == 0) {
             val pngFile = File(pngFileName(individual, name))
@@ -34,7 +44,7 @@ class FilePersister() {
 // separate S3 stuff from stuff that knows about file names, formats etc
 // pull out bucket-na
 
-class S3Client(val name: String) {
+class S3Client(val name: String): EvolverListener {
     fun saveToS3(individual: Individual) {
         if (individual.generation % 10 == 0) {
             val region: Region = Region.EU_WEST_1
@@ -70,6 +80,10 @@ class S3Client(val name: String) {
                 RequestBody.fromString(svgString)
             )
         }
+    }
+
+    override fun notify(individual: Individual) {
+        saveToS3(individual)
     }
 }
 
