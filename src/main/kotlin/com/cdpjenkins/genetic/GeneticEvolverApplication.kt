@@ -29,7 +29,7 @@ class GeneticEvolverApplication(
     fun start() {
         Thread {
             while (true) {
-                evolver.mutate()
+                evolver.mutateOnce()
             }
         }.apply {
             start()
