@@ -8,6 +8,7 @@ import java.awt.image.BufferedImage
 import java.io.File
 
 class Evolver(
+    val name: String,
     var individual: Individual,
     masterImage: BufferedImage,
     val settings: EvolverSettings
@@ -56,13 +57,14 @@ class Evolver(
 }
 
 fun makeEvolver(
+    name: String,
     masterImage: BufferedImage,
     initialIndividual: Individual?,
     evolverSettings: EvolverSettings
 ): Evolver {
     val boundsRectangle = BoundsRectangle(0, 0, masterImage.width, masterImage.height)
     val individual = initialIndividual ?: makeIndividual(boundsRectangle, evolverSettings)
-    val evolver = Evolver(individual, masterImage, evolverSettings)
+    val evolver = Evolver(name, individual, masterImage, evolverSettings)
     return evolver
 }
 

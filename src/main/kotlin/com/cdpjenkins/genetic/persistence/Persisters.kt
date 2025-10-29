@@ -13,18 +13,20 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import javax.imageio.ImageIO
 
-fun Individual.saveToDisk(name: String) {
-    if (generation % 10 == 0) {
-        val pngFile = File(pngFileName(this, name))
-        writePng(this, pngFile)
+class FilePersister() {
+    fun saveToDisk(individual: Individual, name: String) {
+        if (individual.generation % 10 == 0) {
+            val pngFile = File(pngFileName(individual, name))
+            writePng(individual, pngFile)
 
-        val jsonFile = File(jsonFileName(this, name))
-        serialiseToFile(jsonFile, this)
+            val jsonFile = File(jsonFileName(individual, name))
+            serialiseToFile(jsonFile, individual)
 
-        SvgRenderer().renderToFile(
-            File(svgFileName(this, name)),
-            this
-        )
+            SvgRenderer().renderToFile(
+                File(svgFileName(individual, name)),
+                individual
+            )
+        }
     }
 }
 
