@@ -11,6 +11,9 @@ import java.awt.Color
 import java.awt.Graphics2D
 import java.awt.image.BufferedImage
 import java.lang.Integer.min
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import kotlin.system.measureTimeMillis
 
 data class Individual(
@@ -142,13 +145,16 @@ data class Individual(
     }
 
     fun describe(name: String): String {
-        val size = genome.size
-        val time = timeInMillis
-        val generation = generation
-        val fitness = fitness
-        val description =
-            "Name: $name Genome size: $size Time: $time Generation: $generation Fitness: $fitness"
-        return description
+        val timestamp = formatTimestamp(createdTimestamp)
+
+        return "Name: $name Genome size: ${genome.size} Time: ${timeInMillis} Generation: ${generation} Fitness: ${fitness} Timestamp: $timestamp"
+    }
+
+    private fun formatTimestamp(millis: Long): String {
+        val instant = Instant.ofEpochMilli(millis)
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+            .withZone(ZoneId.systemDefault())
+        return formatter.format(instant)
     }
 }
 
