@@ -1,2 +1,5 @@
-- Run ./gradlew test to run tests
-- Run ./gradlew intTest to run integration tests
+# Testing
+- Run `./gradlew test` to run unit tests.
+- Run `./gradlew intTest` to run integration tests.
+
+- Tests use kotest assertions.

@@ -72,7 +72,9 @@ class GeneticEvolverApplication(
                 gui.isVisible = true
             }
 
-//            evolver.addListener(FilePersistenceListener(name, FilePersister()))
+            if (settings.saveToFilesystem == true) {
+                evolver.addListener(FilePersistenceListener(name, FilePersister()))
+            }
             evolver.addListener(DudeStoreClientListener(name, dudeStoreClient))
             if (settings.saveToS3 == true) {
                 evolver.addListener(S3Persister.create(name))
