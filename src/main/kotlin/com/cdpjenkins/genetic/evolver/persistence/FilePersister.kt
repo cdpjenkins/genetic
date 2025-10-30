@@ -1,9 +1,9 @@
-package com.cdpjenkins.genetic.persistence
+package com.cdpjenkins.genetic.evolver.persistence
 
 import com.cdpjenkins.genetic.image.writePng
 import com.cdpjenkins.genetic.json.serialiseToFile
 import com.cdpjenkins.genetic.model.Individual
-import com.cdpjenkins.genetic.model.ensureDirExists
+import com.cdpjenkins.genetic.evolver.ensureDirExists
 import com.cdpjenkins.genetic.svg.SvgRenderer
 import java.io.File
 

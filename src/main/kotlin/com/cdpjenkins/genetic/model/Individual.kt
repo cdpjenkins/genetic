@@ -1,6 +1,8 @@
 package com.cdpjenkins.genetic.model
 
 import EvolverSettings
+import com.cdpjenkins.genetic.evolver.spawnRandomShape
+import com.cdpjenkins.genetic.evolver.withProbability
 import com.cdpjenkins.genetic.image.grabPixels
 import com.cdpjenkins.genetic.model.shape.BoundsRectangle
 import com.cdpjenkins.genetic.model.shape.Shape
@@ -77,8 +79,6 @@ data class Individual(
 
         diffImage = BufferedImage(bounds.width, bounds.height, BufferedImage.TYPE_INT_ARGB)
         diffImage.setRGB(0, 0, bufferedImage.width, bufferedImage.height, pixels, 0, bufferedImage.width)
-
-        this.diffImage = diffImage
     }
 
     private fun calculateFitness(masterPixels: IntArray): Int {

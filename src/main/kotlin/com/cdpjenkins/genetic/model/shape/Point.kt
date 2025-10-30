@@ -1,7 +1,7 @@
 package com.cdpjenkins.genetic.model.shape
 
 import EvolverSettings
-import com.cdpjenkins.genetic.model.mutateValueGaussian
+import com.cdpjenkins.genetic.evolver.mutateValueGaussian
 
 data class Point(val x: Int, val y: Int) {
     fun mutate(bounds: BoundsRectangle, evolverSettings: EvolverSettings): Point {

@@ -1,8 +1,8 @@
 package com.cdpjenkins.genetic.model.shape
 
 import EvolverSettings
-import com.cdpjenkins.genetic.model.mutateValueGaussian
-import com.cdpjenkins.genetic.model.withProbability
+import com.cdpjenkins.genetic.evolver.mutateValueGaussian
+import com.cdpjenkins.genetic.evolver.withProbability
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import java.awt.BasicStroke

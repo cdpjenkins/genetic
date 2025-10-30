@@ -1,16 +1,13 @@
-package com.cdpjenkins.genetic
+package com.cdpjenkins.genetic.evolver
 
 import EvolverSettings
 import com.cdpjenkins.genetic.dudestore.client.BlockingDudeStoreClient
 import com.cdpjenkins.genetic.dudestore.client.NonBlockingDudeStoreClient
 import com.cdpjenkins.genetic.json.deserialiseFromFile
 import com.cdpjenkins.genetic.json.serialiseToFile
-import com.cdpjenkins.genetic.model.Evolver
-import com.cdpjenkins.genetic.model.EvolverListener
 import com.cdpjenkins.genetic.model.Individual
-import com.cdpjenkins.genetic.model.makeEvolver
-import com.cdpjenkins.genetic.persistence.FilePersister
-import com.cdpjenkins.genetic.persistence.S3Persister
+import com.cdpjenkins.genetic.evolver.persistence.FilePersister
+import com.cdpjenkins.genetic.evolver.persistence.S3Persister
 import com.cdpjenkins.genetic.ui.GUI
 import com.cdpjenkins.genetic.ui.GUIEvolverListener
 import io.github.oshai.kotlinlogging.KotlinLogging

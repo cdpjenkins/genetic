@@ -1,6 +1,6 @@
 package com.cdpjenkins.genetic.ui
 
-import com.cdpjenkins.genetic.model.EvolverListener
+import com.cdpjenkins.genetic.evolver.EvolverListener
 import com.cdpjenkins.genetic.model.Individual
 import java.awt.BorderLayout
 import java.awt.image.BufferedImage

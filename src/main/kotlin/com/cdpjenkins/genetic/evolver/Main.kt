@@ -1,4 +1,4 @@
-package com.cdpjenkins.genetic
+package com.cdpjenkins.genetic.evolver
 
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.main

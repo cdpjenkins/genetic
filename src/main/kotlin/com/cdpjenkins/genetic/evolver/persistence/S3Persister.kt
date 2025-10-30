@@ -1,7 +1,7 @@
-package com.cdpjenkins.genetic.persistence
+package com.cdpjenkins.genetic.evolver.persistence
 
 import com.cdpjenkins.genetic.json.serialise
-import com.cdpjenkins.genetic.model.EvolverListener
+import com.cdpjenkins.genetic.evolver.EvolverListener
 import com.cdpjenkins.genetic.model.Individual
 import com.cdpjenkins.genetic.svg.SvgRenderer
 import software.amazon.awssdk.core.sync.RequestBody

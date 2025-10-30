@@ -1,4 +1,4 @@
-package com.cdpjenkins.genetic.model
+package com.cdpjenkins.genetic.evolver
 
 import kotlin.random.Random
 import kotlin.random.asJavaRandom

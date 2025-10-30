@@ -1,4 +1,4 @@
-package com.cdpjenkins.genetic.persistence
+package com.cdpjenkins.genetic.evolver.persistence
 
 import com.cdpjenkins.genetic.model.Individual
 

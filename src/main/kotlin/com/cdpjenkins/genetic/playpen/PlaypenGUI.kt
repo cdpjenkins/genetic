@@ -2,7 +2,7 @@ package com.cdpjenkins.genetic.playpen
 
 import EvolverSettings
 import com.cdpjenkins.genetic.model.shape.BoundsRectangle
-import com.cdpjenkins.genetic.model.spawnRandomStrokedCubicCurveShape
+import com.cdpjenkins.genetic.evolver.spawnRandomStrokedCubicCurveShape
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.main
 import com.github.ajalt.clikt.parameters.arguments.argument

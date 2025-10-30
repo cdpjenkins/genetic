@@ -1,7 +1,8 @@
-package com.cdpjenkins.genetic.model
+package com.cdpjenkins.genetic.evolver
 
 import EvolverSettings
 import com.cdpjenkins.genetic.image.grabPixels
+import com.cdpjenkins.genetic.model.Individual
 import com.cdpjenkins.genetic.model.shape.BoundsRectangle
 import io.github.oshai.kotlinlogging.KotlinLogging
 import java.awt.image.BufferedImage

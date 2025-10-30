@@ -1,7 +1,8 @@
-package com.cdpjenkins.genetic.model
+package com.cdpjenkins.genetic.evolver
 
 import EvolverSettings
 import Weight
+import com.cdpjenkins.genetic.model.Individual
 import com.cdpjenkins.genetic.model.shape.*
 import com.cdpjenkins.genetic.util.TrueRandomSource
 import com.cdpjenkins.genetic.util.WeightedSelector
@@ -9,6 +10,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlin.random.Random
 
 private val logger = KotlinLogging.logger {}
+
 val polyVertices: Int = 4
 
 fun makeIndividual(
