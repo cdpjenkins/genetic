@@ -1,57 +1,17 @@
 package com.cdpjenkins.genetic.persistence
 
-import com.cdpjenkins.genetic.image.writePng
 import com.cdpjenkins.genetic.json.serialise
-import com.cdpjenkins.genetic.json.serialiseToFile
 import com.cdpjenkins.genetic.model.EvolverListener
 import com.cdpjenkins.genetic.model.Individual
-import com.cdpjenkins.genetic.model.ensureDirExists
 import com.cdpjenkins.genetic.svg.SvgRenderer
 import software.amazon.awssdk.core.sync.RequestBody
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.s3.S3Client
 import software.amazon.awssdk.services.s3.model.PutObjectRequest
 import java.io.ByteArrayOutputStream
-import java.io.File
 import javax.imageio.ImageIO
 
-abstract class Persister {
-    protected fun svgFileName(individual: Individual, name: String) =
-        String.format("$name/svg/cow_%010d.svg", individual.generation)
-
-    protected fun jsonFileName(individual: Individual, name: String) =
-        String.format("$name/json/cow_%010d.json", individual.generation)
-
-    protected fun pngFileName(individual: Individual, name: String) =
-        String.format("$name/png/cow_%010d.png", individual.generation)
-}
-
-class FilePersister(): Persister() {
-
-    init {
-        ensureDirExists("output")
-        ensureDirExists("output/png")
-        ensureDirExists("output/json")
-        ensureDirExists("output/svg")
-    }
-
-    fun saveToDisk(individual: Individual, name: String) {
-        if (individual.generation % 10 == 0) {
-            val pngFile = File(pngFileName(individual, name))
-            writePng(individual, pngFile)
-
-            val jsonFile = File(jsonFileName(individual, name))
-            serialiseToFile(jsonFile, individual)
-
-            SvgRenderer().renderToFile(
-                File(svgFileName(individual, name)),
-                individual
-            )
-        }
-    }
-}
-
-class S3Listener(val name: String, val awsRegion: Region, val s3Bucket: String): Persister(), EvolverListener {
+class S3Persister(val name: String, val awsRegion: Region, val s3Bucket: String): Persister(), EvolverListener {
     fun saveToS3(individual: Individual) {
         if (individual.generation % 10 == 0) {
             val region: Region = awsRegion
@@ -94,6 +54,6 @@ class S3Listener(val name: String, val awsRegion: Region, val s3Bucket: String):
     }
 
     companion object {
-        fun create(name: String): S3Listener = S3Listener(name, Region.EU_WEST_1, "cdpjenkins-bovine-assets")
+        fun create(name: String): S3Persister = S3Persister(name, Region.EU_WEST_1, "cdpjenkins-bovine-assets")
     }
 }

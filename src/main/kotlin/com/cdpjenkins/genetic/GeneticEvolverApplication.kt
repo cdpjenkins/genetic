@@ -10,7 +10,7 @@ import com.cdpjenkins.genetic.model.EvolverListener
 import com.cdpjenkins.genetic.model.Individual
 import com.cdpjenkins.genetic.model.makeEvolver
 import com.cdpjenkins.genetic.persistence.FilePersister
-import com.cdpjenkins.genetic.persistence.S3Listener
+import com.cdpjenkins.genetic.persistence.S3Persister
 import com.cdpjenkins.genetic.ui.GUI
 import com.cdpjenkins.genetic.ui.GUIEvolverListener
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -78,7 +78,7 @@ class GeneticEvolverApplication(
 //            evolver.addListener(FilePersistenceListener(name, FilePersister()))
             evolver.addListener(DudeStoreClientListener(name, dudeStoreClient))
             if (settings.saveToS3 == true) {
-                evolver.addListener(S3Listener.create(name))
+                evolver.addListener(S3Persister.create(name))
             }
 
             val geneticEvolverApplication = GeneticEvolverApplication(name, evolver)
