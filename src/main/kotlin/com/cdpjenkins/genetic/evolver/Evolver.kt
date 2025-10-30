@@ -20,7 +20,7 @@ class Evolver(
     private val masterPixels: IntArray = grabPixels(masterImage)
 
     @Synchronized fun mutateOnce() {
-        val newIndividual = mutator.mutateIndividual(individual)
+        val newIndividual = mutator.mutate(individual)
         newIndividual.drawAndCalculateFitness(masterPixels)
         if (newIndividual.fitness < individual.fitness) {
             individual = newIndividual
@@ -37,10 +37,6 @@ class Evolver(
 
         this.listeners.add(listener)
     }
-}
-
-class MutatorImpl(val settings: EvolverSettings) {
-    fun mutateIndividual(individual: Individual): Individual = individual.mutate(settings)
 }
 
 fun makeEvolver(
