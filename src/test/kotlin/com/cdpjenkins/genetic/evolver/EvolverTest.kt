@@ -16,15 +16,13 @@ class EvolverTest {
 
     val masterImage = BufferedImage(10, 10, BufferedImage.TYPE_INT_ARGB)
 
-    val currentIndividual = individualWithFitness(fitness = 1000)
-    val betterIndividual = individualWithFitness(fitness = 800)
-    val sameIndividual = individualWithFitness(fitness = 1000)
-    val worseIndividual = individualWithFitness(fitness = 1200)
+    val currentIndividual = individualWithFitness(1000)
+    val betterIndividual = individualWithFitness(800)
+    val sameIndividual = individualWithFitness(1000)
+    val worseIndividual = individualWithFitness(1200)
 
     val evolver = Evolver("test", currentIndividual, masterImage, mutator)
-        .also {
-            it.addListener(listener)
-        }
+        .also { it.addListener(listener) }
 
     @Test
     fun `accepts mutation when fitness improves and notifies listeners`() {
