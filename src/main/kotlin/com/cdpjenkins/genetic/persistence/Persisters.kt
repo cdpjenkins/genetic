@@ -15,18 +15,18 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import javax.imageio.ImageIO
 
-interface Persister {
-    private fun svgFileName(individual: Individual, name: String) =
+abstract class Persister {
+    protected fun svgFileName(individual: Individual, name: String) =
         String.format("$name/svg/cow_%010d.svg", individual.generation)
 
-    private fun jsonFileName(individual: Individual, name: String) =
+    protected fun jsonFileName(individual: Individual, name: String) =
         String.format("$name/json/cow_%010d.json", individual.generation)
 
-    private fun pngFileName(individual: Individual, name: String) =
+    protected fun pngFileName(individual: Individual, name: String) =
         String.format("$name/png/cow_%010d.png", individual.generation)
 }
 
-class FilePersister(): Persister {
+class FilePersister(): Persister() {
 
     init {
         ensureDirExists("output")
@@ -52,10 +52,9 @@ class FilePersister(): Persister {
 }
 
 // TODO violates single responsibility principle
-// separate S3 stuff from stuff that knows about file names, formats etc
 // pull out bucket-na
 
-class S3Listener(val name: String): Persister, EvolverListener {
+class S3Listener(val name: String): Persister(), EvolverListener {
     fun saveToS3(individual: Individual) {
         if (individual.generation % 10 == 0) {
             val region: Region = Region.EU_WEST_1
@@ -97,12 +96,3 @@ class S3Listener(val name: String): Persister, EvolverListener {
         saveToS3(individual)
     }
 }
-
-private fun svgFileName(individual: Individual, name: String) =
-    String.format("$name/svg/cow_%010d.svg", individual.generation)
-
-private fun jsonFileName(individual: Individual, name: String) =
-    String.format("$name/json/cow_%010d.json", individual.generation)
-
-private fun pngFileName(individual: Individual, name: String) =
-    String.format("$name/png/cow_%010d.png", individual.generation)
