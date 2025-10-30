@@ -4,3 +4,4 @@ build/
 output/
 written-evolver-settings*.json
 *.png
+.kotlin
