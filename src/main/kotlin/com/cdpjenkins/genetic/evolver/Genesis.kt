@@ -1,7 +1,5 @@
 package com.cdpjenkins.genetic.evolver
 
-import EvolverSettings
-import Weight
 import com.cdpjenkins.genetic.model.Individual
 import com.cdpjenkins.genetic.model.shape.*
 import com.cdpjenkins.genetic.util.TrueRandomSource

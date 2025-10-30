@@ -1,6 +1,6 @@
 package com.cdpjenkins.genetic.model
 
-import EvolverSettings
+import com.cdpjenkins.genetic.evolver.EvolverSettings
 import com.cdpjenkins.genetic.evolver.spawnRandomShape
 import com.cdpjenkins.genetic.evolver.withProbability
 import com.cdpjenkins.genetic.image.grabPixels

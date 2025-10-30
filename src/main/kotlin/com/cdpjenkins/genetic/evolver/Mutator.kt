@@ -1,6 +1,5 @@
 package com.cdpjenkins.genetic.evolver
 
-import EvolverSettings
 import com.cdpjenkins.genetic.model.Individual
 
 class Mutator(val settings: EvolverSettings) {

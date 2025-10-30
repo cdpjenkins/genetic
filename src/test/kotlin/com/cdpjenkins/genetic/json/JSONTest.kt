@@ -1,7 +1,7 @@
 package com.cdpjenkins.genetic.json
 
-import EvolverSettings
-import Weight
+import com.cdpjenkins.genetic.evolver.EvolverSettings
+import com.cdpjenkins.genetic.evolver.Weight
 import com.cdpjenkins.genetic.model.Individual
 import com.cdpjenkins.genetic.model.shape.*
 import io.kotest.matchers.shouldBe

@@ -1,6 +1,6 @@
 package com.cdpjenkins.genetic.model.shape
 
-import EvolverSettings
+import com.cdpjenkins.genetic.evolver.EvolverSettings
 import com.cdpjenkins.genetic.evolver.mutateValueGaussian
 
 data class Point(val x: Int, val y: Int) {

@@ -1,7 +1,7 @@
 package com.cdpjenkins.genetic.dudestore
 
-import EvolverSettings
 import com.cdpjenkins.genetic.dudestore.client.BlockingDudeStoreClient
+import com.cdpjenkins.genetic.evolver.EvolverSettings
 import com.cdpjenkins.genetic.model.Individual
 import com.cdpjenkins.genetic.model.shape.BoundsRectangle
 import com.cdpjenkins.genetic.model.shape.Circle
@@ -211,7 +211,7 @@ class WebMainIT {
         postStatus shouldBe Status.OK
 
         val putStatus = dudeStoreClient.putSettings("steve", EVOLVER_SETTINGS2)
-        postStatus shouldBe Status.OK
+        putStatus shouldBe Status.OK
 
         val returnedSettings = dudeStoreClient.getSettings("steve")
         returnedSettings shouldBe EVOLVER_SETTINGS2

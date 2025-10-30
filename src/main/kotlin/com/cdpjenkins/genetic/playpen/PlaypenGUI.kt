@@ -1,6 +1,6 @@
 package com.cdpjenkins.genetic.playpen
 
-import EvolverSettings
+import com.cdpjenkins.genetic.evolver.EvolverSettings
 import com.cdpjenkins.genetic.model.shape.BoundsRectangle
 import com.cdpjenkins.genetic.evolver.spawnRandomStrokedCubicCurveShape
 import com.github.ajalt.clikt.core.CliktCommand

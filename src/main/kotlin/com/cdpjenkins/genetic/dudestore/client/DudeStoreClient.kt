@@ -1,6 +1,6 @@
 package com.cdpjenkins.genetic.dudestore.client
 
-import EvolverSettings
+import com.cdpjenkins.genetic.evolver.EvolverSettings
 import com.cdpjenkins.genetic.json.serialise
 import com.cdpjenkins.genetic.model.Individual
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -104,9 +104,7 @@ class BlockingDudeStoreClient(val baseUrl: String, val secret: String) {
     }
 }
 
-// Tech debt: Not sure what I was thinking doing this with threads. This is Kotlin and coroutines are available.
-// Future enhancement: turn these calls into something non-blocking that doesn't require firing up a whole thread
-// for each HTTP request.
+// We have to do this with threads because HTTP4k.
 class NonBlockingDudeStoreClient(
     blockingDudeStoreClient: BlockingDudeStoreClient
 )  {

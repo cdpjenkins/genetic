@@ -1,3 +1,5 @@
+package com.cdpjenkins.genetic.evolver
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
 data class Weight(val name: String, val weight: Double)

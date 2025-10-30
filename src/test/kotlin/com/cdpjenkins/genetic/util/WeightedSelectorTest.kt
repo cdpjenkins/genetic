@@ -1,6 +1,6 @@
 package com.cdpjenkins.genetic.util
 
-import Weight
+import com.cdpjenkins.genetic.evolver.Weight
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows

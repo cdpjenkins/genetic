@@ -1,6 +1,5 @@
 package com.cdpjenkins.genetic.evolver
 
-import EvolverSettings
 import com.cdpjenkins.genetic.image.grabPixels
 import com.cdpjenkins.genetic.model.Individual
 import com.cdpjenkins.genetic.model.shape.BoundsRectangle

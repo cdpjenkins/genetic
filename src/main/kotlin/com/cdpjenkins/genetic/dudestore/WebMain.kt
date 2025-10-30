@@ -1,6 +1,6 @@
 package com.cdpjenkins.genetic.dudestore
 
-import EvolverSettings
+import com.cdpjenkins.genetic.evolver.EvolverSettings
 import com.cdpjenkins.genetic.model.Individual
 import com.cdpjenkins.genetic.svg.SvgRenderer
 import io.github.oshai.kotlinlogging.KotlinLogging

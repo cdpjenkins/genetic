@@ -1,6 +1,5 @@
 package com.cdpjenkins.genetic.evolver
 
-import EvolverSettings
 import com.cdpjenkins.genetic.dudestore.client.BlockingDudeStoreClient
 import com.cdpjenkins.genetic.dudestore.client.NonBlockingDudeStoreClient
 import com.cdpjenkins.genetic.json.deserialiseFromFile

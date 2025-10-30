@@ -1,6 +1,6 @@
 package com.cdpjenkins.genetic.util
 
-import Weight
+import com.cdpjenkins.genetic.evolver.Weight
 
 class WeightedSelector(val randomSource: RandomSource) {
     fun select(options: List<Weight>): String {
@@ -25,7 +25,7 @@ class TrueRandomSource : RandomSource {
 
 internal fun partialSumsOf(nums: List<Double>): List<Double> =
     nums.fold(
-        emptyList<Double>(),
+        emptyList(),
         { acc, num ->
             val newSum = (acc.lastOrNull() ?: 0.0) + num
             acc + newSum
