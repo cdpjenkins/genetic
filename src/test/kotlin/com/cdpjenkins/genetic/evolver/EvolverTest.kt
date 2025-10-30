@@ -11,7 +11,7 @@ import java.awt.image.BufferedImage
 
 class EvolverTest {
 
-    val mutator = mockk<MutatorImpl>()
+    val mutator = mockk<Mutator>()
     val listener = mockk<EvolverListener>(relaxed = true)
 
     val masterImage = BufferedImage(10, 10, BufferedImage.TYPE_INT_ARGB)

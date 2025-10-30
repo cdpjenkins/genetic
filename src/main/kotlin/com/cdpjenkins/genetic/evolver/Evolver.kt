@@ -13,7 +13,7 @@ class Evolver(
     val name: String,
     var individual: Individual,
     masterImage: BufferedImage,
-    val mutator: MutatorImpl
+    val mutator: Mutator
 ) {
 
     private var listeners: MutableList<EvolverListener> = mutableListOf()
@@ -44,7 +44,7 @@ fun makeEvolver(
     masterImage: BufferedImage,
     initialIndividual: Individual?,
     evolverSettings: EvolverSettings,
-    mutator: MutatorImpl
+    mutator: Mutator
 ): Evolver {
     val boundsRectangle = BoundsRectangle(0, 0, masterImage.width, masterImage.height)
     val individual = initialIndividual ?: makeIndividual(boundsRectangle, evolverSettings)
