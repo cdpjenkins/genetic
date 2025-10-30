@@ -6,7 +6,6 @@ import com.cdpjenkins.genetic.model.Individual
 import com.cdpjenkins.genetic.model.shape.BoundsRectangle
 import io.github.oshai.kotlinlogging.KotlinLogging
 import java.awt.image.BufferedImage
-import java.io.File
 
 class Evolver(
     val name: String,
@@ -37,7 +36,6 @@ class Evolver(
 
         this.listeners.add(listener)
     }
-
 }
 
 fun makeEvolver(
@@ -55,10 +53,4 @@ fun makeEvolver(
 interface EvolverListener {
     fun notify(individual: Individual)
     fun describe(): String = this.javaClass.simpleName
-}
-
-fun ensureDirExists(dirName: String) {
-    File(dirName).also {
-        if (!it.exists()) it.mkdir()
-    }
 }

@@ -1,6 +1,7 @@
 package com.cdpjenkins.genetic.evolver.persistence
 
 import com.cdpjenkins.genetic.model.Individual
+import java.io.File
 
 abstract class Persister {
     protected fun svgFileName(individual: Individual, name: String) =
@@ -11,5 +12,11 @@ abstract class Persister {
 
     protected fun pngFileName(individual: Individual, name: String) =
         String.format("$name/png/cow_%010d.png", individual.generation)
+
+    protected fun ensureDirExists(dirName: String) {
+        File(dirName).also {
+            if (!it.exists()) it.mkdir()
+        }
+    }
 }
 
