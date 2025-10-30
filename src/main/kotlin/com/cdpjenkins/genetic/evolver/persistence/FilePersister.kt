@@ -6,27 +6,26 @@ import com.cdpjenkins.genetic.model.Individual
 import com.cdpjenkins.genetic.svg.SvgRenderer
 import java.io.File
 
-class FilePersister(): Persister() {
+class FilePersister(val name: String): Persister() {
 
     init {
         ensureDirExists("output")
-        ensureDirExists("output/png")
-        ensureDirExists("output/json")
-        ensureDirExists("output/svg")
+        ensureDirExists("output/$name")
+        ensureDirExists("output/$name/png")
+        ensureDirExists("output/$name/json")
+        ensureDirExists("output/$name/svg")
     }
 
-    fun saveToDisk(individual: Individual, name: String) {
+    fun saveToDisk(individual: Individual) {
         if (individual.generation % 10 == 0) {
-            val pngFile = File(pngFileName(individual, name))
-            writePng(individual, pngFile)
+            val pngFileName = pngFileName(individual, name)
+            writePng(individual, File("output/$pngFileName"))
 
-            val jsonFile = File(jsonFileName(individual, name))
-            serialiseToFile(jsonFile, individual)
+            val jsonFileName = jsonFileName(individual, name)
+            serialiseToFile(File("output/$jsonFileName"), individual)
 
-            SvgRenderer().renderToFile(
-                File(svgFileName(individual, name)),
-                individual
-            )
+            val svgFile = svgFileName(individual, name)
+            SvgRenderer().renderToFile(File("output/$svgFile"), individual)
         }
     }
 }

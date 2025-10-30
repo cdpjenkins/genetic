@@ -73,7 +73,7 @@ class GeneticEvolverApplication(
             }
 
             if (settings.saveToFilesystem == true) {
-                evolver.addListener(FilePersistenceListener(name, FilePersister()))
+                evolver.addListener(FilePersistenceListener(name, FilePersister(name)))
             }
             evolver.addListener(DudeStoreClientListener(name, dudeStoreClient))
             if (settings.saveToS3 == true) {
@@ -143,6 +143,6 @@ class DudeStoreClientListener(val name: String, val dudeStoreClient: NonBlocking
 
 class FilePersistenceListener(val name: String, val persister: FilePersister) : EvolverListener {
     override fun notify(individual: Individual) {
-        persister.saveToDisk( individual, name)
+        persister.saveToDisk(individual)
     }
 }
