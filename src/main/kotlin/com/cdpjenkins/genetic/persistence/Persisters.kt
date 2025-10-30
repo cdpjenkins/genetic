@@ -51,13 +51,10 @@ class FilePersister(): Persister() {
     }
 }
 
-// TODO violates single responsibility principle
-// pull out bucket-na
-
-class S3Listener(val name: String): Persister(), EvolverListener {
+class S3Listener(val name: String, val awsRegion: Region, val s3Bucket: String): Persister(), EvolverListener {
     fun saveToS3(individual: Individual) {
         if (individual.generation % 10 == 0) {
-            val region: Region = Region.EU_WEST_1
+            val region: Region = awsRegion
             val s3: S3Client = S3Client.builder()
                 .region(region)
                 .build()
@@ -66,7 +63,7 @@ class S3Listener(val name: String): Persister(), EvolverListener {
             ImageIO.write(individual.bufferedImage, "png", baos)
             s3.putObject(
                 PutObjectRequest.builder()
-                    .bucket("cdpjenkins-bovine-assets")
+                    .bucket(s3Bucket)
                     .key(pngFileName(individual, name))
                     .build(),
                 RequestBody.fromBytes(baos.toByteArray())
@@ -74,7 +71,7 @@ class S3Listener(val name: String): Persister(), EvolverListener {
 
             s3.putObject(
                 PutObjectRequest.builder()
-                    .bucket("cdpjenkins-bovine-assets")
+                    .bucket(s3Bucket)
                     .key(jsonFileName(individual, name))
                     .build(),
                 RequestBody.fromString(serialise(individual))
@@ -84,7 +81,7 @@ class S3Listener(val name: String): Persister(), EvolverListener {
             val svgFile = svgFileName(individual, name)
             s3.putObject(
                 PutObjectRequest.builder()
-                    .bucket("cdpjenkins-bovine-assets")
+                    .bucket(s3Bucket)
                     .key(svgFile)
                     .build(),
                 RequestBody.fromString(svgString)
@@ -94,5 +91,9 @@ class S3Listener(val name: String): Persister(), EvolverListener {
 
     override fun notify(individual: Individual) {
         saveToS3(individual)
+    }
+
+    companion object {
+        fun create(name: String): S3Listener = S3Listener(name, Region.EU_WEST_1, "cdpjenkins-bovine-assets")
     }
 }

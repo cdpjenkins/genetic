@@ -78,7 +78,7 @@ class GeneticEvolverApplication(
 //            evolver.addListener(FilePersistenceListener(name, FilePersister()))
             evolver.addListener(DudeStoreClientListener(name, dudeStoreClient))
             if (settings.saveToS3 == true) {
-                evolver.addListener(S3Listener(name))
+                evolver.addListener(S3Listener.create(name))
             }
 
             val geneticEvolverApplication = GeneticEvolverApplication(name, evolver)
