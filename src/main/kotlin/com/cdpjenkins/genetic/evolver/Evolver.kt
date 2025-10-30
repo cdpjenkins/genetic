@@ -7,19 +7,20 @@ import com.cdpjenkins.genetic.model.shape.BoundsRectangle
 import io.github.oshai.kotlinlogging.KotlinLogging
 import java.awt.image.BufferedImage
 
+private val logger = KotlinLogging.logger {}
+
 class Evolver(
     val name: String,
     var individual: Individual,
     masterImage: BufferedImage,
-    val settings: EvolverSettings
+    val mutator: MutatorImpl
 ) {
-    private val logger = KotlinLogging.logger {}
 
     private var listeners: MutableList<EvolverListener> = mutableListOf()
     private val masterPixels: IntArray = grabPixels(masterImage)
 
     @Synchronized fun mutateOnce() {
-        val newIndividual = individual.mutate(settings)
+        val newIndividual = mutator.mutateIndividual(individual)
         newIndividual.drawAndCalculateFitness(masterPixels)
         if (newIndividual.fitness < individual.fitness) {
             individual = newIndividual
@@ -38,15 +39,20 @@ class Evolver(
     }
 }
 
+class MutatorImpl(val settings: EvolverSettings) {
+    fun mutateIndividual(individual: Individual): Individual = individual.mutate(settings)
+}
+
 fun makeEvolver(
     name: String,
     masterImage: BufferedImage,
     initialIndividual: Individual?,
-    evolverSettings: EvolverSettings
+    evolverSettings: EvolverSettings,
+    mutator: MutatorImpl
 ): Evolver {
     val boundsRectangle = BoundsRectangle(0, 0, masterImage.width, masterImage.height)
     val individual = initialIndividual ?: makeIndividual(boundsRectangle, evolverSettings)
-    val evolver = Evolver(name, individual, masterImage, evolverSettings)
+    val evolver = Evolver(name, individual, masterImage, mutator)
     return evolver
 }
 

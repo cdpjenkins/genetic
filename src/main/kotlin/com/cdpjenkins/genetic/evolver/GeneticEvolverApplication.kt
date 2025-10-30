@@ -63,6 +63,7 @@ class GeneticEvolverApplication(
                 masterImage,
                 maybeInitialIndividual,
                 settings,
+                MutatorImpl(settings),
             )
 
             if (!GraphicsEnvironment.isHeadless()) {
