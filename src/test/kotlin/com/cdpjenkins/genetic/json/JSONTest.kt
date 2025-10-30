@@ -36,7 +36,6 @@ internal class JSONTest {
         val jsonString = serialise(individual)
 
         jsonString.deserialise<Individual>() shouldBe individual
-
     }
 
     @Test

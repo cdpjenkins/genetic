@@ -33,7 +33,7 @@ class GUI(
         pack()
     }
 
-    internal fun updateUiWithNewIndividual(it: Individual) {
+    internal fun updateUiWithNewIndividual(it: Individual, name: String) {
         SwingUtilities.invokeLater {
             individualImageLabel.icon = ImageIcon(it.bufferedImage)
             fitnessLabel.text = it.describe(name)
@@ -44,8 +44,8 @@ class GUI(
     }
 }
 
-class GUIEvolverListener(val gui: GUI): EvolverListener {
+class GUIEvolverListener(val gui: GUI, val name: String): EvolverListener {
     override fun notify(individual: Individual) {
-        gui.updateUiWithNewIndividual(individual)
+        gui.updateUiWithNewIndividual(individual, name)
     }
 }

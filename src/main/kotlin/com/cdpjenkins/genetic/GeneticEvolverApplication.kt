@@ -72,7 +72,7 @@ class GeneticEvolverApplication(
 
             if (!GraphicsEnvironment.isHeadless()) {
                 val gui = GUI(masterImage)
-                evolver.addListener(GUIEvolverListener(gui))
+                evolver.addListener(GUIEvolverListener(gui, name))
                 gui.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)
                 gui.isVisible = true
             }
