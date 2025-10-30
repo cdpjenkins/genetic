@@ -22,11 +22,13 @@ class EvolverTest {
     val worseIndividual = individualWithFitness(fitness = 1200)
 
     val evolver = Evolver("test", currentIndividual, masterImage, mutator)
+        .also {
+            it.addListener(listener)
+        }
 
     @Test
     fun `accepts mutation when fitness improves and notifies listeners`() {
         every { mutator.mutate(any()) } returns betterIndividual
-        evolver.addListener(listener)
 
         evolver.mutateOnce()
 
@@ -36,7 +38,6 @@ class EvolverTest {
     @Test
     fun `rejects mutation when fitness gets worse and does not notify listeners`() {
         every { mutator.mutate(any()) } returns worseIndividual
-        evolver.addListener(listener)
 
         evolver.mutateOnce()
 
@@ -46,7 +47,6 @@ class EvolverTest {
     @Test
     fun `rejects mutation when fitness stays the same and does not notify listeners`() {
         every { mutator.mutate(any()) } returns sameIndividual
-        evolver.addListener(listener)
 
         evolver.mutateOnce()
 
