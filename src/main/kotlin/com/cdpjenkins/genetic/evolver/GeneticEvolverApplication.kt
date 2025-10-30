@@ -46,7 +46,7 @@ class GeneticEvolverApplication(
 
             val masterImage = readMasterImage(name, masterImageFileName, blockingDudeStoreClient)
 
-            logger.info { "${"Creating evolver for name {}"} $name" }
+            logger.info { "Creating evolver for $name" }
             val maybeInitialIndividual = dudeStoreClient.getLatestDude(name)
             if (maybeInitialIndividual != null) {
                 logger.info {
