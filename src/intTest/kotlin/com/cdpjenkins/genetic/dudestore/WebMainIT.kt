@@ -7,6 +7,7 @@ import com.cdpjenkins.genetic.model.shape.BoundsRectangle
 import com.cdpjenkins.genetic.model.shape.Circle
 import com.cdpjenkins.genetic.model.shape.Colour
 import com.cdpjenkins.genetic.model.shape.Point
+import io.kotest.matchers.comparables.shouldBeBetween
 import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
@@ -111,6 +112,7 @@ class WebMainIT {
 
     @Test
     fun `summary endpoint returns a summary of the latest individual`() {
+        val beforePost = System.currentTimeMillis()
         postDudeAndAssertSuccess(
             "steveCopy", individualWithFields(
                 generation = 123,
@@ -118,6 +120,7 @@ class WebMainIT {
                 timeInMillis = 1234
             )
         )
+        val afterPost = System.currentTimeMillis()
 
         val getResponse = client(
             Request(
@@ -126,13 +129,12 @@ class WebMainIT {
             )
         )
         getResponse.status shouldBe Status.OK
-        individualSummaryLens(getResponse) shouldBe
-                IndividualSummary(
-                    generation = 123,
-                    fitness = 123456789,
-                    timeInMillis = 1234,
-                    genomeSize = 1
-                )
+        val summary = individualSummaryLens(getResponse)
+        summary.generation shouldBe 123
+        summary.fitness shouldBe 123456789
+        summary.timeInMillis shouldBe 1234
+        summary.genomeSize shouldBe 1
+        summary.timestamp.shouldBeBetween(beforePost, afterPost)
     }
 
     @Test

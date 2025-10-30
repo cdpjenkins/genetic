@@ -6,7 +6,8 @@ data class IndividualSummary(
     val generation: Int,
     val fitness: Int,
     val timeInMillis: Long,
-    val genomeSize: Int
+    val genomeSize: Int,
+    val timestamp: Long
 ) {
     companion object {
         fun of(individual: Individual): IndividualSummary {
@@ -14,7 +15,8 @@ data class IndividualSummary(
                 individual.generation,
                 individual.fitness,
                 individual.timeInMillis,
-                individual.genome.size
+                individual.genome.size,
+                individual.createdTimestamp
             )
         }
     }
