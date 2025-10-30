@@ -10,8 +10,7 @@ import com.cdpjenkins.genetic.model.EvolverListener
 import com.cdpjenkins.genetic.model.Individual
 import com.cdpjenkins.genetic.model.makeEvolver
 import com.cdpjenkins.genetic.persistence.FilePersister
-import com.cdpjenkins.genetic.persistence.S3Client
-import com.cdpjenkins.genetic.playpen.evolverSettings
+import com.cdpjenkins.genetic.persistence.S3Listener
 import com.cdpjenkins.genetic.ui.GUI
 import com.cdpjenkins.genetic.ui.GUIEvolverListener
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -45,7 +44,6 @@ class GeneticEvolverApplication(
             val dudeStoreClient = NonBlockingDudeStoreClient(
                 blockingDudeStoreClient
             )
-            val s3Client = S3Client(name)
 
             val settings = readSettingsOrDefault(name, blockingDudeStoreClient)
             serialiseToFile(File("written-evolver-settings-${name}.json"), settings)
@@ -79,8 +77,8 @@ class GeneticEvolverApplication(
 
 //            evolver.addListener(FilePersistenceListener(name, FilePersister()))
             evolver.addListener(DudeStoreClientListener(name, dudeStoreClient))
-            if (evolverSettings.saveToS3 == true) {
-                evolver.addListener(s3Client)
+            if (settings.saveToS3 == true) {
+                evolver.addListener(S3Listener(name))
             }
 
             val geneticEvolverApplication = GeneticEvolverApplication(name, evolver)

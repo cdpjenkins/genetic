@@ -15,7 +15,18 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import javax.imageio.ImageIO
 
-class FilePersister() {
+interface Persister {
+    private fun svgFileName(individual: Individual, name: String) =
+        String.format("$name/svg/cow_%010d.svg", individual.generation)
+
+    private fun jsonFileName(individual: Individual, name: String) =
+        String.format("$name/json/cow_%010d.json", individual.generation)
+
+    private fun pngFileName(individual: Individual, name: String) =
+        String.format("$name/png/cow_%010d.png", individual.generation)
+}
+
+class FilePersister(): Persister {
 
     init {
         ensureDirExists("output")
@@ -44,7 +55,7 @@ class FilePersister() {
 // separate S3 stuff from stuff that knows about file names, formats etc
 // pull out bucket-na
 
-class S3Client(val name: String): EvolverListener {
+class S3Listener(val name: String): Persister, EvolverListener {
     fun saveToS3(individual: Individual) {
         if (individual.generation % 10 == 0) {
             val region: Region = Region.EU_WEST_1

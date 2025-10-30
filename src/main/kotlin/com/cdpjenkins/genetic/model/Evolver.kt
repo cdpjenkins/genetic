@@ -32,6 +32,8 @@ class Evolver(
     }
 
     @Synchronized fun addListener(listener: EvolverListener) {
+        logger.info { "Adding listener ${listener.describe()}" }
+
         this.listeners.add(listener)
     }
 
@@ -49,8 +51,9 @@ fun makeEvolver(
     return evolver
 }
 
-fun interface EvolverListener {
+interface EvolverListener {
     fun notify(individual: Individual)
+    fun describe(): String = this.javaClass.simpleName
 }
 
 fun ensureDirExists(dirName: String) {
