@@ -1,0 +1,68 @@
+package com.cdpjenkins.genetic.evolver
+
+import com.cdpjenkins.genetic.model.Individual
+import com.cdpjenkins.genetic.model.shape.BoundsRectangle
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.spyk
+import io.mockk.verify
+import org.junit.jupiter.api.Test
+import java.awt.image.BufferedImage
+
+class EvolverTest {
+
+    val mutator = mockk<MutatorImpl>()
+    val listener = mockk<EvolverListener>(relaxed = true)
+
+    val masterImage = BufferedImage(10, 10, BufferedImage.TYPE_INT_ARGB)
+
+    val currentIndividual = individualWithFitness(fitness = 1000)
+    val betterIndividual = individualWithFitness(fitness = 800)
+    val sameIndividual = individualWithFitness(fitness = 1000)
+    val worseIndividual = individualWithFitness(fitness = 1200)
+
+    val evolver = Evolver("test", currentIndividual, masterImage, mutator)
+
+    @Test
+    fun `accepts mutation when fitness improves and notifies listeners`() {
+        every { mutator.mutate(any()) } returns betterIndividual
+        evolver.addListener(listener)
+
+        evolver.mutateOnce()
+
+        verify(exactly = 1) { listener.notify(betterIndividual) }
+    }
+
+    @Test
+    fun `rejects mutation when fitness gets worse and does not notify listeners`() {
+        every { mutator.mutate(any()) } returns worseIndividual
+        evolver.addListener(listener)
+
+        evolver.mutateOnce()
+
+        verify(exactly = 0) { listener.notify(any()) }
+    }
+
+    @Test
+    fun `rejects mutation when fitness stays the same and does not notify listeners`() {
+        every { mutator.mutate(any()) } returns sameIndividual
+        evolver.addListener(listener)
+
+        evolver.mutateOnce()
+
+        verify(exactly = 0) { listener.notify(any()) }
+    }
+
+    private fun individualWithFitness(fitness: Int): Individual {
+        val individual = spyk(Individual(
+            emptyList(),
+            BoundsRectangle(0, 0, 10, 10),
+            1
+        ))
+        individual.fitness = fitness
+        every { individual.drawAndCalculateFitness(any()) } answers {
+            individual.fitness = fitness
+        }
+        return individual
+    }
+}
