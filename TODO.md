@@ -1,6 +1,13 @@
 # TODOs
 
 ## TODO
+- Mutation
+  - Rename Mutator to MutationStrategy
+  - Put the mutation code in there instead of having it belong to the individual
+  - Give the strategies names
+  - Make the strategy configurable
+    - Maybe with weights?
+
 - HTTP client - Do we add methods to the dudestore-client for recreate, summary, list, download image...?
 - HTTP client - maybe use Result type (either Kotlin's builtin Result or maybe kotlin-result...?)
 
