@@ -127,7 +127,7 @@ data class Individual(
                 genome + spawnRandomShape(bounds, evolverSettings)
             } else {
                 genome.map {
-                    val avgShapesToMutate = evolverSettings.avgShapesToMutate + (headRoom / 20)
+                    val avgShapesToMutate = evolverSettings.avgShapesToMutate
 
                     it.maybeMutate(minOf(
                         avgShapesToMutate / genome.size, 1.0), evolverSettings
