@@ -78,9 +78,10 @@ fun spawnRandomStrokedCubicCurveShape(
 
     val centre = spawnRandomPoint(bounds)
 
+    val SIZE = 8
     val vertices = (1..4).map {
         spawnRandomPoint(
-            BoundsRectangle(centre.x-10, centre.y-10, centre.x+10, centre.y+10)
+            BoundsRectangle(centre.x - SIZE / 2, centre.y - SIZE / 2, centre.x + SIZE / 2, centre.y + SIZE / 2)
         )
     }
 
