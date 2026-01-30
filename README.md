@@ -34,8 +34,8 @@ Evolution parameters can be configured via `evolver-settings.json`:
 
 ## Architecture
 
-The system supports both local evolution; a GUI will show you the latest state if a DISPLAY exists but not if run
-headless. Shapes can be automatically uploaded to the (appallingly named) dudestore web service.
+The system shows a GUI if a DISPLAY exists but not if run headless. Shapes can be automatically uploaded to the
+(appallingly named) dudestore web service.
 
 ---
 
