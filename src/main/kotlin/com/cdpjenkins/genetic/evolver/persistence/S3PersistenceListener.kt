@@ -11,7 +11,7 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest
 import java.io.ByteArrayOutputStream
 import javax.imageio.ImageIO
 
-class S3Persister(val name: String, val awsRegion: Region, val s3Bucket: String): Persister(), EvolverListener {
+class S3PersistenceListener(val name: String, val awsRegion: Region, val s3Bucket: String): Persister(), EvolverListener {
     fun saveToS3(individual: Individual) {
         if (individual.generation % 10 == 0) {
             val region: Region = awsRegion
@@ -54,6 +54,6 @@ class S3Persister(val name: String, val awsRegion: Region, val s3Bucket: String)
     }
 
     companion object {
-        fun create(name: String): S3Persister = S3Persister(name, Region.EU_WEST_1, "cdpjenkins-bovine-assets")
+        fun create(name: String): S3PersistenceListener = S3PersistenceListener(name, Region.EU_WEST_1, "cdpjenkins-bovine-assets")
     }
 }
