@@ -149,7 +149,7 @@ class WebMainIT {
     }
 
     @Test
-    fun `list dudes enpoint returns a list of dude summaries`() {
+    fun `list dudes endpoint returns a list of dude summaries`() {
         postDudeAndAssertSuccess("steve", individualSteve.copy(generation = 1))
         postDudeAndAssertSuccess("steve", individualSteve.copy(generation = 2))
 

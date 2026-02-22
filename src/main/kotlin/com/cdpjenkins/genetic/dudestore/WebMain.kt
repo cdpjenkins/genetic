@@ -47,7 +47,7 @@ class DudeStoreApplication(val dao: DudeDao, val port: Int, val secret: String) 
                 "recreate" bind Method.POST to SecretAuthFilter(secret).then(::recreateHandler),
 
                 // endpoints that we want to use
-                "/dudes" bind Method.GET to ::getDudesList,
+                "/dudes" bind Method.GET to ::getDudesListHandler,
                 "/dudes/{name}" bind Method.POST to SecretAuthFilter(secret).then(::postDudeHandler),
                 "/dudes/{name}/latest" bind Method.GET to ::getDudeLatest,
                 "/dudes/{name}/latest/summary" bind Method.GET to ::getDudeLatestSummary,
@@ -159,7 +159,7 @@ class DudeStoreApplication(val dao: DudeDao, val port: Int, val secret: String) 
     }
 
     @Suppress("UNUSED_PARAMETER")
-    private fun getDudesList(request: Request): Response {
+    private fun getDudesListHandler(request: Request): Response {
         val dudeSummaries = dao.listDudeSummaries()
 
         return Response(OK).with(dudeSummariesLens of dudeSummaries)
