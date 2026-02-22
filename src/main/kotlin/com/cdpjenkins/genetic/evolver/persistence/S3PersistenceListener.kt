@@ -12,7 +12,7 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest
 import java.io.ByteArrayOutputStream
 import javax.imageio.ImageIO
 
-class S3PersistenceListener(val persister: S3Persister): EvolverListener {
+class S3PersistenceListener(private val persister: S3Persister): EvolverListener {
     override fun notify(individual: Individual) {
         if (individual.generation % 10 == 0) {
             persister.saveToS3(individual)
@@ -20,7 +20,11 @@ class S3PersistenceListener(val persister: S3Persister): EvolverListener {
     }
 }
 
-class S3Persister(private val s3Client: S3Client, val name: String, val s3Bucket: String) : Persister(), Closeable {
+class S3Persister(
+    private val s3Client: S3Client,
+    private val name: String,
+    private val s3Bucket: String
+) : Persister(), Closeable {
     companion object {
         fun create(name: String): S3Persister {
             val s3Client: S3Client = S3Client.builder().region(Region.EU_WEST_1).build()
