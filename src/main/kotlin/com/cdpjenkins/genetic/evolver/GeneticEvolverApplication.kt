@@ -6,6 +6,7 @@ import com.cdpjenkins.genetic.json.deserialiseFromFile
 import com.cdpjenkins.genetic.json.serialiseToFile
 import com.cdpjenkins.genetic.model.Individual
 import com.cdpjenkins.genetic.evolver.persistence.FilePersister
+import com.cdpjenkins.genetic.evolver.persistence.S3PersistenceListener
 import com.cdpjenkins.genetic.evolver.persistence.S3Persister
 import com.cdpjenkins.genetic.ui.GUI
 import com.cdpjenkins.genetic.ui.GUIEvolverListener
@@ -77,7 +78,7 @@ class GeneticEvolverApplication(
             }
             evolver.addListener(DudeStoreClientListener(name, dudeStoreClient))
             if (settings.saveToS3 == true) {
-                evolver.addListener(S3Persister.create(name))
+                evolver.addListener(S3PersistenceListener(S3Persister.create(name)))
             }
 
             val geneticEvolverApplication = GeneticEvolverApplication(name, evolver)
