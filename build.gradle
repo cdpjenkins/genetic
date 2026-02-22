@@ -84,14 +84,14 @@ build {
     dependsOn shadowJar
 }
 
-tasks.register('stage') { dependsOn['build'] }
+task stage(dependsOn: ['build'])
 
 configurations {
     intTestImplementation.extendsFrom implementation
     intTestRuntimeOnly.extendsFrom runtimeOnly
 }
 
-tasks.register('intTest', Test) {
+task intTest(type: Test) {
     testClassesDirs = sourceSets.intTest.output.classesDirs
     classpath = sourceSets.intTest.runtimeClasspath
 
