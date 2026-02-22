@@ -4,6 +4,7 @@ import com.cdpjenkins.genetic.json.serialise
 import com.cdpjenkins.genetic.evolver.EvolverListener
 import com.cdpjenkins.genetic.model.Individual
 import com.cdpjenkins.genetic.svg.SvgRenderer
+import okio.Closeable
 import software.amazon.awssdk.core.sync.RequestBody
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.s3.S3Client
@@ -19,7 +20,7 @@ class S3PersistenceListener(val persister: S3Persister): EvolverListener {
     }
 }
 
-class S3Persister(private val s3Client: S3Client, val name: String, val s3Bucket: String) : Persister() {
+class S3Persister(private val s3Client: S3Client, val name: String, val s3Bucket: String) : Persister(), Closeable {
     companion object {
         fun create(name: String): S3Persister {
             val s3Client: S3Client = S3Client.builder().region(Region.EU_WEST_1).build()
@@ -66,5 +67,9 @@ class S3Persister(private val s3Client: S3Client, val name: String, val s3Bucket
                 .build(),
             RequestBody.fromBytes(baos.toByteArray())
         )
+    }
+
+    override fun close() {
+        s3Client.close()
     }
 }
