@@ -76,22 +76,21 @@ class DudeDao(val jdbi: Jdbi) {
         }
     }
 
-    fun latestDude(name: String): Individual? {
+    fun latestDude(name: String): Dude? {
         try {
-            return jdbi.withHandle<Individual, Exception> {
+            return jdbi.withHandle<Dude, Exception> {
                 it.createQuery(
                     """
-                        SELECT individual FROM dudes
+                        SELECT name, generation, individual FROM dudes
                         WHERE name=:name
                         ORDER BY generation DESC LIMIT 1
                     """.trimIndent()
                 )
                     .bind("name", name)
-                    .mapToBean(Dude::class.java)
+                    .mapToBean(DudeRow::class.java)
                     .findOne()
                     .orElse(null)
-                    ?.individual
-                    ?.deserialise()
+                    ?.let { Dude.from(it) }
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -99,22 +98,21 @@ class DudeDao(val jdbi: Jdbi) {
         }
     }
 
-    fun dudeByGeneration(name: String, generation: Int): Individual? {
+    fun dudeByGeneration(name: String, generation: Int): Dude? {
         try {
-            return jdbi.withHandle<Individual, Exception> {
+            return jdbi.withHandle<Dude, Exception> {
                 it.createQuery(
                     """
-                        SELECT individual FROM dudes
+                        SELECT name, generation, individual FROM dudes
                         WHERE name=:name AND generation=:generation
                     """.trimIndent()
                 )
                     .bind("name", name)
                     .bind("generation", generation)
-                    .mapToBean(Dude::class.java)
+                    .mapToBean(DudeRow::class.java)
                     .findOne()
                     .orElse(null)
-                    ?.individual
-                    ?.deserialise()
+                    ?.let { Dude.from(it) }
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -240,12 +238,25 @@ class DudeDao(val jdbi: Jdbi) {
     }
 }
 
-data class Dude(
-    var id: Int,
+data class DudeRow(
+    var name: String,
+    var generation: Int,
     var individual: String?
 ) {
     @Suppress("unused")
-    constructor() : this(0, null)
+    constructor() : this("", 0, null)
+}
+
+data class Dude(
+    val name: String,
+    val generation: Int,
+    val individual: Individual?
+) {
+    companion object {
+        fun from(dudeRow: DudeRow): Dude {
+            return Dude(dudeRow.name, dudeRow.generation, dudeRow.individual?.deserialise())
+        }
+    }
 }
 
 data class EvolverSettingsRow(

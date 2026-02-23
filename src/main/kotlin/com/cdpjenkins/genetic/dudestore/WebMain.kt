@@ -90,20 +90,21 @@ class DudeStoreApplication(val dao: DudeDao, val port: Int, val secret: String, 
 
     private fun getDudeLatest(request: Request): Response {
         val currentDude = dao.latestDude(nameLens(request))
+        val individual = currentDude?.individual
 
         return when (typeLens(request)) {
             "json" -> {
-                if (currentDude != null) {
-                    Response(OK).with(individualLens of currentDude)
+                if (individual != null) {
+                    Response(OK).with(individualLens of individual)
                 } else {
                     Response(NOT_FOUND)
                 }
             }
             "png" -> {
-                if (currentDude != null) {
-                    currentDude.drawToBuffer()
+                if (individual != null) {
+                    individual.drawToBuffer()
                     val outputStream = ByteArrayOutputStream()
-                    ImageIO.write(currentDude.bufferedImage, "png", outputStream)
+                    ImageIO.write(individual.bufferedImage, "png", outputStream)
                     Response(OK)
                         .header("Content-Type", "image/png")
                         .body(outputStream.toByteArray().inputStream())
@@ -113,7 +114,7 @@ class DudeStoreApplication(val dao: DudeDao, val port: Int, val secret: String, 
             }
             else -> {
                 Response(OK)
-                    .body(SvgRenderer().renderToString(currentDude))
+                    .body(SvgRenderer().renderToString(individual))
             }
         }
     }
@@ -122,8 +123,9 @@ class DudeStoreApplication(val dao: DudeDao, val port: Int, val secret: String, 
         val currentDude = dao.latestDude(nameLens(request))
 
         return if (currentDude != null) {
+            val individual = currentDude.individual!!
             Response(OK)
-                .with(individualSummaryLens of IndividualSummary.of(currentDude))
+                .with(individualSummaryLens of IndividualSummary.of(individual))
         } else {
             Response(NOT_FOUND)
         }
@@ -133,20 +135,21 @@ class DudeStoreApplication(val dao: DudeDao, val port: Int, val secret: String, 
         val name = nameLens(request)
         val generation = generationLens(request)
         val currentDude = dao.dudeByGeneration(name, generation)
+        val individual = currentDude?.individual
 
         return when (typeLens(request)) {
             "json" -> {
-                if (currentDude != null) {
-                    Response(OK).with(individualLens of currentDude)
+                if (individual != null) {
+                    Response(OK).with(individualLens of individual)
                 } else {
                     Response(NOT_FOUND)
                 }
             }
             "png" -> {
-                if (currentDude != null) {
-                    currentDude.drawToBuffer()
+                if (individual != null) {
+                    individual.drawToBuffer()
                     val outputStream = ByteArrayOutputStream()
-                    ImageIO.write(currentDude.bufferedImage, "png", outputStream)
+                    ImageIO.write(individual.bufferedImage, "png", outputStream)
                     Response(OK)
                         .header("Content-Type", "image/png")
                         .body(outputStream.toByteArray().inputStream())
@@ -156,7 +159,7 @@ class DudeStoreApplication(val dao: DudeDao, val port: Int, val secret: String, 
             }
             else -> {
                 Response(OK)
-                    .body(SvgRenderer().renderToString(currentDude))
+                    .body(SvgRenderer().renderToString(individual))
             }
         }
     }
