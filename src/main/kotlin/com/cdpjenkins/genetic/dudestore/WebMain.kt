@@ -6,8 +6,6 @@ import com.cdpjenkins.genetic.svg.SvgRenderer
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.http4k.config.Environment
 import org.http4k.config.EnvironmentKey
-import java.io.ByteArrayOutputStream
-import javax.imageio.ImageIO
 import org.http4k.core.*
 import org.http4k.core.Status.Companion.CONFLICT
 import org.http4k.core.Status.Companion.NOT_FOUND
@@ -23,6 +21,8 @@ import org.http4k.server.asServer
 import org.jdbi.v3.core.Jdbi
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.s3.S3Client
+import java.io.ByteArrayOutputStream
+import javax.imageio.ImageIO
 
 class DudeStoreApplication(val dao: DudeDao, val port: Int, val secret: String, val s3Persister: DudeStoreS3Persister? = null) {
     private val logger = KotlinLogging.logger {}
@@ -248,7 +248,7 @@ fun main() {
 
     val dao = DudeDao(Jdbi.create(jdbcDatabaseUrlLens(environment)))
 
-    val s3Client = S3Client.builder().region(Region.EU_WEST_1).build()
+    val s3Client = S3Client.builder().region(Region.EU_WEST_2).build()
     val s3Persister = DudeStoreS3Persister(s3Client, "com-cdpjenkins-genetic-assets")
 
     DudeStoreApplication(dao, port, secret, s3Persister)
