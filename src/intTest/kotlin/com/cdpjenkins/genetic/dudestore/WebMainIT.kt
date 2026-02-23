@@ -2,6 +2,7 @@ package com.cdpjenkins.genetic.dudestore
 
 import com.cdpjenkins.genetic.dudestore.client.BlockingDudeStoreClient
 import com.cdpjenkins.genetic.evolver.EvolverSettings
+import com.cdpjenkins.genetic.json.deserialise
 import com.cdpjenkins.genetic.model.Individual
 import com.cdpjenkins.genetic.model.shape.BoundsRectangle
 import com.cdpjenkins.genetic.model.shape.Circle
@@ -22,11 +23,20 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.testcontainers.containers.PostgreSQLContainer
+import org.testcontainers.containers.localstack.LocalStackContainer
+import org.testcontainers.utility.DockerImageName
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider
+import software.amazon.awssdk.regions.Region
+import software.amazon.awssdk.services.s3.S3Client
+import software.amazon.awssdk.services.s3.model.CreateBucketRequest
+import software.amazon.awssdk.services.s3.model.GetObjectRequest
 import java.io.ByteArrayInputStream
 import javax.imageio.ImageIO
 
 private const val DB_USER = "test_docker_postgres_user"
 private const val DB_PASSWORD = "test_docker_postgres_password"
+private const val BUCKET_NAME = "com-cdpjenkins-genetic-assets"
 
 class WebMainIT {
     companion object {
@@ -38,12 +48,17 @@ class WebMainIT {
             .withUsername(DB_USER)
             .withPassword(DB_PASSWORD)
 
+        val localStackContainer: LocalStackContainer = LocalStackContainer(DockerImageName.parse("localstack/localstack"))
+            .withServices(LocalStackContainer.Service.S3)
+
         lateinit var server: Http4kServer
+        lateinit var s3Client: S3Client
 
         @JvmStatic
         @BeforeAll
         fun setup() {
             postgreSQLContainer.start()
+            localStackContainer.start()
 
             val dao = DudeDao(
                 Jdbi.create(
@@ -53,7 +68,17 @@ class WebMainIT {
                 )
             )
 
-            server = DudeStoreApplication(dao, 9000, "theCorrectSecret")
+            s3Client = S3Client.builder()
+                .endpointOverride(localStackContainer.getEndpointOverride(LocalStackContainer.Service.S3))
+                .credentialsProvider(StaticCredentialsProvider.create(AwsBasicCredentials.create("test", "test")))
+                .region(Region.of(localStackContainer.region))
+                .build()
+
+            s3Client.createBucket(CreateBucketRequest.builder().bucket(BUCKET_NAME).build())
+
+            val s3Persister = DudeStoreS3Persister(s3Client, BUCKET_NAME)
+
+            server = DudeStoreApplication(dao, 9000, "theCorrectSecret", s3Persister)
                 .startServer()
         }
 
@@ -61,8 +86,8 @@ class WebMainIT {
         @AfterAll
         fun tearDown() {
             server.stop()
-
             postgreSQLContainer.stop()
+            localStackContainer.stop()
         }
     }
 
@@ -237,6 +262,26 @@ class WebMainIT {
         getResponse.status shouldBe Status.OK
         val retrievedIndividual = individualLens(getResponse)
         retrievedIndividual.generation shouldBe 1
+    }
+
+    @Test
+    fun `posts dude JSON to S3 when a dude is posted`() {
+        postDudeAndAssertSuccess("steve", individualSteve)
+
+        s3ShouldContain(individualSteve)
+    }
+
+    private fun s3ShouldContain(individual: Individual) {
+        val key = "steve/json/dude_${String.format("%010d", individual.generation)}.json"
+        val responseBytes = s3Client.getObject(
+            GetObjectRequest.builder()
+                .bucket(BUCKET_NAME)
+                .key(key)
+                .build()
+        ).readAllBytes()
+
+        val retrieved = responseBytes.toString(Charsets.UTF_8).deserialise<Individual>()
+        retrieved shouldBe individual
     }
 
     private infix fun Response.containsValidPngWithSameDimensionsAs(individualSteve: Individual) {

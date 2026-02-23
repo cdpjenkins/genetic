@@ -21,8 +21,10 @@ import org.http4k.server.Http4kServer
 import org.http4k.server.Netty
 import org.http4k.server.asServer
 import org.jdbi.v3.core.Jdbi
+import software.amazon.awssdk.regions.Region
+import software.amazon.awssdk.services.s3.S3Client
 
-class DudeStoreApplication(val dao: DudeDao, val port: Int, val secret: String) {
+class DudeStoreApplication(val dao: DudeDao, val port: Int, val secret: String, val s3Persister: DudeStoreS3Persister? = null) {
     private val logger = KotlinLogging.logger {}
 
     val typeLens = Query.optional("type")
@@ -82,6 +84,7 @@ class DudeStoreApplication(val dao: DudeDao, val port: Int, val secret: String) 
         val newDude: Individual = individualLens(request)
         dao.createTables()
         dao.insertDude(newDude, name, newDude.generation)
+        s3Persister?.saveToS3(newDude, name)
         return Response(OK)
     }
 
@@ -245,7 +248,10 @@ fun main() {
 
     val dao = DudeDao(Jdbi.create(jdbcDatabaseUrlLens(environment)))
 
-    DudeStoreApplication(dao, port, secret)
+    val s3Client = S3Client.builder().region(Region.EU_WEST_1).build()
+    val s3Persister = DudeStoreS3Persister(s3Client, "com-cdpjenkins-genetic-assets")
+
+    DudeStoreApplication(dao, port, secret, s3Persister)
         .startServer()
         .also { it.block() }
 }
