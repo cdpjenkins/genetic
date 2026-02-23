@@ -66,7 +66,7 @@ dependencies {
     intTestImplementation "org.testcontainers:testcontainers:1.21.4"
     intTestImplementation "org.testcontainers:junit-jupiter:1.15.3"
     intTestImplementation "org.testcontainers:postgresql:1.15.3"
-    testImplementation 'org.testcontainers:localstack:1.21.4'
+    intTestImplementation 'org.testcontainers:localstack:1.21.4'
 
     intTestRuntimeOnly 'org.postgresql:postgresql:42.7.7'
 }
