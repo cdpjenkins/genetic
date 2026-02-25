@@ -38,10 +38,14 @@ class DudeStoreS3Persister(
         "$name/json/dude_${String.format(Locale.ROOT, "%010d", generation)}"
 
     private fun readCompressedFromS3(key: String): Individual? =
-        getS3Object(key)?.let { fromStream(BZip2CompressorInputStream(it)) }
+        getS3Object(key)?.use { s3Stream ->
+            BZip2CompressorInputStream(s3Stream).use { compressedStream ->
+                fromStream(compressedStream)
+            }
+        }
 
     private fun readUncompressedFromS3(key: String): Individual? =
-        getS3Object(key)?.let { fromStream(it) }
+        getS3Object(key)?.use { fromStream(it) }
 
     private fun getS3Object(key: String): InputStream? =
         try {
