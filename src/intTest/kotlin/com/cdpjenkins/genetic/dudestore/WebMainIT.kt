@@ -126,6 +126,14 @@ class WebMainIT {
     }
 
     @Test
+    fun `POST dude should fail with HTTP 409 if same name and generation already exists`() {
+        val individual = individualSteve.copy(generation = 1)
+        postDudeAndAssertSuccess("steve", individual)
+        val status = dudeStoreClient.postDude(individual, "steve")
+        status shouldBe Status.CONFLICT
+    }
+
+    @Test
     fun `POST dude blows up without correct secret credentials`() {
         val status = postDudeUsingSecret("theWrongSecret")
         status shouldBe Status.UNAUTHORIZED

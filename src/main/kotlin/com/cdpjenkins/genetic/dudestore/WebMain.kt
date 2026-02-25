@@ -268,7 +268,7 @@ object ExceptionHandlingFilter: Filter {
     override fun invoke(next: HttpHandler): HttpHandler = { request: Request ->
         try {
             next(request)
-        } catch (_: SettingsAlreadyExistsException) {
+        } catch (_: AlreadyExistsException) {
             Response(CONFLICT)
         }
     }

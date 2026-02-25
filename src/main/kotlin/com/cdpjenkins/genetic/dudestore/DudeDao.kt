@@ -60,16 +60,23 @@ class DudeDao(val jdbi: Jdbi) {
     }
 
     fun insertDude(dude: Individual, name: String, generation: Int) {
-        jdbi.withHandle<Int, Exception> {
-            it.createUpdate(
-                """
-                    INSERT INTO Dudes (name, generation)
-                    VALUES(:name, :generation)
-                """.trimIndent()
-            )
-                .bind("name", name)
-                .bind("generation", generation)
-                .execute()
+        try {
+            jdbi.withHandle<Int, Exception> {
+                it.createUpdate(
+                    """
+                        INSERT INTO Dudes (name, generation)
+                        VALUES(:name, :generation)
+                    """.trimIndent()
+                )
+                    .bind("name", name)
+                    .bind("generation", generation)
+                    .execute()
+            }
+        } catch (e: UnableToExecuteStatementException) {
+            if (e.cause.isPostgresUniqueConstraintViolation()) {
+                throw AlreadyExistsException("Dude with name '$name' and generation $generation already exists", e)
+            }
+            throw e
         }
     }
 
@@ -153,7 +160,7 @@ class DudeDao(val jdbi: Jdbi) {
             }
         } catch (e: UnableToExecuteStatementException) {
             if (e.cause.isPostgresUniqueConstraintViolation()) {
-                throw SettingsAlreadyExistsException("Settings with name '$name' already exists", e)
+                throw AlreadyExistsException("Settings with name '$name' already exists", e)
             }
             throw e
         }
@@ -212,7 +219,7 @@ class DudeDao(val jdbi: Jdbi) {
             }
         } catch (e: UnableToExecuteStatementException) {
             if (e.cause.isPostgresUniqueConstraintViolation()) {
-                throw SettingsAlreadyExistsException("MasterImage with name '$name' already exists", e)
+                throw AlreadyExistsException("MasterImage with name '$name' already exists", e)
             }
             throw e
         }
@@ -272,6 +279,6 @@ class FileDataRow(
     constructor() : this("", null)
 }
 
-class SettingsAlreadyExistsException(message: String, cause: Exception) : Exception(message, cause)
+class AlreadyExistsException(message: String, cause: Exception) : Exception(message, cause)
 
 private const val POSTGRES_UNIQUE_VIOLATION = "23505"
