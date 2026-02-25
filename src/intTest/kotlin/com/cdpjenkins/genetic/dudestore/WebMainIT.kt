@@ -33,6 +33,7 @@ import software.amazon.awssdk.services.s3.model.CreateBucketRequest
 import software.amazon.awssdk.services.s3.model.GetObjectRequest
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream
 import java.io.ByteArrayInputStream
+import java.util.Locale
 import javax.imageio.ImageIO
 
 private const val DB_USER = "test_docker_postgres_user"
@@ -286,7 +287,7 @@ class WebMainIT {
     }
 
     private fun s3ShouldContainCompressed(individual: Individual) {
-        val key = "steve/json/dude_${String.format("%010d", individual.generation)}.json.bz2"
+        val key = "steve/json/dude_${String.format(Locale.ROOT, "%010d", individual.generation)}.json.bz2"
         val responseBytes = s3Client.getObject(
             GetObjectRequest.builder().bucket(BUCKET_NAME).key(key).build()
         ).use { it.readAllBytes() }
