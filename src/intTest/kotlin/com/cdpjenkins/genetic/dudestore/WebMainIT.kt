@@ -289,7 +289,7 @@ class WebMainIT {
         val key = "steve/json/dude_${String.format("%010d", individual.generation)}.json.bz2"
         val responseBytes = s3Client.getObject(
             GetObjectRequest.builder().bucket(BUCKET_NAME).key(key).build()
-        ).readAllBytes()
+        ).use { it.readAllBytes() }
         val retrieved = BZip2CompressorInputStream(responseBytes.inputStream()).use { fromStream(it) }
         retrieved shouldBe individual
     }

@@ -12,13 +12,14 @@ import software.amazon.awssdk.services.s3.model.NoSuchKeyException
 import software.amazon.awssdk.services.s3.model.PutObjectRequest
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
+import java.util.Locale
 
 class DudeStoreS3Persister(
     private val s3Client: S3Client,
     private val bucketName: String
 ) {
     fun saveToS3(individual: Individual, name: String) {
-        val key = "$name/json/dude_${String.format("%010d", individual.generation)}.json.bz2"
+        val key = "${s3KeyBase(name, individual.generation)}.json.bz2"
         val compressed = ByteArrayOutputStream().also { baos ->
             BZip2CompressorOutputStream(baos).use { it.write(serialise(individual).toByteArray()) }
         }.toByteArray()
@@ -29,9 +30,12 @@ class DudeStoreS3Persister(
     }
 
     fun readFromS3(name: String, generation: Int): Individual? {
-        val base = "$name/json/dude_${String.format("%010d", generation)}"
+        val base = s3KeyBase(name, generation)
         return readCompressedFromS3("$base.json.bz2") ?: readUncompressedFromS3("$base.json")
     }
+
+    private fun s3KeyBase(name: String, generation: Int) =
+        "$name/json/dude_${String.format(Locale.ROOT, "%010d", generation)}"
 
     private fun readCompressedFromS3(key: String): Individual? =
         getS3Object(key)?.let { fromStream(BZip2CompressorInputStream(it)) }
