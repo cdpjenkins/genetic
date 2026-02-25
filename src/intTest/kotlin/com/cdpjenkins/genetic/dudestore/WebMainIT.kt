@@ -53,6 +53,7 @@ class WebMainIT {
 
         lateinit var server: Http4kServer
         lateinit var s3Client: S3Client
+        lateinit var s3Persister: DudeStoreS3Persister
 
         @JvmStatic
         @BeforeAll
@@ -76,7 +77,7 @@ class WebMainIT {
 
             s3Client.createBucket(CreateBucketRequest.builder().bucket(BUCKET_NAME).build())
 
-            val s3Persister = DudeStoreS3Persister(s3Client, BUCKET_NAME)
+            s3Persister = DudeStoreS3Persister(s3Client, BUCKET_NAME)
 
             server = DudeStoreApplication(dao, 9000, "theCorrectSecret", s3Persister)
                 .startServer()
@@ -269,6 +270,18 @@ class WebMainIT {
         postDudeAndAssertSuccess("steve", individualSteve)
 
         s3ShouldContain(individualSteve)
+    }
+
+    @Test
+    fun `readFromS3 returns the individual that was posted`() {
+        postDudeAndAssertSuccess("steve", individualSteve)
+
+        s3Persister.readFromS3("steve", individualSteve.generation) shouldBe individualSteve
+    }
+
+    @Test
+    fun `readFromS3 returns null for a name and generation that was never posted`() {
+        s3Persister.readFromS3("nonexistent", 999) shouldBe null
     }
 
     private fun s3ShouldContain(individual: Individual) {

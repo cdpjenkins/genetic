@@ -88,9 +88,14 @@ class DudeStoreApplication(val dao: DudeDao, val port: Int, val secret: String, 
         return Response(OK)
     }
 
+    private fun resolveIndividual(dude: Dude?): Individual? {
+        if (dude == null) return null
+        return dude.individual ?: s3Persister?.readFromS3(dude.name, dude.generation)
+    }
+
     private fun getDudeLatest(request: Request): Response {
         val currentDude = dao.latestDude(nameLens(request))
-        val individual = currentDude?.individual
+        val individual = resolveIndividual(currentDude)
 
         return when (typeLens(request)) {
             "json" -> {
@@ -123,7 +128,7 @@ class DudeStoreApplication(val dao: DudeDao, val port: Int, val secret: String, 
         val currentDude = dao.latestDude(nameLens(request))
 
         return if (currentDude != null) {
-            val individual = currentDude.individual!!
+            val individual = resolveIndividual(currentDude)!!
             Response(OK)
                 .with(individualSummaryLens of IndividualSummary.of(individual))
         } else {
@@ -135,7 +140,7 @@ class DudeStoreApplication(val dao: DudeDao, val port: Int, val secret: String, 
         val name = nameLens(request)
         val generation = generationLens(request)
         val currentDude = dao.dudeByGeneration(name, generation)
-        val individual = currentDude?.individual
+        val individual = resolveIndividual(currentDude)
 
         return when (typeLens(request)) {
             "json" -> {

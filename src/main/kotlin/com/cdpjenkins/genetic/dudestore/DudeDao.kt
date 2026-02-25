@@ -4,14 +4,11 @@ import com.cdpjenkins.genetic.evolver.EvolverSettings
 import com.cdpjenkins.genetic.json.deserialise
 import com.cdpjenkins.genetic.json.serialise
 import com.cdpjenkins.genetic.model.Individual
-import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jdbi.v3.core.Jdbi
 import org.jdbi.v3.core.statement.UnableToExecuteStatementException
 import java.sql.SQLException
 
 class DudeDao(val jdbi: Jdbi) {
-    val logger = KotlinLogging.logger {}
-
     fun createTables() {
         jdbi.withHandle<Int, Exception> {
             it.execute(
@@ -19,7 +16,11 @@ class DudeDao(val jdbi: Jdbi) {
                 CREATE TABLE IF NOT EXISTS Dudes(
                     name VARCHAR(50) NOT NULL,
                     generation INT NOT NULL,
-                    individual JSONB NOT NULL,
+                    individual JSONB,
+                    fitness INTEGER,
+                    timeInMillis INTEGER,
+                    genomeSize INTEGER,
+                    createdTimestamp BIGINT,
                     PRIMARY KEY (name, generation)
                 );
                 """.trimIndent())
@@ -59,19 +60,15 @@ class DudeDao(val jdbi: Jdbi) {
     }
 
     fun insertDude(dude: Individual, name: String, generation: Int) {
-        val serialisedIndividual = serialise(dude)
-        logger.debug { "Serialised individual: $serialisedIndividual" }
-
         jdbi.withHandle<Int, Exception> {
             it.createUpdate(
                 """
-                    INSERT INTO Dudes (name, generation, individual)
-                    VALUES(:name, :generation, cast (:individual as JSONB))
+                    INSERT INTO Dudes (name, generation)
+                    VALUES(:name, :generation)
                 """.trimIndent()
             )
                 .bind("name", name)
                 .bind("generation", generation)
-                .bind("individual", serialisedIndividual)
                 .execute()
         }
     }
