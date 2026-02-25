@@ -2,7 +2,7 @@ package com.cdpjenkins.genetic.dudestore
 
 import com.cdpjenkins.genetic.dudestore.client.BlockingDudeStoreClient
 import com.cdpjenkins.genetic.evolver.EvolverSettings
-import com.cdpjenkins.genetic.json.deserialise
+import com.cdpjenkins.genetic.json.fromStream
 import com.cdpjenkins.genetic.model.Individual
 import com.cdpjenkins.genetic.model.shape.BoundsRectangle
 import com.cdpjenkins.genetic.model.shape.Circle
@@ -31,6 +31,7 @@ import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.s3.S3Client
 import software.amazon.awssdk.services.s3.model.CreateBucketRequest
 import software.amazon.awssdk.services.s3.model.GetObjectRequest
+import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream
 import java.io.ByteArrayInputStream
 import javax.imageio.ImageIO
 
@@ -269,7 +270,7 @@ class WebMainIT {
     fun `posts dude JSON to S3 when a dude is posted`() {
         postDudeAndAssertSuccess("steve", individualSteve)
 
-        s3ShouldContain(individualSteve)
+        s3ShouldContainCompressed(individualSteve)
     }
 
     @Test
@@ -284,16 +285,12 @@ class WebMainIT {
         s3Persister.readFromS3("nonexistent", 999) shouldBe null
     }
 
-    private fun s3ShouldContain(individual: Individual) {
-        val key = "steve/json/dude_${String.format("%010d", individual.generation)}.json"
+    private fun s3ShouldContainCompressed(individual: Individual) {
+        val key = "steve/json/dude_${String.format("%010d", individual.generation)}.json.bz2"
         val responseBytes = s3Client.getObject(
-            GetObjectRequest.builder()
-                .bucket(BUCKET_NAME)
-                .key(key)
-                .build()
+            GetObjectRequest.builder().bucket(BUCKET_NAME).key(key).build()
         ).readAllBytes()
-
-        val retrieved = responseBytes.toString(Charsets.UTF_8).deserialise<Individual>()
+        val retrieved = BZip2CompressorInputStream(responseBytes.inputStream()).use { fromStream(it) }
         retrieved shouldBe individual
     }
 
