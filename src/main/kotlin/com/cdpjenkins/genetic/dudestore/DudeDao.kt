@@ -73,10 +73,7 @@ class DudeDao(val jdbi: Jdbi) {
                     .execute()
             }
         } catch (e: UnableToExecuteStatementException) {
-            if (e.cause.isPostgresUniqueConstraintViolation()) {
-                throw AlreadyExistsException("Dude with name '$name' and generation $generation already exists", e)
-            }
-            throw e
+            mapUniqueViolation("Dude with name '$name' and generation $generation already exists", e)
         }
     }
 
@@ -159,10 +156,7 @@ class DudeDao(val jdbi: Jdbi) {
                     .execute()
             }
         } catch (e: UnableToExecuteStatementException) {
-            if (e.cause.isPostgresUniqueConstraintViolation()) {
-                throw AlreadyExistsException("Settings with name '$name' already exists", e)
-            }
-            throw e
+            mapUniqueViolation("Settings with name '$name' already exists", e)
         }
     }
 
@@ -181,6 +175,11 @@ class DudeDao(val jdbi: Jdbi) {
                 .bind("settings", serialise(evolverSettings))
                 .execute()
         }
+    }
+
+    private fun mapUniqueViolation(message: String, e: UnableToExecuteStatementException): Nothing {
+        if (e.cause.isPostgresUniqueConstraintViolation()) throw AlreadyExistsException(message, e)
+        throw e
     }
 
     private fun Throwable?.isPostgresUniqueConstraintViolation() =
@@ -218,10 +217,7 @@ class DudeDao(val jdbi: Jdbi) {
                     .execute()
             }
         } catch (e: UnableToExecuteStatementException) {
-            if (e.cause.isPostgresUniqueConstraintViolation()) {
-                throw AlreadyExistsException("MasterImage with name '$name' already exists", e)
-            }
-            throw e
+            mapUniqueViolation("MasterImage with name '$name' already exists", e)
         }
     }
 
