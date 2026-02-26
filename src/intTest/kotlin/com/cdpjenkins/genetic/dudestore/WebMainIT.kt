@@ -13,6 +13,7 @@ import io.kotest.matchers.comparables.shouldBeBetween
 import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import org.http4k.client.OkHttp
 import org.http4k.core.*
 import org.http4k.format.Jackson.auto
@@ -332,6 +333,37 @@ class WebMainIT {
     @Test
     fun `readFromS3 returns null for a name and generation that was never posted`() {
         s3Persister.readFromS3("nonexistent", 999) shouldBe null
+    }
+
+    @Test
+    fun `retrieved Individual has same uuid as the one that was posted`() {
+        postDudeAndAssertSuccess("steve", individualSteve)
+
+        val retrieved = getDudeAndAssertSuccessAndDeserialise("steve")
+
+        retrieved.uuid shouldBe individualSteve.uuid
+    }
+
+    @Test
+    fun `mutating an Individual results in a different uuid`() {
+        val mutated = individualSteve.mutate(EVOLVER_SETTINGS)
+
+        mutated.uuid shouldNotBe individualSteve.uuid
+    }
+
+    @Test
+    fun `uuid DB column is populated after POST`() {
+        postDudeAndAssertSuccess("steve", individualSteve)
+
+        val dudeRow = dao.jdbi.withHandle<DudeRow, Exception> {
+            it.createQuery("SELECT uuid FROM Dudes WHERE name=:name")
+                .bind("name", "steve")
+                .mapToBean(DudeRow::class.java)
+                .findOne()
+                .orElse(null)
+        }
+
+        dudeRow?.uuid shouldBe individualSteve.uuid.toString()
     }
 
     private fun s3ShouldContainCompressed(individual: Individual) {

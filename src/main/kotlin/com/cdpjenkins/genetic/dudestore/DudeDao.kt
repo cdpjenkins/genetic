@@ -21,6 +21,7 @@ class DudeDao(val jdbi: Jdbi) {
                     timeInMillis INTEGER,
                     genomeSize INTEGER,
                     createdTimestamp BIGINT,
+                    uuid VARCHAR(36),
                     PRIMARY KEY (name, generation)
                 );
                 """.trimIndent())
@@ -64,8 +65,8 @@ class DudeDao(val jdbi: Jdbi) {
             jdbi.withHandle<Int, Exception> {
                 it.createUpdate(
                     """
-                        INSERT INTO Dudes (name, generation, fitness, timeInMillis, genomeSize, createdTimestamp)
-                        VALUES(:name, :generation, :fitness, :timeInMillis, :genomeSize, :createdTimestamp)
+                        INSERT INTO Dudes (name, generation, fitness, timeInMillis, genomeSize, createdTimestamp, uuid)
+                        VALUES(:name, :generation, :fitness, :timeInMillis, :genomeSize, :createdTimestamp, :uuid)
                     """.trimIndent()
                 )
                     .bind("name", name)
@@ -74,6 +75,7 @@ class DudeDao(val jdbi: Jdbi) {
                     .bind("timeInMillis", dude.timeInMillis)
                     .bind("genomeSize", dude.genome.size)
                     .bind("createdTimestamp", dude.createdTimestamp)
+                    .bind("uuid", dude.uuid.toString())
                     .execute()
             }
         } catch (e: UnableToExecuteStatementException) {
@@ -248,7 +250,8 @@ data class DudeRow(
     var fitness: Int? = null,
     var timeInMillis: Long? = null,
     var genomeSize: Int? = null,
-    var createdTimestamp: Long? = null
+    var createdTimestamp: Long? = null,
+    var uuid: String? = null
 ) {
     @Suppress("unused")
     constructor() : this("", 0, null)

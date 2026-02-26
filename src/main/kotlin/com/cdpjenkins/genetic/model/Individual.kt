@@ -14,12 +14,14 @@ import java.lang.Integer.min
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.util.UUID
 import kotlin.system.measureTimeMillis
 
 data class Individual(
     val genome: List<Shape>,
     val bounds: BoundsRectangle,
-    val generation: Int = 1
+    val generation: Int = 1,
+    val uuid: UUID = RandomUUIDGenerationStrategy().generate()
 ) {
     var timeInMillis: Long = 0
     val createdTimestamp = System.currentTimeMillis()
@@ -117,7 +119,10 @@ data class Individual(
         return total
     }
 
-    fun mutate(evolverSettings: EvolverSettings): Individual {
+    fun mutate(
+        evolverSettings: EvolverSettings,
+        uuidStrategy: UUIDGenerationStrategy = RandomUUIDGenerationStrategy()
+    ): Individual {
 
         val headRoom = (evolverSettings.maxGenomeSize - genome.size).toDouble()
         val addShapeProbability = (headRoom / evolverSettings.maxGenomeSize) *
@@ -135,13 +140,12 @@ data class Individual(
                 }
             }
 
-        val newIndividual = Individual(
+        return Individual(
             newGenome,
             bounds,
-            generation + 1
+            generation + 1,
+            uuidStrategy.generate()
         )
-
-        return newIndividual
     }
 
     fun describe(name: String): String {
