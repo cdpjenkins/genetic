@@ -3,6 +3,7 @@ package com.cdpjenkins.genetic.dudestore
 import com.cdpjenkins.genetic.dudestore.client.BlockingDudeStoreClient
 import com.cdpjenkins.genetic.evolver.EvolverSettings
 import com.cdpjenkins.genetic.json.fromStream
+import com.cdpjenkins.genetic.json.serialise
 import com.cdpjenkins.genetic.model.Individual
 import com.cdpjenkins.genetic.model.shape.BoundsRectangle
 import com.cdpjenkins.genetic.model.shape.Circle
@@ -54,6 +55,7 @@ class WebMainIT {
             .withServices(LocalStackContainer.Service.S3)
 
         lateinit var server: Http4kServer
+        lateinit var dao: DudeDao
         lateinit var s3Client: S3Client
         lateinit var s3Persister: DudeStoreS3Persister
 
@@ -63,7 +65,7 @@ class WebMainIT {
             postgreSQLContainer.start()
             localStackContainer.start()
 
-            val dao = DudeDao(
+            dao = DudeDao(
                 Jdbi.create(
                     postgreSQLContainer.jdbcUrl,
                     DB_USER,
@@ -147,6 +149,18 @@ class WebMainIT {
     }
 
     @Test
+    fun `DB columns are populated after POST`() {
+        val individual = individualWithFields(generation = 42, fitness = 99999, timeInMillis = 5678)
+        postDudeAndAssertSuccess("testDude", individual)
+
+        val dude = dao.latestDude("testDude")!!
+        dude.fitness shouldBe individual.fitness
+        dude.timeInMillis shouldBe individual.timeInMillis
+        dude.genomeSize shouldBe individual.genome.size
+        dude.createdTimestamp shouldBe individual.createdTimestamp
+    }
+
+    @Test
     fun `summary endpoint returns a summary of the latest individual`() {
         val beforePost = System.currentTimeMillis()
         postDudeAndAssertSuccess(
@@ -171,6 +185,32 @@ class WebMainIT {
         summary.timeInMillis shouldBe 1234
         summary.genomeSize shouldBe 1
         summary.timestamp.shouldBeBetween(beforePost, afterPost)
+    }
+
+    @Test
+    fun `summary falls back to JSONB individual when DB columns are null`() {
+        val individual = individualWithFields(generation = 7, fitness = 77777, timeInMillis = 777)
+
+        dao.jdbi.withHandle<Int, Exception> {
+            it.createUpdate(
+                """
+                    INSERT INTO Dudes (name, generation, individual)
+                    VALUES (:name, :generation, cast(:individual as JSONB))
+                """.trimIndent()
+            )
+                .bind("name", "legacyDude")
+                .bind("generation", individual.generation)
+                .bind("individual", serialise(individual))
+                .execute()
+        }
+
+        val getResponse = client(Request(Method.GET, "${baseUrl}/dudes/legacyDude/latest/summary"))
+        getResponse.status shouldBe Status.OK
+        val summary = individualSummaryLens(getResponse)
+        summary.generation shouldBe 7
+        summary.fitness shouldBe 77777
+        summary.timeInMillis shouldBe 777
+        summary.genomeSize shouldBe individual.genome.size
     }
 
     @Test

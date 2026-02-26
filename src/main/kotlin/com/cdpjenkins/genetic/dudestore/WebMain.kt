@@ -125,15 +125,15 @@ class DudeStoreApplication(val dao: DudeDao, val port: Int, val secret: String, 
     }
 
     private fun getDudeLatestSummary(request: Request): Response {
-        val currentDude = dao.latestDude(nameLens(request))
-
-        return if (currentDude != null) {
-            val individual = resolveIndividual(currentDude)!!
-            Response(OK)
-                .with(individualSummaryLens of IndividualSummary.of(individual))
-        } else {
-            Response(NOT_FOUND)
-        }
+        val currentDude = dao.latestDude(nameLens(request)) ?: return Response(NOT_FOUND)
+        val individual by lazy { resolveIndividual(currentDude)!! }
+        return Response(OK).with(individualSummaryLens of IndividualSummary(
+            generation = currentDude.generation,
+            fitness = currentDude.fitness ?: individual.fitness,
+            timeInMillis = currentDude.timeInMillis ?: individual.timeInMillis,
+            genomeSize = currentDude.genomeSize ?: individual.genome.size,
+            timestamp = currentDude.createdTimestamp ?: individual.createdTimestamp
+        ))
     }
 
     private fun getDudeByGeneration(request: Request): Response {
