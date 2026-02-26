@@ -189,6 +189,16 @@ class WebMainIT {
     }
 
     @Test
+    fun `summary endpoint returns the uuid of the latest individual`() {
+        postDudeAndAssertSuccess("steveCopy", individualSteve)
+
+        val getResponse = client(Request(Method.GET, "${baseUrl}/dudes/steveCopy/latest/summary"))
+        getResponse.status shouldBe Status.OK
+        val summary = individualSummaryLens(getResponse)
+        summary.uuid shouldBe individualSteve.uuid
+    }
+
+    @Test
     fun `summary falls back to JSONB individual when DB columns are null`() {
         val individual = individualWithFields(generation = 7, fitness = 77777, timeInMillis = 777)
 

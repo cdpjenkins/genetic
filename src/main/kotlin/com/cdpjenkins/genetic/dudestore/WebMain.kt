@@ -132,7 +132,8 @@ class DudeStoreApplication(val dao: DudeDao, val port: Int, val secret: String, 
             fitness = currentDude.fitness ?: individual.fitness,
             timeInMillis = currentDude.timeInMillis ?: individual.timeInMillis,
             genomeSize = currentDude.genomeSize ?: individual.genome.size,
-            timestamp = currentDude.createdTimestamp ?: individual.createdTimestamp
+            timestamp = currentDude.createdTimestamp ?: individual.createdTimestamp,
+            uuid = currentDude.uuid ?: individual.uuid
         ))
     }
 

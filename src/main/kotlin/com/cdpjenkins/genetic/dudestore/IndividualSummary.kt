@@ -1,13 +1,15 @@
 package com.cdpjenkins.genetic.dudestore
 
 import com.cdpjenkins.genetic.model.Individual
+import java.util.UUID
 
 data class IndividualSummary(
     val generation: Int,
     val fitness: Int,
     val timeInMillis: Long,
     val genomeSize: Int,
-    val timestamp: Long
+    val timestamp: Long,
+    val uuid: UUID
 ) {
     companion object {
         fun of(individual: Individual): IndividualSummary {
@@ -16,7 +18,8 @@ data class IndividualSummary(
                 individual.fitness,
                 individual.timeInMillis,
                 individual.genome.size,
-                individual.createdTimestamp
+                individual.createdTimestamp,
+                individual.uuid
             )
         }
     }

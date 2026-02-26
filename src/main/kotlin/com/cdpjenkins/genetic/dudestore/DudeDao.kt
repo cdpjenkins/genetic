@@ -7,6 +7,7 @@ import com.cdpjenkins.genetic.model.Individual
 import org.jdbi.v3.core.Jdbi
 import org.jdbi.v3.core.statement.UnableToExecuteStatementException
 import java.sql.SQLException
+import java.util.UUID
 
 class DudeDao(val jdbi: Jdbi) {
     fun createTables() {
@@ -88,7 +89,7 @@ class DudeDao(val jdbi: Jdbi) {
             return jdbi.withHandle<Dude, Exception> {
                 it.createQuery(
                     """
-                        SELECT name, generation, individual, fitness, timeInMillis, genomeSize, createdTimestamp
+                        SELECT name, generation, individual, fitness, timeInMillis, genomeSize, createdTimestamp, uuid
                         FROM dudes WHERE name=:name ORDER BY generation DESC LIMIT 1
                     """.trimIndent()
                 )
@@ -264,7 +265,8 @@ data class Dude(
     val fitness: Int? = null,
     val timeInMillis: Long? = null,
     val genomeSize: Int? = null,
-    val createdTimestamp: Long? = null
+    val createdTimestamp: Long? = null,
+    val uuid: UUID? = null
 ) {
     companion object {
         fun from(dudeRow: DudeRow): Dude {
@@ -275,7 +277,8 @@ data class Dude(
                 dudeRow.fitness,
                 dudeRow.timeInMillis,
                 dudeRow.genomeSize,
-                dudeRow.createdTimestamp
+                dudeRow.createdTimestamp,
+                dudeRow.uuid?.let { UUID.fromString(it) }
             )
         }
     }
