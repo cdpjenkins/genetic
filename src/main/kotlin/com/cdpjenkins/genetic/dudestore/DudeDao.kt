@@ -64,12 +64,16 @@ class DudeDao(val jdbi: Jdbi) {
             jdbi.withHandle<Int, Exception> {
                 it.createUpdate(
                     """
-                        INSERT INTO Dudes (name, generation)
-                        VALUES(:name, :generation)
+                        INSERT INTO Dudes (name, generation, fitness, timeInMillis, genomeSize, createdTimestamp)
+                        VALUES(:name, :generation, :fitness, :timeInMillis, :genomeSize, :createdTimestamp)
                     """.trimIndent()
                 )
                     .bind("name", name)
                     .bind("generation", generation)
+                    .bind("fitness", dude.fitness)
+                    .bind("timeInMillis", dude.timeInMillis)
+                    .bind("genomeSize", dude.genome.size)
+                    .bind("createdTimestamp", dude.createdTimestamp)
                     .execute()
             }
         } catch (e: UnableToExecuteStatementException) {
@@ -82,9 +86,8 @@ class DudeDao(val jdbi: Jdbi) {
             return jdbi.withHandle<Dude, Exception> {
                 it.createQuery(
                     """
-                        SELECT name, generation, individual FROM dudes
-                        WHERE name=:name
-                        ORDER BY generation DESC LIMIT 1
+                        SELECT name, generation, individual, fitness, timeInMillis, genomeSize, createdTimestamp
+                        FROM dudes WHERE name=:name ORDER BY generation DESC LIMIT 1
                     """.trimIndent()
                 )
                     .bind("name", name)
@@ -241,7 +244,11 @@ class DudeDao(val jdbi: Jdbi) {
 data class DudeRow(
     var name: String,
     var generation: Int,
-    var individual: String?
+    var individual: String?,
+    var fitness: Int? = null,
+    var timeInMillis: Long? = null,
+    var genomeSize: Int? = null,
+    var createdTimestamp: Long? = null
 ) {
     @Suppress("unused")
     constructor() : this("", 0, null)
@@ -250,11 +257,23 @@ data class DudeRow(
 data class Dude(
     val name: String,
     val generation: Int,
-    val individual: Individual?
+    val individual: Individual?,
+    val fitness: Int? = null,
+    val timeInMillis: Long? = null,
+    val genomeSize: Int? = null,
+    val createdTimestamp: Long? = null
 ) {
     companion object {
         fun from(dudeRow: DudeRow): Dude {
-            return Dude(dudeRow.name, dudeRow.generation, dudeRow.individual?.deserialise())
+            return Dude(
+                dudeRow.name,
+                dudeRow.generation,
+                dudeRow.individual?.deserialise(),
+                dudeRow.fitness,
+                dudeRow.timeInMillis,
+                dudeRow.genomeSize,
+                dudeRow.createdTimestamp
+            )
         }
     }
 }
