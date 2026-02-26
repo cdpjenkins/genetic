@@ -5,6 +5,7 @@ import com.cdpjenkins.genetic.evolver.Weight
 import com.cdpjenkins.genetic.model.Individual
 import com.cdpjenkins.genetic.model.shape.*
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import org.junit.jupiter.api.Test
 import java.io.File
 
@@ -30,6 +31,12 @@ internal class JSONTest {
         ),
         BoundsRectangle(0, 0, 100, 100)
     )
+
+    @Test
+    fun `uuid field is included in serialised Individual`() {
+        val json = serialise(individual)
+        json shouldContain "\"uuid\""
+    }
 
     @Test
     internal fun `can serialise and deserialise Individuals`() {
