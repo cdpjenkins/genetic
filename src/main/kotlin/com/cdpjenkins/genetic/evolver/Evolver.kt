@@ -18,7 +18,8 @@ class Evolver(
     private var listeners: MutableList<EvolverListener> = mutableListOf()
     private val masterPixels: IntArray = grabPixels(masterImage)
 
-    @Synchronized fun mutateOnce() {
+    @Synchronized
+    fun mutateOnce() {
         val newIndividual = mutator.mutate(individual)
         newIndividual.drawAndCalculateFitness(masterPixels)
         if (newIndividual.fitness < individual.fitness) {
@@ -31,7 +32,8 @@ class Evolver(
         }
     }
 
-    @Synchronized fun addListener(listener: EvolverListener) {
+    @Synchronized
+    fun addListener(listener: EvolverListener) {
         logger.info { "Adding listener ${listener.describe()}" }
 
         this.listeners.add(listener)

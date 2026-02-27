@@ -10,6 +10,7 @@ import com.cdpjenkins.genetic.model.Individual
 import com.cdpjenkins.genetic.ui.GUI
 import com.cdpjenkins.genetic.ui.GUIEvolverListener
 import io.github.oshai.kotlinlogging.KotlinLogging
+import org.http4k.core.Status
 import java.awt.GraphicsEnvironment
 import java.awt.image.BufferedImage
 import java.io.File
@@ -22,6 +23,7 @@ class GeneticEvolverApplication(
     val name: String,
     val evolver: Evolver
 ) {
+    var shouldDownloadNewIndividual: Boolean = false
 
     fun start() {
         Thread {
@@ -31,6 +33,17 @@ class GeneticEvolverApplication(
         }.apply {
             start()
         }
+    }
+
+    @Synchronized
+    fun shouldDownloadNewIndividual(): Boolean {
+        return shouldDownloadNewIndividual
+    }
+
+    @Synchronized
+    fun notifyShouldDownloadNewIndividual() {
+        logger.info { "notifyShouldDownloadNewIndividual()" }
+        shouldDownloadNewIndividual = true
     }
 
     companion object {
@@ -63,6 +76,8 @@ class GeneticEvolverApplication(
                 Mutator(settings),
             )
 
+            val geneticEvolverApplication = GeneticEvolverApplication(name, evolver)
+
             if (!GraphicsEnvironment.isHeadless()) {
                 val gui = GUI(masterImage)
                 evolver.addListener(GUIEvolverListener(gui, name))
@@ -73,12 +88,15 @@ class GeneticEvolverApplication(
             if (settings.saveToFilesystem == true) {
                 evolver.addListener(FilePersistenceListener(name, FilePersister(name)))
             }
-            evolver.addListener(DudeStoreClientListener(name, dudeStoreClient))
+            evolver.addListener(
+                DudeStoreClientListener(name, dudeStoreClient) {
+                    logger.error{ "we hit a failure: $it" }
+                    geneticEvolverApplication.notifyShouldDownloadNewIndividual()
+                }
+            )
             if (settings.saveToS3 == true) {
                 evolver.addListener(S3PersistenceListener(S3Persister.create(name)))
             }
-
-            val geneticEvolverApplication = GeneticEvolverApplication(name, evolver)
 
             return geneticEvolverApplication
         }
@@ -133,16 +151,34 @@ class GeneticEvolverApplication(
     }
 }
 
-class DudeStoreClientListener(val name: String, val dudeStoreClient: DudeStoreClient) : EvolverListener {
+class DudeStoreClientListener(
+    val name: String,
+    val dudeStoreClient: DudeStoreClient,
+    val conflictListener: DudeStoreClientFailureListener
+) : EvolverListener {
+    val logger = KotlinLogging.logger {}
+
     private val executorService: ExecutorService = Executors.newSingleThreadExecutor { r ->
         Thread(r).apply { isDaemon = true }
     }
 
     override fun notify(individual: Individual) {
-        executorService.submit( {
-            dudeStoreClient.postDude(individual, name)
+        executorService.submit({
+            try {
+                val status = dudeStoreClient.postDude(individual, name)
+
+                if (!status.successful) {
+                    conflictListener.onFailure(status)
+                }
+            } catch (e: Exception) {
+                logger.error(e) { "Failed to post dude" }
+            }
         })
     }
+}
+
+fun interface DudeStoreClientFailureListener {
+    fun onFailure(status: Status)
 }
 
 class FilePersistenceListener(val name: String, val persister: FilePersister) : EvolverListener {
