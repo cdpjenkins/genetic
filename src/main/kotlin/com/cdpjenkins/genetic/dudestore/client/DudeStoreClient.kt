@@ -7,12 +7,8 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import org.http4k.client.OkHttp
 import org.http4k.core.*
 import org.http4k.format.Jackson.auto
-import java.util.concurrent.Callable
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
-import java.util.concurrent.Future
 
-class BlockingDudeStoreClient(val baseUrl: String, val secret: String) {
+class DudeStoreClient(val baseUrl: String, val secret: String) {
     private val logger = KotlinLogging.logger {}
 
     private val httpClient = OkHttp()
@@ -100,32 +96,6 @@ class BlockingDudeStoreClient(val baseUrl: String, val secret: String) {
             getResponse.body.stream.readAllBytes()
         } else {
             null
-        }
-    }
-}
-
-// We have to do this with threads because HTTP4k.
-class NonBlockingDudeStoreClient(
-    blockingDudeStoreClient: BlockingDudeStoreClient
-)  {
-    private val logger = KotlinLogging.logger {}
-    private val blockingClient = blockingDudeStoreClient
-    private val executorService: ExecutorService = Executors.newSingleThreadExecutor()
-
-    fun getLatestDude(dudeName: String): Individual? {
-        val future: Future<Individual?> = executorService.submit(Callable<Individual> {
-            blockingClient.getLatestDude(dudeName)
-        })
-
-        return future.get()
-    }
-
-    fun postDude(it: Individual, dudeName: String) {
-        logger.debug { "${"Posting new individual generation={}, fitness={}"} ${it.generation} ${it.fitness}" }
-
-        executorService.submit {
-            blockingClient.postDude(it, dudeName)
-            logger.info { "Posted new individual successfully" }
         }
     }
 }

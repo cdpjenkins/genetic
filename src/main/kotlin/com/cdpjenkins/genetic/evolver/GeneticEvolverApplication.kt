@@ -1,19 +1,20 @@
 package com.cdpjenkins.genetic.evolver
 
-import com.cdpjenkins.genetic.dudestore.client.BlockingDudeStoreClient
-import com.cdpjenkins.genetic.dudestore.client.NonBlockingDudeStoreClient
-import com.cdpjenkins.genetic.json.deserialiseFromFile
-import com.cdpjenkins.genetic.json.serialiseToFile
-import com.cdpjenkins.genetic.model.Individual
+import com.cdpjenkins.genetic.dudestore.client.DudeStoreClient
 import com.cdpjenkins.genetic.evolver.persistence.FilePersister
 import com.cdpjenkins.genetic.evolver.persistence.S3PersistenceListener
 import com.cdpjenkins.genetic.evolver.persistence.S3Persister
+import com.cdpjenkins.genetic.json.deserialiseFromFile
+import com.cdpjenkins.genetic.json.serialiseToFile
+import com.cdpjenkins.genetic.model.Individual
 import com.cdpjenkins.genetic.ui.GUI
 import com.cdpjenkins.genetic.ui.GUIEvolverListener
 import io.github.oshai.kotlinlogging.KotlinLogging
 import java.awt.GraphicsEnvironment
 import java.awt.image.BufferedImage
 import java.io.File
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 import javax.imageio.ImageIO
 import javax.swing.JFrame
 
@@ -36,16 +37,12 @@ class GeneticEvolverApplication(
         private val logger = KotlinLogging.logger {}
 
         fun create(name: String, secret: String, masterImageFileName: String?): GeneticEvolverApplication {
+            val dudeStoreClient = DudeStoreClient("https://genetic-dude.herokuapp.com", secret)
 
-            val blockingDudeStoreClient = BlockingDudeStoreClient("https://genetic-dude.herokuapp.com", secret)
-            val dudeStoreClient = NonBlockingDudeStoreClient(
-                blockingDudeStoreClient
-            )
-
-            val settings = readSettingsOrDefault(name, blockingDudeStoreClient)
+            val settings = readSettingsOrDefault(name, dudeStoreClient)
             serialiseToFile(File("written-evolver-settings-${name}.json"), settings)
 
-            val masterImage = readMasterImage(name, masterImageFileName, blockingDudeStoreClient)
+            val masterImage = readMasterImage(name, masterImageFileName, dudeStoreClient)
 
             logger.info { "Creating evolver for $name" }
             val maybeInitialIndividual = dudeStoreClient.getLatestDude(name)
@@ -89,13 +86,13 @@ class GeneticEvolverApplication(
         private fun readMasterImage(
             name: String,
             masterImageFileNameParameter: String?,
-            blockingDudeStoreClient: BlockingDudeStoreClient
+            dudeStoreClient: DudeStoreClient
         ): BufferedImage {
             return if (masterImageFileNameParameter != null) {
                 logger.info { "Loading master image from file" }
                 ImageIO.read(File(masterImageFileNameParameter).toURI().toURL())
             } else {
-                val masterImageBytesFromDudeStore = blockingDudeStoreClient.getMasterImage(name)
+                val masterImageBytesFromDudeStore = dudeStoreClient.getMasterImage(name)
                 if (masterImageBytesFromDudeStore != null) {
                     logger.info { "Loading master image from DudeStore" }
                     ImageIO.read(masterImageBytesFromDudeStore.inputStream())
@@ -105,9 +102,9 @@ class GeneticEvolverApplication(
             }
         }
 
-        private fun readSettingsOrDefault(name: String, blockingDudeStoreClient: BlockingDudeStoreClient): EvolverSettings {
+        private fun readSettingsOrDefault(name: String, dudeStoreClient: DudeStoreClient): EvolverSettings {
             return tryReadingSettingsFromFile(name)
-                ?: tryReadingSettingsFromDudeStore(name, blockingDudeStoreClient)
+                ?: tryReadingSettingsFromDudeStore(name, dudeStoreClient)
                 ?: defaultSettings(name)
         }
 
@@ -121,8 +118,8 @@ class GeneticEvolverApplication(
             }
         }
 
-        private fun tryReadingSettingsFromDudeStore(name: String, blockingDudeStoreClient: BlockingDudeStoreClient): EvolverSettings? {
-            val settings = blockingDudeStoreClient.getSettings(name)
+        private fun tryReadingSettingsFromDudeStore(name: String, dudeStoreClient: DudeStoreClient): EvolverSettings? {
+            val settings = dudeStoreClient.getSettings(name)
             logger.info { "Evolver settings from DudeStore: ${settings}" }
             return settings
         }
@@ -136,9 +133,15 @@ class GeneticEvolverApplication(
     }
 }
 
-class DudeStoreClientListener(val name: String, val dudeStoreClient: NonBlockingDudeStoreClient) : EvolverListener {
+class DudeStoreClientListener(val name: String, val dudeStoreClient: DudeStoreClient) : EvolverListener {
+    private val executorService: ExecutorService = Executors.newSingleThreadExecutor { r ->
+        Thread(r).apply { isDaemon = true }
+    }
+
     override fun notify(individual: Individual) {
-        dudeStoreClient.postDude(individual, name)
+        executorService.submit( {
+            dudeStoreClient.postDude(individual, name)
+        })
     }
 }
 

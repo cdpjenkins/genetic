@@ -1,6 +1,6 @@
 package com.cdpjenkins.genetic.dudestore
 
-import com.cdpjenkins.genetic.dudestore.client.BlockingDudeStoreClient
+import com.cdpjenkins.genetic.dudestore.client.DudeStoreClient
 import com.cdpjenkins.genetic.evolver.EvolverSettings
 import com.cdpjenkins.genetic.json.fromStream
 import com.cdpjenkins.genetic.json.serialise
@@ -105,7 +105,7 @@ class WebMainIT {
 
     val baseUrl = "http://localhost:9000"
 
-    val dudeStoreClient = BlockingDudeStoreClient(baseUrl, secret)
+    val dudeStoreClient = DudeStoreClient(baseUrl, secret)
     private val client = OkHttp()
 
     @BeforeEach
@@ -414,7 +414,7 @@ class WebMainIT {
 
     @Suppress("SameParameterValue")
     private fun postDudeUsingSecret(secret: String): Status =
-        BlockingDudeStoreClient(baseUrl, secret)
+        DudeStoreClient(baseUrl, secret)
             .postDude(individualSteve, "steve")
 
     private fun postRecreate() {
