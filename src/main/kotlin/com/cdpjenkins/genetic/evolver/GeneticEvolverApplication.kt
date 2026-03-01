@@ -21,7 +21,8 @@ import javax.swing.JFrame
 
 class GeneticEvolverApplication(
     val name: String,
-    val evolver: Evolver
+    val evolver: Evolver,
+    val dudeStoreClient: DudeStoreClient
 ) {
     var shouldDownloadNewIndividual: Boolean = false
 
@@ -29,11 +30,25 @@ class GeneticEvolverApplication(
         Thread {
             while (true) {
                 evolver.mutateOnce()
+
+                if (shouldDownloadNewIndividual()) {
+                    logger.info { "Hit conflict or failure, so downloading latest individual from DudeStore" }
+                    logger.info { "current generation: ${evolver.individual.generation}"}
+                    val latestIndividual = dudeStoreClient.getLatestDude(name)
+                    if (latestIndividual != null) {
+                        logger.info { "latest generation: ${latestIndividual.generation}"}
+                        evolver.supplyNewIndividual(latestIndividual)
+                        clearShouldDownloadNewIndividual()
+                    } else {
+                        logger.error { "Failed to download latest individual from DudeStore" }
+                    }
+                }
             }
         }.apply {
             start()
         }
     }
+
 
     @Synchronized
     fun shouldDownloadNewIndividual(): Boolean {
@@ -44,6 +59,11 @@ class GeneticEvolverApplication(
     fun notifyShouldDownloadNewIndividual() {
         logger.info { "notifyShouldDownloadNewIndividual()" }
         shouldDownloadNewIndividual = true
+    }
+
+    @Synchronized
+    fun clearShouldDownloadNewIndividual() {
+        shouldDownloadNewIndividual = false
     }
 
     companion object {
@@ -76,7 +96,7 @@ class GeneticEvolverApplication(
                 Mutator(settings),
             )
 
-            val geneticEvolverApplication = GeneticEvolverApplication(name, evolver)
+            val geneticEvolverApplication = GeneticEvolverApplication(name, evolver, dudeStoreClient)
 
             if (!GraphicsEnvironment.isHeadless()) {
                 val gui = GUI(masterImage)

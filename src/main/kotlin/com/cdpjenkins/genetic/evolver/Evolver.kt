@@ -38,6 +38,11 @@ class Evolver(
 
         this.listeners.add(listener)
     }
+
+    @Synchronized
+    fun supplyNewIndividual(latestIndividual: Individual) {
+        individual = latestIndividual
+    }
 }
 
 fun makeEvolver(
