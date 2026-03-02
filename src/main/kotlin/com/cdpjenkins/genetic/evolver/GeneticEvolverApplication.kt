@@ -41,6 +41,9 @@ class GeneticEvolverApplication(
                         clearShouldDownloadNewIndividual()
                     } else {
                         logger.error { "Failed to download latest individual from DudeStore" }
+                        // Is this evil? For now, just sleep for a bit in order to avoid hitting DudeStore too hard
+                        // Ultimately, we'd ideally do some sort of crazy exponential backoff here
+                        Thread.sleep(1000)
                     }
                 }
             }
