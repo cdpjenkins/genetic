@@ -16,6 +16,7 @@ import java.awt.geom.GeneralPath
     property = "type")
 @JsonSubTypes(
     JsonSubTypes.Type(value = QuadCurveShape::class, name = "QuadCurveShape"),
+    JsonSubTypes.Type(value = UnboundedQuadCurveShape::class, name = "UnboundedQuadCurveShape"),
     JsonSubTypes.Type(value = StrokedCubicCurveShape::class, name = "StrokedCubicCurveShape"),
     JsonSubTypes.Type(value = Circle::class, name = "Circle"),
     JsonSubTypes.Type(value = RectangleShape::class, name = "RectangleShape"),
@@ -68,6 +69,34 @@ data class QuadCurveShape(
         val newColour = quadCurveColour.mutate(evolverSettings)
 
         return QuadCurveShape(newPath, newColour, bounds)
+    }
+}
+
+data class UnboundedQuadCurveShape(
+    val quadCurvePath: List<Point>,
+    val quadCurveColour: Colour
+): GeneralPathShape(
+    quadCurvePath,
+    quadCurveColour
+) {
+    override fun makeGeneralPath(): GeneralPath {
+        val generalPath = GeneralPath(GeneralPath.WIND_EVEN_ODD, quadCurvePath.size)
+        generalPath.moveTo(quadCurvePath[quadCurvePath.size - 1].x.toDouble(), quadCurvePath[quadCurvePath.size - 1].y.toDouble())
+
+        for (chunk in quadCurvePath.chunked(2)) {
+            val p1 = chunk[0]
+            val p2 = chunk[1]
+            generalPath.quadTo(p1.x.toDouble(), p1.y.toDouble(), p2.x.toDouble(), p2.y.toDouble())
+        }
+
+        return generalPath
+    }
+
+    override fun mutate(evolverSettings: EvolverSettings): Shape {
+        val newPath = quadCurvePath.map { it.mutateUnbounded(evolverSettings) }
+        val newColour = quadCurveColour.mutate(evolverSettings)
+
+        return UnboundedQuadCurveShape(newPath, newColour)
     }
 }
 

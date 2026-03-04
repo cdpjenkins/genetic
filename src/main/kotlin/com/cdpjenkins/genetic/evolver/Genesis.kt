@@ -32,6 +32,7 @@ fun spawnRandomShape(bounds: BoundsRectangle, evolverSettings: EvolverSettings):
         "Circle" -> spawnRandomCircle(bounds, evolverSettings)
         "RectangleShape" -> spawnRandomRect(bounds, evolverSettings)
         "QuadCurveShape" -> spawnRandomQuadCurveShape(bounds, evolverSettings)
+        "UnboundedQuadCurveShape" -> spawnRandomUnboundedQuadCurveShape(bounds, evolverSettings)
         "PolygonShape" -> spawnRandomTriangle(bounds, evolverSettings)
         "StrokedCubicCurveShape" -> spawnRandomStrokedCubicCurveShape(bounds, evolverSettings)
         else -> throw AssertionError()
@@ -70,6 +71,19 @@ fun spawnRandomQuadCurveShape(bounds: BoundsRectangle, evolverSettings: EvolverS
     val colour = spawnRandomColour(evolverSettings)
 
     return QuadCurveShape(vertices, colour, shapeBounds)
+}
+
+fun spawnRandomUnboundedQuadCurveShape(bounds: BoundsRectangle, evolverSettings: EvolverSettings): UnboundedQuadCurveShape {
+    val centre = spawnRandomPoint(bounds)
+
+    val vertices = (1..polyVertices).map {
+        spawnRandomPoint(
+            BoundsRectangle(centre.x - 10, centre.y - 10, centre.x + 10, centre.y + 10)
+        )
+    }
+    val colour = spawnRandomColour(evolverSettings)
+
+    return UnboundedQuadCurveShape(vertices, colour)
 }
 
 fun spawnRandomStrokedCubicCurveShape(

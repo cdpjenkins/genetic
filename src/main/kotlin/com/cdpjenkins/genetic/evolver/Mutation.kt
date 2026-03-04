@@ -13,6 +13,9 @@ internal fun mutateValueGaussian(oldValue: Int, stdDev: Int, min: Int, max: Int)
         .constrain(min, max)
 }
 
+internal fun mutateValueGaussianUnbounded(oldValue: Int, stdDev: Int): Int =
+    (oldValue + Random.asJavaRandom().nextGaussian() * stdDev).toInt()
+
 private fun Int.constrain(min: Int, max: Int) =
     if (this < min) min
     else if (this > max) max
