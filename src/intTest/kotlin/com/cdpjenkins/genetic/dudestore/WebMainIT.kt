@@ -84,7 +84,12 @@ class WebMainIT {
 
             s3Persister = DudeStoreS3Persister(s3Client, BUCKET_NAME)
 
-            server = DudeStoreApplication(dao, 9000, "theCorrectSecret", s3Persister)
+            server = DudeStoreApplication(
+                dao,
+                9000,
+                s3Persister,
+                setOf("theCorrectSecret", "theCorrectSecret2")
+            )
                 .startServer()
         }
 
@@ -97,7 +102,8 @@ class WebMainIT {
         }
     }
 
-    val secret = System.getProperty("secret", "theCorrectSecret")
+    val SECRET = "theCorrectSecret"
+    val SECRET2 = "theCorrectSecret2"
 
     val individualLens = Body.auto<Individual>().toLens()
     val individualSummaryLens = Body.auto<IndividualSummary>().toLens()
@@ -105,7 +111,7 @@ class WebMainIT {
 
     val baseUrl = "http://localhost:9000"
 
-    val dudeStoreClient = DudeStoreClient(baseUrl, secret)
+    val dudeStoreClient = DudeStoreClient(baseUrl, SECRET)
     private val client = OkHttp()
 
     @BeforeEach
@@ -140,6 +146,12 @@ class WebMainIT {
     fun `POST dude blows up without correct secret credentials`() {
         val status = postDudeUsingSecret("theWrongSecret")
         status shouldBe Status.UNAUTHORIZED
+    }
+
+    @Test
+    fun `POST dude succeeds when using second secret`() {
+        val status = postDudeUsingSecret(SECRET2)
+        status shouldBe Status.OK
     }
 
     @Test
@@ -419,7 +431,7 @@ class WebMainIT {
 
     private fun postRecreate() {
         val postResponse = client(
-            Request(Method.POST, "${baseUrl}/recreate?secret=$secret"))
+            Request(Method.POST, "${baseUrl}/recreate?secret=$SECRET"))
         postResponse.status shouldBe Status.OK
     }
 

@@ -24,7 +24,12 @@ import software.amazon.awssdk.services.s3.S3Client
 import java.io.ByteArrayOutputStream
 import javax.imageio.ImageIO
 
-class DudeStoreApplication(val dao: DudeDao, val port: Int, val secret: String, val s3Persister: DudeStoreS3Persister? = null) {
+class DudeStoreApplication(
+    val dao: DudeDao,
+    val port: Int,
+    val s3Persister: DudeStoreS3Persister? = null,
+    val secrets: Set<String>
+) {
     private val logger = KotlinLogging.logger {}
 
     val typeLens = Query.optional("type")
@@ -35,35 +40,33 @@ class DudeStoreApplication(val dao: DudeDao, val port: Int, val secret: String, 
     val generationLens = Path.int().of("generation")
     val evolveSettingsLens = Body.auto<EvolverSettings>().toLens()
 
-    fun startServer(): Http4kServer =
-        ExceptionLoggingFilter
-            .then(makeApi(secret))
+    fun startServer(): Http4kServer {
+        val secretAuthFilter = SecretAuthFilter(secrets)
+
+        return ExceptionLoggingFilter
+            .then(makeApi(secretAuthFilter))
             .asServer(Netty(port))
             .start()
+    }
 
-    private fun makeApi(secret: String?): RoutingHttpHandler =
+    private fun makeApi(secretAuthFilter: SecretAuthFilter): RoutingHttpHandler =
         ExceptionHandlingFilter.then(
             routes(
                 // mega dangerous stuff that maybe shouldn't be there
-                "setup" bind Method.POST to SecretAuthFilter(secret).then(::setupHandler),
-                "recreate" bind Method.POST to SecretAuthFilter(secret).then(::recreateHandler),
+                "setup" bind Method.POST to secretAuthFilter.then(::setupHandler),
+                "recreate" bind Method.POST to secretAuthFilter.then(::recreateHandler),
 
                 // endpoints that we want to use
                 "/dudes" bind Method.GET to ::getDudesListHandler,
-                "/dudes/{name}" bind Method.POST to SecretAuthFilter(secret).then(::postDudeHandler),
+                "/dudes/{name}" bind Method.POST to secretAuthFilter.then(::postDudeHandler),
                 "/dudes/{name}/latest" bind Method.GET to ::getDudeLatest,
                 "/dudes/{name}/latest/summary" bind Method.GET to ::getDudeLatestSummary,
-                "/dudes/{name}/settings" bind Method.POST to SecretAuthFilter(secret).then(::postEvolverSettingsHandler),
-                "/dudes/{name}/settings" bind Method.PUT to SecretAuthFilter(secret).then(::putEvolverSettingsHandler),
+                "/dudes/{name}/settings" bind Method.POST to secretAuthFilter.then(::postEvolverSettingsHandler),
+                "/dudes/{name}/settings" bind Method.PUT to secretAuthFilter.then(::putEvolverSettingsHandler),
                 "/dudes/{name}/settings" bind Method.GET to ::getEvolverSettingsHandler,
-                "/dudes/{name}/master-image" bind Method.POST to SecretAuthFilter(secret).then(::postMasterImageHandler),
-                "/dudes/{name}/master-image" bind Method.GET to SecretAuthFilter(secret).then(::getMasterImageHandler),
-                "/dudes/{name}/{generation}" bind Method.GET to ::getDudeByGeneration,
-
-//                // legacy endpoints that we should stop using
-//                "/dude/{name}" bind Method.POST to SecretAuthFilter(secret).then(::postDudeHandler),
-//                "/dude/{name}/latest" bind Method.GET to ::getDudeLatest,
-//                "/dude/{name}/latest/summary" bind Method.GET to ::getDudeLatestSummary,
+                "/dudes/{name}/master-image" bind Method.POST to secretAuthFilter.then(::postMasterImageHandler),
+                "/dudes/{name}/master-image" bind Method.GET to secretAuthFilter.then(::getMasterImageHandler),
+                "/dudes/{name}/{generation}" bind Method.GET to ::getDudeByGeneration
             )
         )
 
@@ -249,18 +252,18 @@ fun main() {
         .overrides(defaultConfig)
 
     val portLens: BiDiLens<Environment, Int> = EnvironmentKey.int().required("PORT")
-    val secretLens = EnvironmentKey.string().required("SECRET")
     val jdbcDatabaseUrlLens = EnvironmentKey.string().required("JDBC_DATABASE_URL")
 
     val port = portLens(environment)
-    val secret = secretLens(environment)
+    val secret = EnvironmentKey.string().required("SECRET")(environment)
+    val secret2 = EnvironmentKey.string().required("SECRET2")(environment)
 
     val dao = DudeDao(Jdbi.create(jdbcDatabaseUrlLens(environment)))
 
     val s3Client = S3Client.builder().region(Region.EU_WEST_2).build()
     val s3Persister = DudeStoreS3Persister(s3Client, "com-cdpjenkins-genetic-assets")
 
-    DudeStoreApplication(dao, port, secret, s3Persister)
+    DudeStoreApplication(dao, port, s3Persister, setOf(secret, secret2))
         .startServer()
         .also { it.block() }
 }
