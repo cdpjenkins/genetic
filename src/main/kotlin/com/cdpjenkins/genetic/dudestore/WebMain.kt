@@ -255,15 +255,22 @@ fun main() {
     val jdbcDatabaseUrlLens = EnvironmentKey.string().required("JDBC_DATABASE_URL")
 
     val port = portLens(environment)
-    val secret = EnvironmentKey.string().required("SECRET")(environment)
-    val secret2 = EnvironmentKey.string().required("SECRET2")(environment)
+    val secret = EnvironmentKey.string().optional("SECRET")(environment)
+    val secret2 = EnvironmentKey.string().optional("SECRET2")(environment)
+    val secrets = (EnvironmentKey.string().optional("SECRETS")(environment) ?: "")
+        .split(",")
+        .plus(secret)
+        .plus(secret2)
+        .filterNotNull()
+        .filter { it.isNotEmpty() }
+        .toSet()
 
     val dao = DudeDao(Jdbi.create(jdbcDatabaseUrlLens(environment)))
 
     val s3Client = S3Client.builder().region(Region.EU_WEST_2).build()
     val s3Persister = DudeStoreS3Persister(s3Client, "com-cdpjenkins-genetic-assets")
 
-    DudeStoreApplication(dao, port, s3Persister, setOf(secret, secret2))
+    DudeStoreApplication(dao, port, s3Persister, secrets)
         .startServer()
         .also { it.block() }
 }
