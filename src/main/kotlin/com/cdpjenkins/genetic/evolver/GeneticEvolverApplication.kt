@@ -19,17 +19,22 @@ import java.util.concurrent.Executors
 import javax.imageio.ImageIO
 import javax.swing.JFrame
 
+private const val NEW_DUDE_POLLING_INTERVAL = 10_000L
+
 class GeneticEvolverApplication(
     val name: String,
     val evolver: Evolver,
     val dudeStoreClient: DudeStoreClient
 ) {
     var shouldDownloadNewIndividual: Boolean = false
+    private var lastPollingCheckTime: Long = -NEW_DUDE_POLLING_INTERVAL
 
     fun start() {
         Thread {
             while (true) {
                 evolver.mutateOnce()
+
+                checkForNewerIndividual(System.currentTimeMillis())
 
                 if (shouldDownloadNewIndividual()) {
                     logger.info { "Hit conflict or failure, so downloading latest individual from DudeStore" }
@@ -67,6 +72,16 @@ class GeneticEvolverApplication(
     @Synchronized
     fun clearShouldDownloadNewIndividual() {
         shouldDownloadNewIndividual = false
+    }
+
+    fun checkForNewerIndividual(currentTime: Long) {
+        if (currentTime - lastPollingCheckTime >= NEW_DUDE_POLLING_INTERVAL) {
+            val latestIndividual = dudeStoreClient.getLatestDude(name)
+            if (latestIndividual != null && latestIndividual.generation > evolver.individual.generation) {
+                notifyShouldDownloadNewIndividual()
+            }
+            lastPollingCheckTime = currentTime
+        }
     }
 
     companion object {
