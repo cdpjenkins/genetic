@@ -52,7 +52,7 @@ class WebMainIT {
             .withUsername(DB_USER)
             .withPassword(DB_PASSWORD)
 
-        val localStackContainer: LocalStackContainer = LocalStackContainer(DockerImageName.parse("localstack/localstack:3.0"))
+        val localStackContainer: LocalStackContainer = LocalStackContainer(DockerImageName.parse("localstack/localstack:4.14"))
             .withServices(LocalStackContainer.Service.S3)
 
         lateinit var server: Http4kServer
