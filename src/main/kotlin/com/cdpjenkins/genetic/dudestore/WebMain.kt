@@ -2,7 +2,6 @@ package com.cdpjenkins.genetic.dudestore
 
 import com.cdpjenkins.genetic.evolver.EvolverSettings
 import com.cdpjenkins.genetic.model.Individual
-import com.cdpjenkins.genetic.model.shape.logger
 import com.cdpjenkins.genetic.svg.SvgRenderer
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.http4k.config.Environment
@@ -256,10 +255,8 @@ fun main() {
     val jdbcDatabaseUrlLens = EnvironmentKey.string().required("JDBC_DATABASE_URL")
 
     val port = portLens(environment)
-    val secretsString = EnvironmentKey.string().optional("SECRETS")(environment) ?: ""
-    // again evil, but we'll only log nobbled secrets before reverting this
-    logger.info { "Secrets: $secretsString" }
-    val secrets = splitSecrets(secretsString)
+
+    val secrets: Set<String> = EnvironmentKey.multi.required("SECRETS")(environment).toSet()
 
     val dao = DudeDao(Jdbi.create(jdbcDatabaseUrlLens(environment)))
 
