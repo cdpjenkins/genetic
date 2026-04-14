@@ -255,10 +255,8 @@ fun main() {
     val jdbcDatabaseUrlLens = EnvironmentKey.string().required("JDBC_DATABASE_URL")
 
     val port = portLens(environment)
-    val secrets = (EnvironmentKey.string().optional("SECRETS")(environment) ?: "")
-        .split(",")
-        .filter { it.isNotEmpty() }
-        .toSet()
+    val secretsString = EnvironmentKey.string().optional("SECRETS")(environment) ?: ""
+    val secrets = splitSecrets(secretsString)
 
     val dao = DudeDao(Jdbi.create(jdbcDatabaseUrlLens(environment)))
 
@@ -269,6 +267,11 @@ fun main() {
         .startServer()
         .also { it.block() }
 }
+
+fun splitSecrets(secretsString: String): Set<String> = secretsString
+    .split(",")
+    .filter { it.isNotEmpty() }
+    .toSet()
 
 object ExceptionHandlingFilter: Filter {
     override fun invoke(next: HttpHandler): HttpHandler = { request: Request ->
