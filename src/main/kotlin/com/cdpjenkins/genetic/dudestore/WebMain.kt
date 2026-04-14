@@ -255,13 +255,8 @@ fun main() {
     val jdbcDatabaseUrlLens = EnvironmentKey.string().required("JDBC_DATABASE_URL")
 
     val port = portLens(environment)
-    val secret = EnvironmentKey.string().optional("SECRET")(environment)
-    val secret2 = EnvironmentKey.string().optional("SECRET2")(environment)
     val secrets = (EnvironmentKey.string().optional("SECRETS")(environment) ?: "")
         .split(",")
-        .plus(secret)
-        .plus(secret2)
-        .filterNotNull()
         .filter { it.isNotEmpty() }
         .toSet()
 
