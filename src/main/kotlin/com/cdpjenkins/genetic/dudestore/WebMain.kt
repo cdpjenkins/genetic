@@ -255,7 +255,6 @@ fun main() {
     val jdbcDatabaseUrlLens = EnvironmentKey.string().required("JDBC_DATABASE_URL")
 
     val port = portLens(environment)
-
     val secrets: Set<String> = EnvironmentKey.multi.required("SECRETS")(environment).toSet()
 
     val dao = DudeDao(Jdbi.create(jdbcDatabaseUrlLens(environment)))
